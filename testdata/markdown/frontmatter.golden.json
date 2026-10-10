@@ -12,6 +12,12 @@
       ]
     }
   ],
-  "Spans": null,
+  "Spans": [
+    {
+      "Text": "README.md",
+      "Line": 11,
+      "Col": 7
+    }
+  ],
   "Links": null
 }

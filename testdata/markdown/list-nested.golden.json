@@ -31,6 +31,18 @@
       ]
     }
   ],
-  "Spans": null,
-  "Links": null
+  "Spans": [
+    {
+      "Text": "inline",
+      "Line": 11,
+      "Col": 22
+    }
+  ],
+  "Links": [
+    {
+      "Target": "config.yml",
+      "Line": 16,
+      "Col": 11
+    }
+  ]
 }

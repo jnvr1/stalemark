@@ -12,6 +12,18 @@
       ]
     }
   ],
-  "Spans": null,
-  "Links": null
+  "Spans": [
+    {
+      "Text": "make",
+      "Line": 9,
+      "Col": 33
+    }
+  ],
+  "Links": [
+    {
+      "Target": "config.yml",
+      "Line": 9,
+      "Col": 8
+    }
+  ]
 }

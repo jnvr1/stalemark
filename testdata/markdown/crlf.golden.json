@@ -16,6 +16,18 @@
       ]
     }
   ],
-  "Spans": null,
-  "Links": null
+  "Spans": [
+    {
+      "Text": "cmd",
+      "Line": 8,
+      "Col": 6
+    }
+  ],
+  "Links": [
+    {
+      "Target": "a/b.md",
+      "Line": 8,
+      "Col": 16
+    }
+  ]
 }

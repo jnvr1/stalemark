@@ -27,6 +27,28 @@
       ]
     }
   ],
-  "Spans": null,
-  "Links": null
+  "Spans": [
+    {
+      "Text": "go install ./cmd/stalemark",
+      "Line": 10,
+      "Col": 15
+    }
+  ],
+  "Links": [
+    {
+      "Target": "docs/README.md",
+      "Line": 10,
+      "Col": 53
+    },
+    {
+      "Target": "docs/guide.md",
+      "Line": 22,
+      "Col": 10
+    },
+    {
+      "Target": "assets/logo.png",
+      "Line": 22,
+      "Col": 26
+    }
+  ]
 }

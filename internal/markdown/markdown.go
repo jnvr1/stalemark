@@ -72,14 +72,82 @@ func Parse(path string, src []byte) (*Doc, error) {
 		if !entering {
 			return ast.WalkContinue, nil
 		}
-		if fc, ok := n.(*ast.FencedCodeBlock); ok {
-			if b, ok := codeBlock(fc, body, ix); ok {
+		switch n := n.(type) {
+		case *ast.FencedCodeBlock:
+			if b, ok := codeBlock(n, body, ix); ok {
 				doc.Blocks = append(doc.Blocks, b)
+			}
+		case *ast.CodeSpan:
+			if s, ok := codeSpan(n, body, ix); ok {
+				doc.Spans = append(doc.Spans, s)
+			}
+		case *ast.Link:
+			if l, ok := link(n, n.Destination, body, ix); ok {
+				doc.Links = append(doc.Links, l)
+			}
+		case *ast.Image:
+			if l, ok := link(n, n.Destination, body, ix); ok {
+				doc.Links = append(doc.Links, l)
 			}
 		}
 		return ast.WalkContinue, nil
 	})
 	return doc, err
+}
+
+func codeSpan(n *ast.CodeSpan, body []byte, ix lineIndex) (InlineCode, bool) {
+	first := firstText(n)
+	if first == nil {
+		return InlineCode{}, false
+	}
+	var sb strings.Builder
+	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+		if t, ok := c.(*ast.Text); ok {
+			sb.Write(t.Segment.Value(body))
+		}
+	}
+	s := InlineCode{Text: strings.ReplaceAll(strings.ReplaceAll(sb.String(), "\r\n", "\n"), "\n", " ")}
+	s.Line, s.Col = ix.lineCol(first.Segment.Start)
+	return s, true
+}
+
+func link(n ast.Node, dest, body []byte, ix lineIndex) (Link, bool) {
+	l := Link{Target: string(dest)}
+	if t := firstText(n); t != nil {
+		l.Line, l.Col = ix.lineCol(t.Segment.Start)
+		return l, true
+	}
+	// ponytail: goldmark v1 keeps no position for a textless link such as ![](img.png),
+	// so point at the first occurrence of the target after the enclosing block starts.
+	// Ceiling: wrong column if the same text appears earlier in that block; fix by
+	// searching from the previous sibling's segment instead.
+	p := n.Parent()
+	for p != nil && p.Type() == ast.TypeInline {
+		p = p.Parent()
+	}
+	if p == nil || p.Lines().Len() == 0 || len(dest) == 0 {
+		return l, false
+	}
+	start := p.Lines().At(0).Start
+	i := bytes.Index(body[start:], dest)
+	if i < 0 {
+		return l, false
+	}
+	l.Line, l.Col = ix.lineCol(start + i)
+	return l, true
+}
+
+// firstText returns the first ast.Text descendant of n in document order.
+func firstText(n ast.Node) *ast.Text {
+	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+		if t, ok := c.(*ast.Text); ok {
+			return t
+		}
+		if t := firstText(c); t != nil {
+			return t
+		}
+	}
+	return nil
 }
 
 func codeBlock(n *ast.FencedCodeBlock, body []byte, ix lineIndex) (CodeBlock, bool) {

@@ -6,6 +6,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -119,6 +120,71 @@ func TestLoadPositions(t *testing.T) {
 					t.Errorf("link %q at %d:%d: line %q has no link syntax", l.Target, l.Line, l.Col, got)
 				}
 				from(l.Line, l.Col)
+			}
+		})
+	}
+}
+
+func TestParseSpansAndLinks(t *testing.T) {
+	tests := []struct {
+		name      string
+		src       string
+		wantSpans []markdown.InlineCode
+		wantLinks []markdown.Link
+	}{
+		{
+			name:      "code span position",
+			src:       "Use `cmd` here.",
+			wantSpans: []markdown.InlineCode{{Text: "cmd", Line: 1, Col: 6}},
+		},
+		{
+			name:      "code span after CRLF line",
+			src:       "a\r\n`b`\r\n",
+			wantSpans: []markdown.InlineCode{{Text: "b", Line: 2, Col: 2}},
+		},
+		{
+			name:      "multi-line code span joins with spaces",
+			src:       "`a\nb`",
+			wantSpans: []markdown.InlineCode{{Text: "a b", Line: 1, Col: 2}},
+		},
+		{
+			name:      "inline link points at link text",
+			src:       "see [t](a.md)",
+			wantLinks: []markdown.Link{{Target: "a.md", Line: 1, Col: 6}},
+		},
+		{
+			name:      "image with empty alt points at target",
+			src:       "![](img.png)",
+			wantLinks: []markdown.Link{{Target: "img.png", Line: 1, Col: 5}},
+		},
+		{
+			name:      "reference link resolves definition",
+			src:       "x\n\n[t][r]\n\n[r]: b.md",
+			wantLinks: []markdown.Link{{Target: "b.md", Line: 3, Col: 2}},
+		},
+		{
+			name:      "front matter offsets positions",
+			src:       "---\na: 1\n---\n`c` [t](d.md)",
+			wantSpans: []markdown.InlineCode{{Text: "c", Line: 4, Col: 2}},
+			wantLinks: []markdown.Link{{Target: "d.md", Line: 4, Col: 6}},
+		},
+		{
+			name: "autolinks are ignored",
+			src:  "<https://x.y> https://x.y",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			doc, err := markdown.Parse("t.md", []byte(tt.src))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(doc.Spans, tt.wantSpans) {
+				t.Errorf("Spans = %+v, want %+v", doc.Spans, tt.wantSpans)
+			}
+			if !reflect.DeepEqual(doc.Links, tt.wantLinks) {
+				t.Errorf("Links = %+v, want %+v", doc.Links, tt.wantLinks)
 			}
 		})
 	}
