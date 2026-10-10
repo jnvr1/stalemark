@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test ./...
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+      # ponytail: windows-latest ships no GNU make; raw go steps above/below cover it there.
+      - name: Exercise Makefile
+        if: runner.os != 'Windows'
+        run: make test lint build
+      - name: Build without cgo
+        run: go build ./cmd/stalemark
+        env:
+          CGO_ENABLED: "0"
