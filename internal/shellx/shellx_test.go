@@ -78,6 +78,38 @@ func TestExtractGolden(t *testing.T) {
 	}
 }
 
+func FuzzExtract(f *testing.F) {
+	for _, name := range fixtures {
+		doc, err := markdown.Load(fixturePath(name))
+		if err != nil {
+			f.Fatal(err)
+		}
+		for _, b := range doc.Blocks {
+			var sb strings.Builder
+			for i, l := range b.Lines {
+				if i > 0 {
+					sb.WriteByte('\n')
+				}
+				sb.WriteString(l.Text)
+			}
+			f.Add(b.Lang, sb.String())
+		}
+	}
+
+	f.Fuzz(func(t *testing.T, lang, text string) {
+		block := markdown.CodeBlock{Lang: lang, StartLine: 1}
+		for i, l := range strings.Split(text, "\n") {
+			block.Lines = append(block.Lines, markdown.Line{Text: l, FileLine: i + 2})
+		}
+		first, last := block.Lines[0].FileLine, block.Lines[len(block.Lines)-1].FileLine
+		for _, c := range shellx.Extract(block) {
+			if c.FileLine < first || c.FileLine > last {
+				t.Errorf("%q at line %d outside block %d..%d", c.Name, c.FileLine, first, last)
+			}
+		}
+	})
+}
+
 // TestExtractFileLines cross-checks every FileLine against the raw fixture bytes,
 // independently of the goldens: the line must belong to the block and contain the name.
 func TestExtractFileLines(t *testing.T) {
