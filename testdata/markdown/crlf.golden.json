@@ -1,0 +1,21 @@
+{
+  "Blocks": [
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 3,
+      "Lines": [
+        {
+          "Text": "$ dir",
+          "FileLine": 4
+        },
+        {
+          "Text": "echo done",
+          "FileLine": 5
+        }
+      ]
+    }
+  ],
+  "Spans": null,
+  "Links": null
+}

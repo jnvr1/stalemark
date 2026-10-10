@@ -1,0 +1,17 @@
+{
+  "Blocks": [
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 7,
+      "Lines": [
+        {
+          "Text": "$ echo after",
+          "FileLine": 8
+        }
+      ]
+    }
+  ],
+  "Spans": null,
+  "Links": null
+}

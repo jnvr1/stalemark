@@ -1,0 +1,21 @@
+{
+  "Blocks": [
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 3,
+      "Lines": [
+        {
+          "Text": "$ this never closes",
+          "FileLine": 4
+        },
+        {
+          "Text": "echo still code",
+          "FileLine": 5
+        }
+      ]
+    }
+  ],
+  "Spans": null,
+  "Links": null
+}
