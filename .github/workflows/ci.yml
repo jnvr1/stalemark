@@ -23,9 +23,9 @@ jobs:
           cache: true
       - run: go test ./...
       # ponytail: fuzz once per run on the cheapest runner; the seed corpus runs everywhere via go test.
-      - name: Fuzz markdown parser
+      - name: Fuzz markdown parser and shell extractor
         if: runner.os == 'Linux'
-        run: go test ./internal/markdown -run='^$' -fuzz=FuzzParse -fuzztime=30s
+        run: make fuzz
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.14.0
