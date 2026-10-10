@@ -6,6 +6,8 @@ npm test
 cd ../lib; make
 (cd docs && make html)
 make check
+cd ..
+make test
 cd /opt/tool
 ./tool
 ```

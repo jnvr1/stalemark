@@ -47,12 +47,22 @@
         "Dir": "",
         "FileLine": 9,
         "Placeholder": true
+      },
+      {
+        "Name": "Write-Host",
+        "Args": [
+          "$env:TOKEN"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 10,
+        "Placeholder": true
       }
     ]
   },
   {
     "Lang": "cmd",
-    "StartLine": 12,
+    "StartLine": 14,
     "Commands": [
       {
         "Name": "dir",
@@ -61,7 +71,7 @@
         ],
         "Env": null,
         "Dir": "",
-        "FileLine": 13,
+        "FileLine": 15,
         "Placeholder": false
       },
       {
@@ -71,14 +81,14 @@
         ],
         "Env": null,
         "Dir": "",
-        "FileLine": 15,
+        "FileLine": 17,
         "Placeholder": false
       }
     ]
   },
   {
     "Lang": "pwsh",
-    "StartLine": 18,
+    "StartLine": 20,
     "Commands": [
       {
         "Name": "Set-Location",
@@ -87,7 +97,7 @@
         ],
         "Env": null,
         "Dir": "",
-        "FileLine": 20,
+        "FileLine": 22,
         "Placeholder": false
       },
       {
@@ -98,7 +108,7 @@
         ],
         "Env": null,
         "Dir": "",
-        "FileLine": 21,
+        "FileLine": 23,
         "Placeholder": false
       }
     ]

@@ -7,6 +7,8 @@ added 12 packages
 PS> Write-Host "hello world"
 >> -ForegroundColor Green
 PS> $env:TOKEN = "abc"
+PS> Write-Host
+>> $env:TOKEN
 ```
 
 ```cmd

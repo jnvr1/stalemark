@@ -69,6 +69,8 @@ func extractShell(block markdown.CodeBlock) []Command {
 			}
 			dir = saved
 			return false
+		case *syntax.Redirect: // an unquoted heredoc body may hold $(...); only its opener is a command
+			return n.Hdoc == nil
 		case *syntax.CallExpr:
 			if len(n.Args) == 0 { // FOO=bar alone is not a command
 				return true
@@ -109,7 +111,10 @@ func chdir(dir, target string) string {
 	if path.IsAbs(target) {
 		return target
 	}
-	return path.Join(dir, target)
+	if d := path.Join(dir, target); d != "." { // back at the root is "", not "."
+		return d
+	}
+	return ""
 }
 
 var heredocRE = regexp.MustCompile(`(?:^|[^<])<<-?\s*["']?(\w+)`)
@@ -211,6 +216,12 @@ func lit(w *syntax.Word) (string, bool) {
 	return sb.String(), true
 }
 
+// psPlaceholder reports whether a PowerShell line has a <placeholder>, a $
+// anywhere or a YOUR_* value.
+func psPlaceholder(text string) bool {
+	return placeholderRE.MatchString(text) || strings.ContainsAny(text, "$") || strings.Contains(text, "YOUR_") || strings.Contains(text, "your-")
+}
+
 // psPromptRE matches "PS> ", "PS C:\dir> " and "C:\dir>" prompts.
 var psPromptRE = regexp.MustCompile(`^(?:PS(?: [^>]*)?>|[A-Za-z]:\\[^>]*>) ?`)
 
@@ -238,6 +249,7 @@ func extractPS(block markdown.CodeBlock) []Command {
 			if len(cmds) > 0 {
 				last := &cmds[len(cmds)-1]
 				last.Args = append(last.Args, strings.Fields(strings.TrimLeft(text, "> "))...)
+				last.Placeholder = last.Placeholder || psPlaceholder(text)
 			}
 			continue
 		case prompt:
@@ -251,7 +263,7 @@ func extractPS(block markdown.CodeBlock) []Command {
 			Name:        f[0],
 			Args:        append([]string(nil), f[1:]...),
 			FileLine:    l.FileLine,
-			Placeholder: placeholderRE.MatchString(text) || strings.ContainsAny(text, "$") || strings.Contains(text, "YOUR_") || strings.Contains(text, "your-"),
+			Placeholder: psPlaceholder(text),
 		})
 	}
 	return cmds

@@ -84,7 +84,7 @@
       {
         "Name": "cd",
         "Args": [
-          "/opt/tool"
+          ".."
         ],
         "Env": null,
         "Dir": "lib",
@@ -92,18 +92,38 @@
         "Placeholder": false
       },
       {
+        "Name": "make",
+        "Args": [
+          "test"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 10,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "/opt/tool"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 11,
+        "Placeholder": false
+      },
+      {
         "Name": "./tool",
         "Args": null,
         "Env": null,
         "Dir": "/opt/tool",
-        "FileLine": 10,
+        "FileLine": 12,
         "Placeholder": false
       }
     ]
   },
   {
     "Lang": "bash",
-    "StartLine": 15,
+    "StartLine": 17,
     "Commands": [
       {
         "Name": "npm",
@@ -112,7 +132,7 @@
         ],
         "Env": null,
         "Dir": "",
-        "FileLine": 16,
+        "FileLine": 18,
         "Placeholder": false
       }
     ]

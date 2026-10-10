@@ -3,6 +3,7 @@
 ```bash
 cat <<EOF > config.yml
 name: demo
+KEY=$(cat secret)
 EOF
 cat <<'EOF'
 echo "not a command"
