@@ -9,8 +9,10 @@ all: test lint build
 test:
 	go test ./...
 
+# go test fuzzes one package per invocation, so one line per fuzzer.
 fuzz:
 	go test ./internal/markdown -run='^$$' -fuzz=FuzzParse -fuzztime=30s
+	go test ./internal/shellx -run='^$$' -fuzz=FuzzExtract -fuzztime=30s
 
 lint:
 	go vet ./...
