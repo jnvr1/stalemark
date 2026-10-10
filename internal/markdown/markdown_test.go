@@ -189,3 +189,44 @@ func TestParseSpansAndLinks(t *testing.T) {
 		})
 	}
 }
+
+func FuzzParse(f *testing.F) {
+	for _, name := range fixtures {
+		src, err := os.ReadFile(fixturePath(name))
+		if err != nil {
+			f.Fatal(err)
+		}
+		f.Add(src)
+	}
+
+	f.Fuzz(func(t *testing.T, src []byte) {
+		doc, err := markdown.Parse("fuzz.md", src)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lineCount := bytes.Count(src, []byte("\n")) + 1
+		check := func(what string, line, col int) {
+			t.Helper()
+			if line < 1 || line > lineCount || col < 1 {
+				t.Errorf("%s at %d:%d outside 1..%d", what, line, col, lineCount)
+			}
+		}
+		for _, b := range doc.Blocks {
+			check("block start", b.StartLine, 1)
+			prev := b.StartLine
+			for _, l := range b.Lines {
+				check("block line", l.FileLine, 1)
+				if l.FileLine < prev {
+					t.Errorf("block line %d after line %d", l.FileLine, prev)
+				}
+				prev = l.FileLine
+			}
+		}
+		for _, s := range doc.Spans {
+			check("span", s.Line, s.Col)
+		}
+		for _, l := range doc.Links {
+			check("link", l.Line, l.Col)
+		}
+	})
+}
