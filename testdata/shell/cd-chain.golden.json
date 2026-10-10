@@ -1,0 +1,120 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 3,
+    "Commands": [
+      {
+        "Name": "cd",
+        "Args": [
+          "app"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "test"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 5,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "../lib"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 6,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 6,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "docs"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 7,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "html"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 7,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "check"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 8,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "/opt/tool"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 9,
+        "Placeholder": false
+      },
+      {
+        "Name": "./tool",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 10,
+        "Placeholder": false
+      }
+    ]
+  },
+  {
+    "Lang": "bash",
+    "StartLine": 15,
+    "Commands": [
+      {
+        "Name": "npm",
+        "Args": [
+          "start"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 16,
+        "Placeholder": false
+      }
+    ]
+  }
+]

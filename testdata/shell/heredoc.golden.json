@@ -1,0 +1,48 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 3,
+    "Commands": [
+      {
+        "Name": "cat",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "cat",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 7,
+        "Placeholder": false
+      },
+      {
+        "Name": "echo",
+        "Args": [
+          "done"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 10,
+        "Placeholder": false
+      }
+    ]
+  },
+  {
+    "Lang": "console",
+    "StartLine": 15,
+    "Commands": [
+      {
+        "Name": "cat",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 16,
+        "Placeholder": false
+      }
+    ]
+  }
+]

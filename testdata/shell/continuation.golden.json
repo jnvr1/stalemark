@@ -1,0 +1,85 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 5,
+    "Commands": [
+      {
+        "Name": "docker",
+        "Args": [
+          "run",
+          "-p",
+          "8080:80",
+          "nginx:alpine"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 6,
+        "Placeholder": false
+      },
+      {
+        "Name": "echo",
+        "Args": [
+          "done"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 9,
+        "Placeholder": false
+      }
+    ]
+  },
+  {
+    "Lang": "console",
+    "StartLine": 14,
+    "Commands": [
+      {
+        "Name": "curl",
+        "Args": [
+          "-fsSL",
+          "https://example.com/install.sh",
+          "-o",
+          "install.sh"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 15,
+        "Placeholder": false
+      },
+      {
+        "Name": "sh",
+        "Args": [
+          "install.sh"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 17,
+        "Placeholder": false
+      }
+    ]
+  },
+  {
+    "Lang": "bash",
+    "StartLine": 23,
+    "Commands": [
+      {
+        "Name": "tar",
+        "Args": [
+          "-xzf",
+          "archive.tar.gz"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 24,
+        "Placeholder": false
+      },
+      {
+        "Name": "ls",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 27,
+        "Placeholder": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 3,
+    "Commands": null
+  },
+  {
+    "Lang": "bash",
+    "StartLine": 10,
+    "Commands": [
+      {
+        "Name": "npm",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 11,
+        "Placeholder": false
+      }
+    ]
+  }
+]

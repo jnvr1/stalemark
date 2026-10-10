@@ -1,0 +1,17 @@
+[
+  {
+    "Lang": "powershell",
+    "StartLine": 3,
+    "Commands": null
+  },
+  {
+    "Lang": "cmd",
+    "StartLine": 12,
+    "Commands": null
+  },
+  {
+    "Lang": "pwsh",
+    "StartLine": 18,
+    "Commands": null
+  }
+]

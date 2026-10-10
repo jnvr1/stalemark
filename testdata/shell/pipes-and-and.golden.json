@@ -1,0 +1,85 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 3,
+    "Commands": [
+      {
+        "Name": "curl",
+        "Args": [
+          "-s",
+          "https://example.com/a.tgz"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "tar",
+        "Args": [
+          "xz"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "echo",
+        "Args": [
+          "failed"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "echo",
+        "Args": [
+          "done"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "clean"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 5,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": null,
+        "Env": null,
+        "Dir": "",
+        "FileLine": 5,
+        "Placeholder": false
+      }
+    ]
+  }
+]

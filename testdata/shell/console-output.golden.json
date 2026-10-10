@@ -1,0 +1,33 @@
+[
+  {
+    "Lang": "console",
+    "StartLine": 3,
+    "Commands": [
+      {
+        "Name": "npm",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "test"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 6,
+        "Placeholder": false
+      }
+    ]
+  },
+  {
+    "Lang": "console",
+    "StartLine": 14,
+    "Commands": null
+  }
+]
