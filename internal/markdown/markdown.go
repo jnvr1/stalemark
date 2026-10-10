@@ -118,9 +118,10 @@ func link(n ast.Node, dest, body []byte, ix lineIndex) (Link, bool) {
 		return l, true
 	}
 	// ponytail: goldmark v1 keeps no position for a textless link such as ![](img.png),
-	// so point at the first occurrence of the target after the enclosing block starts.
-	// Ceiling: wrong column if the same text appears earlier in that block; fix by
-	// searching from the previous sibling's segment instead.
+	// so point at the first occurrence of the target inside the enclosing block.
+	// Ceiling: wrong column if the same text appears earlier in that block, and a
+	// textless reference link (![][r]) is dropped because its target lives in the
+	// definition, not the block. Fix by searching from the previous sibling's segment.
 	p := n.Parent()
 	for p != nil && p.Type() == ast.TypeInline {
 		p = p.Parent()
@@ -129,7 +130,8 @@ func link(n ast.Node, dest, body []byte, ix lineIndex) (Link, bool) {
 		return l, false
 	}
 	start := p.Lines().At(0).Start
-	i := bytes.Index(body[start:], dest)
+	end := p.Lines().At(p.Lines().Len() - 1).Stop
+	i := bytes.Index(body[start:end], dest)
 	if i < 0 {
 		return l, false
 	}

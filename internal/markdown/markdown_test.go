@@ -169,6 +169,10 @@ func TestParseSpansAndLinks(t *testing.T) {
 			wantLinks: []markdown.Link{{Target: "d.md", Line: 4, Col: 6}},
 		},
 		{
+			name: "textless reference image outside its block is dropped",
+			src:  "![][r]\n\n[r]: img.png",
+		},
+		{
 			name: "autolinks are ignored",
 			src:  "<https://x.y> https://x.y",
 		},
