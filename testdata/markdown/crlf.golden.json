@@ -1,0 +1,33 @@
+{
+  "Blocks": [
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 3,
+      "Lines": [
+        {
+          "Text": "$ dir",
+          "FileLine": 4
+        },
+        {
+          "Text": "echo done",
+          "FileLine": 5
+        }
+      ]
+    }
+  ],
+  "Spans": [
+    {
+      "Text": "cmd",
+      "Line": 8,
+      "Col": 6
+    }
+  ],
+  "Links": [
+    {
+      "Target": "a/b.md",
+      "Line": 8,
+      "Col": 16
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "Blocks": [
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 5,
+      "Lines": [
+        {
+          "Text": "$ ls",
+          "FileLine": 6
+        }
+      ]
+    }
+  ],
+  "Spans": [
+    {
+      "Text": "make",
+      "Line": 9,
+      "Col": 33
+    }
+  ],
+  "Links": [
+    {
+      "Target": "config.yml",
+      "Line": 9,
+      "Col": 8
+    }
+  ]
+}
