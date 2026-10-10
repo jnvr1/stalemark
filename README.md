@@ -8,7 +8,7 @@ commands that no longer exist, paths that were moved, env vars that were
 renamed, tool versions that drifted. Deterministic first, zero false positives
 as a design goal, non-zero exit code when something is stale.
 
-**Status: pre-alpha. Nothing works yet.** We are in the planning phase.
+**Status: pre-alpha.** The Go scaffold exists (`stalemark --version`, `stalemark check` stub); no checks are implemented yet.
 See [docs/research](docs/research/) for the landscape and feasibility studies
 that shaped the scope.
 
