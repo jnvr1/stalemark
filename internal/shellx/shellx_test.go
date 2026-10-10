@@ -52,11 +52,14 @@ func TestExtractGolden(t *testing.T) {
 				blocks = append(blocks, block{b.Lang, b.StartLine, shellx.Extract(b)})
 			}
 
-			got, err := json.MarshalIndent(blocks, "", "  ")
-			if err != nil {
+			var buf bytes.Buffer
+			enc := json.NewEncoder(&buf) // keeps <placeholders> readable instead of <
+			enc.SetEscapeHTML(false)
+			enc.SetIndent("", "  ")
+			if err := enc.Encode(blocks); err != nil {
 				t.Fatal(err)
 			}
-			got = append(got, '\n')
+			got := buf.Bytes()
 
 			golden := strings.TrimSuffix(path, ".md") + ".golden.json"
 			if *update {

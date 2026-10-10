@@ -2,16 +2,105 @@
   {
     "Lang": "powershell",
     "StartLine": 3,
-    "Commands": null
+    "Commands": [
+      {
+        "Name": "Get-ChildItem",
+        "Args": [
+          "-Path",
+          ".\\src"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 5,
+        "Placeholder": false
+      },
+      {
+        "Name": "Write-Host",
+        "Args": [
+          "\"hello",
+          "world\"",
+          "-ForegroundColor",
+          "Green"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 7,
+        "Placeholder": false
+      },
+      {
+        "Name": "$env:TOKEN",
+        "Args": [
+          "=",
+          "\"abc\""
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 9,
+        "Placeholder": true
+      }
+    ]
   },
   {
     "Lang": "cmd",
     "StartLine": 12,
-    "Commands": null
+    "Commands": [
+      {
+        "Name": "dir",
+        "Args": [
+          "/b"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 13,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "test"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 15,
+        "Placeholder": false
+      }
+    ]
   },
   {
     "Lang": "pwsh",
     "StartLine": 18,
-    "Commands": null
+    "Commands": [
+      {
+        "Name": "Set-Location",
+        "Args": [
+          "src"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 20,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "run",
+          "build"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 21,
+        "Placeholder": false
+      }
+    ]
   }
 ]

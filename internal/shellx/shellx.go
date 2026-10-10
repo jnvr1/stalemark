@@ -3,6 +3,7 @@
 package shellx
 
 import (
+	"path"
 	"regexp"
 	"strings"
 
@@ -12,7 +13,10 @@ import (
 )
 
 // Command is one simple command found in a code block. FileLine is the file
-// line the command starts on.
+// line the command starts on. Env holds the FOO=bar prefixes of the call and
+// is nil when there are none. Dir is the directory a previous literal cd in
+// the same block moved into, "" for the block's root. Placeholder marks a
+// command with a <placeholder>, an expansion ($VAR, $(...)) or a YOUR_* value.
 type Command struct {
 	Name        string
 	Args        []string
@@ -33,11 +37,14 @@ func Extract(block markdown.CodeBlock) []Command {
 	switch block.Lang {
 	case "bash", "sh", "shell", "console", "zsh", "":
 		return extractShell(block)
+	case "powershell", "pwsh", "ps1", "cmd", "bat", "batch":
+		return extractPS(block)
 	}
 	return nil
 }
 
-// ponytail: zsh is parsed as bash.
+// ponytail: zsh is parsed as bash; a cd inside if/for/while bodies sets Dir for
+// everything after it, a later issue can mark control-flow commands conditional.
 func extractShell(block markdown.CodeBlock) []Command {
 	lines := make([]string, len(block.Lines))
 	for i, l := range block.Lines {
@@ -45,27 +52,64 @@ func extractShell(block markdown.CodeBlock) []Command {
 	}
 	src := strings.Join(stripPrompts(lines, block.Lang == "console"), "\n")
 	parser := syntax.NewParser(syntax.KeepComments(false), syntax.Variant(syntax.LangBash))
-	file, err := parser.Parse(strings.NewReader(src), "")
+	file, err := parser.Parse(strings.NewReader(mask(src)), "")
 	if err != nil {
 		return nil
 	}
 
 	var cmds []Command
-	syntax.Walk(file, func(n syntax.Node) bool {
-		call, ok := n.(*syntax.CallExpr)
-		if !ok || len(call.Args) == 0 { // FOO=bar alone is not a command
-			return true
+	dir := ""
+	var visit func(syntax.Node) bool
+	visit = func(n syntax.Node) bool {
+		switch n := n.(type) {
+		case *syntax.Subshell: // a cd inside (...) does not leak out
+			saved := dir
+			for _, s := range n.Stmts {
+				syntax.Walk(s, visit)
+			}
+			dir = saved
+			return false
+		case *syntax.CallExpr:
+			if len(n.Args) == 0 { // FOO=bar alone is not a command
+				return true
+			}
+			// Every dropped line became an empty line, so parser line N is block line N.
+			c := Command{Dir: dir, FileLine: block.Lines[n.Pos().Line()-1].FileLine}
+			for _, a := range n.Assigns {
+				if c.Env == nil {
+					c.Env = map[string]string{}
+				}
+				var ph bool
+				c.Env[a.Name.Value], ph = word(src, a.Value)
+				c.Placeholder = c.Placeholder || ph
+			}
+			var ph bool
+			c.Name, ph = word(src, n.Args[0])
+			c.Placeholder = c.Placeholder || ph
+			for _, a := range n.Args[1:] {
+				s, ph := word(src, a)
+				c.Args = append(c.Args, s)
+				c.Placeholder = c.Placeholder || ph
+			}
+			if c.Name == "cd" && len(c.Args) == 1 && !c.Placeholder {
+				dir = chdir(dir, c.Args[0])
+			}
+			cmds = append(cmds, c)
 		}
-		// Every dropped line became an empty line, so parser line N is block line N.
-		c := Command{FileLine: block.Lines[call.Pos().Line()-1].FileLine}
-		c.Name = word(src, call.Args[0])
-		for _, a := range call.Args[1:] {
-			c.Args = append(c.Args, word(src, a))
-		}
-		cmds = append(cmds, c)
 		return true
-	})
+	}
+	syntax.Walk(file, visit)
 	return cmds
+}
+
+// chdir applies a literal cd target to dir. Targets are shell text with
+// forward slashes, not OS paths, so path (not filepath) keeps results the same
+// on every OS. ponytail: ~, - and pushd are not understood.
+func chdir(dir, target string) string {
+	if path.IsAbs(target) {
+		return target
+	}
+	return path.Join(dir, target)
 }
 
 var heredocRE = regexp.MustCompile(`(?:^|[^<])<<-?\s*["']?(\w+)`)
@@ -113,13 +157,33 @@ func stripPrompts(lines []string, console bool) []string {
 	return out
 }
 
-// word returns the unquoted text of a literal word, or the raw source text of
-// a word with expansions such as $VAR or $(...).
-func word(src string, w *syntax.Word) string {
-	if s, ok := lit(w); ok {
-		return s
+// placeholderRE matches <repo-url> style placeholders. The leading group keeps
+// heredoc openers such as `<<EOF > file` from matching.
+// ponytail: `cmd <in.txt >out.txt` also matches because spaces are allowed.
+var placeholderRE = regexp.MustCompile(`(?:^|[^<])<[A-Za-z][A-Za-z0-9_ .:/-]*>`)
+
+// mask replaces every <placeholder> with underscores of the same length, so the
+// parser sees a plain literal and byte offsets still map onto the original text.
+func mask(s string) string {
+	return placeholderRE.ReplaceAllStringFunc(s, func(m string) string {
+		i := strings.LastIndex(m, "<")
+		return m[:i] + strings.Repeat("_", len(m)-i)
+	})
+}
+
+// word returns the unquoted text of a literal word and whether it is a
+// placeholder. A word with an expansion ($VAR, $(...), ...) or a <placeholder>
+// returns its raw source text instead. A nil word (FOO= cmd) is "".
+func word(src string, w *syntax.Word) (string, bool) {
+	if w == nil {
+		return "", false
 	}
-	return src[w.Pos().Offset():w.End().Offset()]
+	raw := src[w.Pos().Offset():w.End().Offset()]
+	s, ok := lit(w)
+	if !ok || placeholderRE.MatchString(raw) {
+		return raw, true
+	}
+	return s, strings.Contains(s, "YOUR_") || strings.Contains(s, "your-")
 }
 
 // lit joins the literal parts of w; ok is false when any part is an expansion.
@@ -145,4 +209,50 @@ func lit(w *syntax.Word) (string, bool) {
 		}
 	}
 	return sb.String(), true
+}
+
+// psPromptRE matches "PS> ", "PS C:\dir> " and "C:\dir>" prompts.
+var psPromptRE = regexp.MustCompile(`^(?:PS(?: [^>]*)?>|[A-Za-z]:\\[^>]*>) ?`)
+
+// extractPS tokenizes PowerShell and cmd blocks on whitespace. When any line
+// carries a prompt the others are output; ">> " and "> " lines continue the
+// previous command.
+//
+// ponytail: naive, no quoting, no ";" splitting, no backtick continuation, no
+// Dir tracking, "$" anywhere flags the line; upgrade = a real PowerShell tokenizer.
+func extractPS(block markdown.CodeBlock) []Command {
+	prompt := false
+	for _, l := range block.Lines {
+		if psPromptRE.MatchString(l.Text) {
+			prompt = true
+			break
+		}
+	}
+	var cmds []Command
+	for _, l := range block.Lines {
+		text := l.Text
+		switch {
+		case psPromptRE.MatchString(text):
+			text = psPromptRE.ReplaceAllString(text, "")
+		case strings.HasPrefix(text, "> ") || strings.HasPrefix(text, ">> "):
+			if len(cmds) > 0 {
+				last := &cmds[len(cmds)-1]
+				last.Args = append(last.Args, strings.Fields(strings.TrimLeft(text, "> "))...)
+			}
+			continue
+		case prompt:
+			continue
+		}
+		f := strings.Fields(text)
+		if len(f) == 0 || strings.HasPrefix(f[0], "#") {
+			continue
+		}
+		cmds = append(cmds, Command{
+			Name:        f[0],
+			Args:        append([]string(nil), f[1:]...),
+			FileLine:    l.FileLine,
+			Placeholder: placeholderRE.MatchString(text) || strings.ContainsAny(text, "$") || strings.Contains(text, "YOUR_") || strings.Contains(text, "your-"),
+		})
+	}
+	return cmds
 }

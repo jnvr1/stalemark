@@ -19,7 +19,7 @@
           "install"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "app",
         "FileLine": 4,
         "Placeholder": false
       },
@@ -29,7 +29,7 @@
           "test"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "app",
         "FileLine": 5,
         "Placeholder": false
       },
@@ -39,7 +39,7 @@
           "../lib"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "app",
         "FileLine": 6,
         "Placeholder": false
       },
@@ -47,7 +47,7 @@
         "Name": "make",
         "Args": null,
         "Env": null,
-        "Dir": "",
+        "Dir": "lib",
         "FileLine": 6,
         "Placeholder": false
       },
@@ -57,7 +57,7 @@
           "docs"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "lib",
         "FileLine": 7,
         "Placeholder": false
       },
@@ -67,7 +67,7 @@
           "html"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "lib/docs",
         "FileLine": 7,
         "Placeholder": false
       },
@@ -77,7 +77,7 @@
           "check"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "lib",
         "FileLine": 8,
         "Placeholder": false
       },
@@ -87,7 +87,7 @@
           "/opt/tool"
         ],
         "Env": null,
-        "Dir": "",
+        "Dir": "lib",
         "FileLine": 9,
         "Placeholder": false
       },
@@ -95,7 +95,7 @@
         "Name": "./tool",
         "Args": null,
         "Env": null,
-        "Dir": "",
+        "Dir": "/opt/tool",
         "FileLine": 10,
         "Placeholder": false
       }
