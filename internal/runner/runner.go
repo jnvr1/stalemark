@@ -3,6 +3,7 @@
 package runner
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -80,6 +81,24 @@ func Rel(ctx Context, path string) string {
 // cmd.Dir.
 func WorkDir(ctx Context, cmd shellx.Command) string {
 	return filepath.Join(ctx.Root, filepath.FromSlash(cmd.Dir))
+}
+
+// Discover returns the first of names that exists as a file in dir, matched
+// against the directory listing so that case-insensitive filesystems keep
+// the spelling findings show. "" when none exists.
+func Discover(dir string, names ...string) string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return ""
+	}
+	for _, n := range names {
+		for _, e := range entries {
+			if e.Name() == n && !e.IsDir() {
+				return filepath.Join(dir, n)
+			}
+		}
+	}
+	return ""
 }
 
 // Closest returns the candidate most similar to name: the smallest Levenshtein
