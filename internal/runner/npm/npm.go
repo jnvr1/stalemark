@@ -55,13 +55,15 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if _, has := pkg.Scripts[inv.script]; has {
 		return nil
 	}
-	if inv.bare && len(pkg.Scripts) == 0 {
-		return nil
-	}
-	if (inv.bare || cmd.Name == "yarn" || cmd.Name == "bun") && pkg.dependsOn(inv.script) {
-		// "yarn run X", "yarn X", "pnpm X" and "bun run X" also run node_modules/.bin/X.
-		// ponytail: a package whose bin name differs from its name is not covered.
-		return nil
+	names := slices.Sorted(maps.Keys(pkg.Scripts))
+	suggestion := runner.Closest(inv.script, names)
+	if cmd.Name == "yarn" || cmd.Name == "bun" || inv.bare {
+		// "yarn X", "yarn run X", "pnpm X" and "bun run X" fall through to
+		// node_modules/.bin/X, so a missing script is only a finding on typo
+		// evidence (a similar script exists) and when X is no declared dependency.
+		if suggestion == "" || dependsOn(ctx.Root, pkgPath, inv.script) {
+			return nil
+		}
 	}
 	if cmd.Name == "npm" && (inv.script == "start" || inv.script == "restart") {
 		// npm restart runs stop + start; npm start falls back to node server.js.
@@ -74,14 +76,13 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if err != nil {
 		rel = pkgPath
 	}
-	names := slices.Sorted(maps.Keys(pkg.Scripts))
 	f := finding.Finding{
 		Rule:       RuleScriptNotFound,
 		Severity:   finding.Error,
 		Path:       doc,
 		Line:       cmd.FileLine,
 		Subject:    inv.script,
-		Suggestion: runner.Closest(inv.script, names),
+		Suggestion: suggestion,
 	}
 	f.Message = fmt.Sprintf("%s script %q not found in %s", cmd.Name, inv.script, filepath.ToSlash(rel))
 	if f.Suggestion != "" {
@@ -176,12 +177,40 @@ type pkgJSON struct {
 	Scripts         map[string]string          `json:"scripts"`
 	Dependencies    map[string]json.RawMessage `json:"dependencies"`
 	DevDependencies map[string]json.RawMessage `json:"devDependencies"`
+	OptionalDeps    map[string]json.RawMessage `json:"optionalDependencies"`
+	PeerDeps        map[string]json.RawMessage `json:"peerDependencies"`
 }
 
-func (p pkgJSON) dependsOn(name string) bool {
-	_, dep := p.Dependencies[name]
-	_, dev := p.DevDependencies[name]
-	return dep || dev
+// binPackages maps bins whose name differs from their package's to it.
+// ponytail: bins with unrelated names and a near-miss script are still
+// flagged; upgrade path is reading node_modules/.bin when present.
+var binPackages = map[string]string{
+	"tsc": "typescript", "ng": "@angular/cli", "nest": "@nestjs/cli",
+	"playwright": "@playwright/test", "biome": "@biomejs/biome",
+}
+
+// provides reports whether a dependency named dep ships the bin name.
+func provides(dep, name string) bool {
+	return dep == name || strings.HasSuffix(dep, "/"+name) || dep == name+"-cli" || dep == binPackages[name]
+}
+
+// dependsOn reports whether name is a dependency of the package.json at
+// pkgPath or of any ancestor one up to root: hoisted bins resolve from there.
+func dependsOn(root, pkgPath, name string) bool {
+	for dir := filepath.Dir(pkgPath); ; dir = filepath.Dir(dir) {
+		if pkg, ok := readPackage(filepath.Join(dir, "package.json")); ok {
+			for _, deps := range []map[string]json.RawMessage{pkg.Dependencies, pkg.DevDependencies, pkg.OptionalDeps, pkg.PeerDeps} {
+				for dep := range deps {
+					if provides(dep, name) {
+						return true
+					}
+				}
+			}
+		}
+		if rel, err := filepath.Rel(root, dir); err != nil || rel == "." || strings.HasPrefix(rel, "..") {
+			return false
+		}
+	}
 }
 
 func readPackage(path string) (pkgJSON, bool) {
