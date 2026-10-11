@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  setup:
+    internal: true
+    cmds:
+      - go mod download
+  build:
+    deps: [setup]
+    cmds:
+      - go build ./...

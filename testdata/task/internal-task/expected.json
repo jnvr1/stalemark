@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A004",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 4,
+    "Col": 0,
+    "Message": "task \"setup\" is internal and cannot be run from the command line",
+    "Subject": "setup",
+    "Suggestion": ""
+  }
+]

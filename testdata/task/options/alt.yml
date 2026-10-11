@@ -1,0 +1,6 @@
+version: '3'
+
+tasks:
+  x:
+    cmds:
+      - echo x

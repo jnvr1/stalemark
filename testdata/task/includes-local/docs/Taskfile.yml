@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task: build
+  build:
+    cmds:
+      - mkdocs build
+  serve:
+    cmds:
+      - mkdocs serve
