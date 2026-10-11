@@ -1,0 +1,140 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 3,
+    "Commands": [
+      {
+        "Name": "cd",
+        "Args": [
+          "app"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "app",
+        "FileLine": 4,
+        "Placeholder": false
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "test"
+        ],
+        "Env": null,
+        "Dir": "app",
+        "FileLine": 5,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "../lib"
+        ],
+        "Env": null,
+        "Dir": "app",
+        "FileLine": 6,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": null,
+        "Env": null,
+        "Dir": "lib",
+        "FileLine": 6,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "docs"
+        ],
+        "Env": null,
+        "Dir": "lib",
+        "FileLine": 7,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "html"
+        ],
+        "Env": null,
+        "Dir": "lib/docs",
+        "FileLine": 7,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "check"
+        ],
+        "Env": null,
+        "Dir": "lib",
+        "FileLine": 8,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          ".."
+        ],
+        "Env": null,
+        "Dir": "lib",
+        "FileLine": 9,
+        "Placeholder": false
+      },
+      {
+        "Name": "make",
+        "Args": [
+          "test"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 10,
+        "Placeholder": false
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "/opt/tool"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 11,
+        "Placeholder": false
+      },
+      {
+        "Name": "./tool",
+        "Args": null,
+        "Env": null,
+        "Dir": "/opt/tool",
+        "FileLine": 12,
+        "Placeholder": false
+      }
+    ]
+  },
+  {
+    "Lang": "bash",
+    "StartLine": 17,
+    "Commands": [
+      {
+        "Name": "npm",
+        "Args": [
+          "start"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 18,
+        "Placeholder": false
+      }
+    ]
+  }
+]

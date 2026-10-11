@@ -1,0 +1,108 @@
+[
+  {
+    "Lang": "bash",
+    "StartLine": 3,
+    "Commands": [
+      {
+        "Name": "git",
+        "Args": [
+          "clone",
+          "<repo-url>"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 4,
+        "Placeholder": true
+      },
+      {
+        "Name": "cd",
+        "Args": [
+          "<project dir>"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 5,
+        "Placeholder": true
+      },
+      {
+        "Name": "curl",
+        "Args": [
+          "-H",
+          "\"Authorization: Bearer $TOKEN\"",
+          "https://api.example.com/v1"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 6,
+        "Placeholder": true
+      },
+      {
+        "Name": "docker",
+        "Args": [
+          "login",
+          "-u",
+          "YOUR_USERNAME",
+          "-p",
+          "YOUR_API_KEY"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 7,
+        "Placeholder": true
+      },
+      {
+        "Name": "ssh",
+        "Args": [
+          "your-user@example.com"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 8,
+        "Placeholder": true
+      },
+      {
+        "Name": "git",
+        "Args": [
+          "checkout",
+          "$(git rev-parse --abbrev-ref HEAD)"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 9,
+        "Placeholder": true
+      },
+      {
+        "Name": "git",
+        "Args": [
+          "rev-parse",
+          "--abbrev-ref",
+          "HEAD"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 9,
+        "Placeholder": false
+      },
+      {
+        "Name": "./run.sh",
+        "Args": null,
+        "Env": {
+          "API_KEY": "<key>"
+        },
+        "Dir": "",
+        "FileLine": 10,
+        "Placeholder": true
+      },
+      {
+        "Name": "npm",
+        "Args": [
+          "install"
+        ],
+        "Env": null,
+        "Dir": "",
+        "FileLine": 11,
+        "Placeholder": false
+      }
+    ]
+  }
+]
