@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "npm script \"buidl\" not found in package.json (did you mean \"build\"?)",
+    "Subject": "buidl",
+    "Suggestion": "build"
+  }
+]

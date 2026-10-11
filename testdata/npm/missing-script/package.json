@@ -1,0 +1,7 @@
+{
+  "name": "missing",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  }
+}

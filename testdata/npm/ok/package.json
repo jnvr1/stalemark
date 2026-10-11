@@ -1,0 +1,9 @@
+{
+  "name": "ok",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "lint": "eslint .",
+    "dev": "vite"
+  }
+}
