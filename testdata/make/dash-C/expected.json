@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A002",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "make target \"deploy\" not found in sub/Makefile",
+    "Subject": "deploy",
+    "Suggestion": ""
+  }
+]

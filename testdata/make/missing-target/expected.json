@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A002",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 4,
+    "Col": 0,
+    "Message": "make target \"deploy\" not found in Makefile",
+    "Subject": "deploy",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A002",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "make target \"buidl\" not found in Makefile (did you mean \"build\"?)",
+    "Subject": "buidl",
+    "Suggestion": "build"
+  }
+]

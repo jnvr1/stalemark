@@ -48,11 +48,7 @@ func New(resolvers ...Resolver) *Registry {
 // the findings of their resolvers in document order. Placeholder commands and
 // commands without a resolver are skipped.
 func (r *Registry) CheckDoc(ctx Context, d *markdown.Doc) []finding.Finding {
-	rel, err := filepath.Rel(ctx.Root, d.Path)
-	if err != nil {
-		rel = d.Path
-	}
-	doc := filepath.ToSlash(rel)
+	doc := Rel(ctx, d.Path)
 
 	var out []finding.Finding
 	for _, b := range d.Blocks {
@@ -69,6 +65,15 @@ func (r *Registry) CheckDoc(ctx Context, d *markdown.Doc) []finding.Finding {
 		}
 	}
 	return out
+}
+
+// Rel is path relative to ctx.Root with forward slashes, for findings.
+func Rel(ctx Context, path string) string {
+	rel, err := filepath.Rel(ctx.Root, path)
+	if err != nil {
+		rel = path
+	}
+	return filepath.ToSlash(rel)
 }
 
 // WorkDir is the directory cmd runs in: ctx.Root plus the shell-relative

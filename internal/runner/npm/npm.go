@@ -72,10 +72,6 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 		}
 	}
 
-	rel, err := filepath.Rel(ctx.Root, pkgPath)
-	if err != nil {
-		rel = pkgPath
-	}
 	f := finding.Finding{
 		Rule:       RuleScriptNotFound,
 		Severity:   finding.Error,
@@ -84,7 +80,7 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 		Subject:    inv.script,
 		Suggestion: suggestion,
 	}
-	f.Message = fmt.Sprintf("%s script %q not found in %s", cmd.Name, inv.script, filepath.ToSlash(rel))
+	f.Message = fmt.Sprintf("%s script %q not found in %s", cmd.Name, inv.script, runner.Rel(ctx, pkgPath))
 	if f.Suggestion != "" {
 		f.Message += fmt.Sprintf(" (did you mean %q?)", f.Suggestion)
 	}
