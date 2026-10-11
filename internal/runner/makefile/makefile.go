@@ -204,7 +204,7 @@ type parsed struct {
 
 var (
 	assignRe  = regexp.MustCompile(`^[^:#=]+(=|:=|::=|\?=|\+=|!=)`)
-	includeRe = regexp.MustCompile(`^-?s?include\s+(.+)$`)
+	includeRe = regexp.MustCompile(`^(-|s)?include\s+(.+)$`)
 	dynamicRe = regexp.MustCompile(`\$\((eval|foreach|call)\b`)
 )
 
@@ -221,13 +221,14 @@ var specialTargets = map[string]bool{
 func parseFile(path string) parsed {
 	var p parsed
 	seen := map[string]bool{}
-	parseInto(&p, path, seen, 0)
+	parseInto(&p, path, false, seen, 0)
 	slices.Sort(p.targets)
 	p.targets = slices.Compact(p.targets)
 	return p
 }
 
-func parseInto(p *parsed, path string, seen map[string]bool, depth int) {
+// parseInto reads path; optional (-include, sinclude) makes a missing file a no-op.
+func parseInto(p *parsed, path string, optional bool, seen map[string]bool, depth int) {
 	abs, err := filepath.Abs(path)
 	if err != nil || seen[abs] || depth > 8 {
 		return
@@ -235,20 +236,36 @@ func parseInto(p *parsed, path string, seen map[string]bool, depth int) {
 	seen[abs] = true
 	src, err := os.ReadFile(path)
 	if err != nil {
-		p.dynamic = true
+		// ponytail: an optional include generated at build time that defines
+		// targets would be missed; acceptable.
+		p.dynamic = p.dynamic || !optional
 		return
 	}
-	parseSource(p, string(src), func(inc string) {
-		parseInto(p, filepath.Join(filepath.Dir(path), filepath.FromSlash(inc)), seen, depth+1)
+	parseSource(p, string(src), func(inc string, optional bool) {
+		parseInto(p, filepath.Join(filepath.Dir(path), filepath.FromSlash(inc)), optional, seen, depth+1)
 	})
 }
 
+// stripComment cuts s at the first unescaped #.
+func stripComment(s string) string {
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '\\':
+			i++
+		case '#':
+			return s[:i]
+		}
+	}
+	return s
+}
+
 // parseSource scans one makefile; include calls back for every literal
-// included path that exists, anything else marks the result dynamic.
+// included path, with optional set for -include and sinclude. Non-literal
+// includes mark the result dynamic.
 //
 // ponytail: ifeq/ifdef/else/endif are not evaluated, both branches are
 // parsed; over-inclusive is safe for a not-found check.
-func parseSource(p *parsed, src string, include func(string)) {
+func parseSource(p *parsed, src string, include func(string, bool)) {
 	src = strings.ReplaceAll(src, "\r\n", "\n")
 	src = strings.ReplaceAll(src, "\\\n", " ")
 	inDefine := false
@@ -265,14 +282,15 @@ func parseSource(p *parsed, src string, include func(string)) {
 			inDefine = true
 			continue
 		}
+		// comments are cut first so "$(call" inside one is not dynamic
+		trimmed = strings.TrimSpace(stripComment(trimmed))
 		if m := includeRe.FindStringSubmatch(trimmed); m != nil {
-			paths, _, _ := strings.Cut(m[1], "#")
-			for _, inc := range strings.Fields(paths) {
+			for _, inc := range strings.Fields(m[2]) {
 				if strings.ContainsAny(inc, "$*?[") {
 					p.dynamic = true
 					continue
 				}
-				include(inc)
+				include(inc, m[1] != "")
 			}
 			continue
 		}
@@ -289,8 +307,7 @@ func parseSource(p *parsed, src string, include func(string)) {
 		}
 		names := strings.Fields(head)
 		if strings.TrimSpace(head) == ".PHONY" {
-			deps, _, _ := strings.Cut(rest, "#")
-			deps, _, _ = strings.Cut(deps, ";")
+			deps, _, _ := strings.Cut(rest, ";")
 			names = strings.Fields(deps)
 		}
 		for _, name := range names {

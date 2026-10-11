@@ -114,13 +114,16 @@ func TestParseSource(t *testing.T) {
 		{"default rule", ".DEFAULT:\n\techo\n", nil, true},
 		{"eval", "$(eval $(call rule,build))\n", nil, true},
 		{"foreach", "$(foreach t,a b,$(eval $(t):))\n", nil, true},
+		{"trailing comment with call", "build: # uses $(call x)\n", []string{"build"}, false},
+		{"trailing comment after prereqs", "build: dep # $(eval x)\n", []string{"build"}, false},
+		{"escaped hash is not a comment", "build: x \\# $(call y)\n", nil, true},
 		{"call outside recipe", "x := $(call fn,1)\n", nil, true},
 		{"non-literal include", "include $(wildcard *.mk)\n", nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var p parsed
-			parseSource(&p, tt.src, func(string) { t.Errorf("unexpected include") })
+			parseSource(&p, tt.src, func(string, bool) { t.Errorf("unexpected include") })
 			slices.Sort(p.targets)
 			if !slices.Equal(p.targets, tt.targets) || p.dynamic != tt.dynamic {
 				t.Errorf("got targets=%v dynamic=%v, want targets=%v dynamic=%v", p.targets, p.dynamic, tt.targets, tt.dynamic)
@@ -139,7 +142,10 @@ func TestParseFileIncludes(t *testing.T) {
 		{"include", map[string]string{"Makefile": "include rules.mk\nbuild:\n", "rules.mk": "lint:\n"}, []string{"build", "lint"}, false},
 		{"include in subdir resolves from the makefile dir", map[string]string{"Makefile": "include mk/a.mk\n", "mk/a.mk": "include b.mk\n", "mk/b.mk": "deep:\n"}, []string{"deep"}, false},
 		{"sinclude", map[string]string{"Makefile": "sinclude rules.mk\n", "rules.mk": "lint:\n"}, []string{"lint"}, false},
-		{"-include missing", map[string]string{"Makefile": "-include local.mk\nbuild:\n"}, []string{"build"}, true},
+		{"-include missing is optional", map[string]string{"Makefile": "-include local.mk\nbuild:\n"}, []string{"build"}, false},
+		{"sinclude missing is optional", map[string]string{"Makefile": "sinclude local.mk\nbuild:\n"}, []string{"build"}, false},
+		{"include missing", map[string]string{"Makefile": "include local.mk\nbuild:\n"}, []string{"build"}, true},
+		{"-include existing", map[string]string{"Makefile": "-include rules.mk\n", "rules.mk": "lint:\n"}, []string{"lint"}, false},
 		{"include with trailing comment", map[string]string{"Makefile": "include rules.mk # local\nbuild:\n", "rules.mk": "lint:\n"}, []string{"build", "lint"}, false},
 		{"include cycle", map[string]string{"Makefile": "include a.mk\nbuild:\n", "a.mk": "include Makefile\nlint:\n"}, []string{"build", "lint"}, false},
 	}
