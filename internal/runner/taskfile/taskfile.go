@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -57,7 +58,7 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	for _, name := range inv.names {
 		f := finding.Finding{Severity: finding.Error, Path: doc, Line: cmd.FileLine, Subject: name}
 		switch internal, ok := tf.tasks[name]; {
-		case ok && !internal, tf.opaqueNS(name):
+		case ok && !internal, tf.opaqueNS(name), tf.wildcard(name):
 			continue
 		case ok:
 			f.Rule = RuleTaskInternal
@@ -161,14 +162,17 @@ func locate(p string) string {
 }
 
 // parsed is the static view of a Taskfile: every callable name (root tasks,
-// aliases, ns:task, ns:alias and bare "ns:") mapped to whether it is
-// internal. opaque means a root task name is templated: anything could
-// match. opaques lists namespace prefixes ("ns:") whose tasks are unknown:
-// remote or missing includes.
+// aliases, ns:task, ns:alias, bare "ns:" and "ns" when the include has a
+// default task) mapped to whether it is internal. opaque means a root task
+// name is templated or comes from an unreadable flattened include: anything
+// could match. opaques lists namespace prefixes ("ns:") whose tasks are
+// unknown: remote or missing includes. patterns holds task names and
+// aliases with "*", which Task matches against any string.
 type parsed struct {
-	tasks   map[string]bool
-	opaque  bool
-	opaques []string
+	tasks    map[string]bool
+	opaque   bool
+	opaques  []string
+	patterns []string
 }
 
 // opaqueNS reports whether name belongs to a namespace we cannot inspect.
@@ -176,12 +180,24 @@ func (p *parsed) opaqueNS(name string) bool {
 	return slices.ContainsFunc(p.opaques, func(ns string) bool { return strings.HasPrefix(name, ns) })
 }
 
+// wildcard reports whether name matches a "*" task, each star standing for
+// any string (Task's WildcardMatch).
+//
+// ponytail: internal wildcard tasks are not reported; nobody writes those.
+func (p *parsed) wildcard(name string) bool {
+	return slices.ContainsFunc(p.patterns, func(pat string) bool {
+		ok, _ := regexp.MatchString("^"+strings.ReplaceAll(regexp.QuoteMeta(pat), `\*`, ".*")+"$", name)
+		return ok
+	})
+}
+
 // callable is the sorted list of names a user may type, for suggestions.
-// Bare "ns:" entries are left out: they are a prefix of every ns task.
+// Namespaces ("ns:" and bare "ns") are left out: they are a prefix of every
+// ns task and would be suggested for any unknown ns:task.
 func (p *parsed) callable() []string {
 	var out []string
 	for n, internal := range p.tasks {
-		if !internal && !strings.HasSuffix(n, ":") {
+		if _, ns := p.tasks[n+":"]; !internal && !ns && !strings.HasSuffix(n, ":") {
 			out = append(out, n)
 		}
 	}
@@ -190,13 +206,16 @@ func (p *parsed) callable() []string {
 }
 
 // load parses path and its local includes. nil when the file is unreadable,
-// not YAML, not version 3, part of a cycle or nested too deep.
+// not YAML, not version 3, part of a cycle or nested too deep. seen holds
+// the include chain being loaded: a file may be included twice through
+// different namespaces, but never by itself.
 func load(path string, depth int, seen map[string]bool) *parsed {
 	abs, err := filepath.Abs(path)
 	if err != nil || seen[abs] || depth > 8 {
 		return nil
 	}
 	seen[abs] = true
+	defer delete(seen, abs)
 	src, err := os.ReadFile(path)
 	if err != nil {
 		return nil
@@ -208,25 +227,45 @@ func load(path string, depth int, seen map[string]bool) *parsed {
 	for ns, v := range includes {
 		inc := parseInclude(v)
 		prefixes := append([]string{ns + ":"}, suffixed(inc.aliases, ":")...)
+		if inc.flatten {
+			prefixes = []string{""}
+		}
 		var sub *parsed
 		if !inc.remote() {
-			target := filepath.Join(filepath.Dir(path), filepath.FromSlash(inc.path))
-			if inc.optional && !exists(target) {
+			loc := locate(filepath.Join(filepath.Dir(path), filepath.FromSlash(inc.path)))
+			if loc == "" && inc.optional {
 				continue
 			}
-			sub = load(locate(target), depth+1, seen)
+			sub = load(loc, depth+1, seen)
 		}
 		if sub == nil || sub.opaque {
-			p.opaques = append(p.opaques, prefixes...)
+			if inc.flatten {
+				p.opaque = true
+			} else {
+				p.opaques = append(p.opaques, prefixes...)
+			}
 			continue
 		}
 		for _, pre := range prefixes {
-			p.tasks[pre] = false // "ns:" runs the include's default task
 			for n, internal := range sub.tasks {
 				p.tasks[pre+n] = internal || inc.internal
 			}
 			for _, o := range sub.opaques {
 				p.opaques = append(p.opaques, pre+o)
+			}
+			for _, w := range sub.patterns {
+				p.patterns = append(p.patterns, pre+w)
+			}
+			if inc.flatten {
+				continue
+			}
+			p.tasks[pre] = false // "ns:" runs the include's default task
+			// so does bare "ns" unless the root defines that name itself.
+			if def, ok := sub.tasks["default"]; ok {
+				bare := strings.TrimSuffix(pre, ":")
+				if _, taken := p.tasks[bare]; !taken {
+					p.tasks[bare] = def || inc.internal
+				}
 			}
 		}
 	}
@@ -254,9 +293,12 @@ func parseSource(src []byte) (*parsed, map[string]any) {
 			continue
 		}
 		internal, _ := field(v, "internal").(bool)
-		p.tasks[name] = internal
-		for _, a := range strs(field(v, "aliases")) {
-			p.tasks[a] = internal
+		for _, n := range append([]string{name}, strs(field(v, "aliases"))...) {
+			if strings.Contains(n, "*") {
+				p.patterns = append(p.patterns, n)
+			} else {
+				p.tasks[n] = internal
+			}
 		}
 	}
 	return p, doc.Includes
@@ -270,9 +312,9 @@ func isV3(v any) bool {
 
 // include is the subset of an includes: entry that affects lookups.
 type include struct {
-	path               string
-	optional, internal bool
-	aliases            []string
+	path                        string
+	optional, internal, flatten bool
+	aliases                     []string
 }
 
 func (inc include) remote() bool {
@@ -289,6 +331,7 @@ func parseInclude(v any) include {
 	inc.path, _ = field(v, "taskfile").(string)
 	inc.optional, _ = field(v, "optional").(bool)
 	inc.internal, _ = field(v, "internal").(bool)
+	inc.flatten, _ = field(v, "flatten").(bool)
 	return inc
 }
 
@@ -316,9 +359,4 @@ func suffixed(ss []string, suffix string) []string {
 		out[i] = s + suffix
 	}
 	return out
-}
-
-func exists(p string) bool {
-	_, err := os.Stat(p)
-	return err == nil
 }

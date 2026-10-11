@@ -70,25 +70,28 @@ func TestParseArgs(t *testing.T) {
 
 func TestParseSource(t *testing.T) {
 	tests := []struct {
-		name   string
-		src    string
-		tasks  map[string]bool // nil means the file is rejected
-		opaque bool
+		name     string
+		src      string
+		tasks    map[string]bool // nil means the file is rejected
+		opaque   bool
+		patterns []string
 	}{
-		{"shorthand string task", "version: '3'\ntasks:\n  build: go build ./...\n", map[string]bool{"build": false}, false},
-		{"list task", "version: '3'\ntasks:\n  build:\n    - go build\n    - go test\n", map[string]bool{"build": false}, false},
-		{"map task", "version: '3'\ntasks:\n  build:\n    desc: x\n    cmds: [go build]\n", map[string]bool{"build": false}, false},
-		{"internal", "version: '3'\ntasks:\n  setup:\n    internal: true\n    cmds: [x]\n", map[string]bool{"setup": true}, false},
-		{"aliases", "version: '3'\ntasks:\n  build:\n    aliases: [b, bld]\n    cmds: [x]\n", map[string]bool{"build": false, "b": false, "bld": false}, false},
-		{"internal aliases", "version: '3'\ntasks:\n  setup:\n    internal: true\n    aliases: [s]\n", map[string]bool{"setup": true, "s": true}, false},
-		{"version number", "version: 3\ntasks:\n  build: x\n", map[string]bool{"build": false}, false},
-		{"version float", "version: 3.0\ntasks:\n  build: x\n", map[string]bool{"build": false}, false},
-		{"version minor", "version: '3.38'\ntasks:\n  build: x\n", map[string]bool{"build": false}, false},
-		{"version 2", "version: '2'\ntasks:\n  build: x\n", nil, false},
-		{"missing version", "tasks:\n  build: x\n", nil, false},
-		{"invalid yaml", "version: '3'\ntasks: [\n", nil, false},
-		{"no tasks", "version: '3'\n", map[string]bool{}, false},
-		{"templated name is opaque", "version: '3'\ntasks:\n  '{{.NAME}}': x\n  build: y\n", map[string]bool{"build": false}, true},
+		{"shorthand string task", "version: '3'\ntasks:\n  build: go build ./...\n", map[string]bool{"build": false}, false, nil},
+		{"list task", "version: '3'\ntasks:\n  build:\n    - go build\n    - go test\n", map[string]bool{"build": false}, false, nil},
+		{"map task", "version: '3'\ntasks:\n  build:\n    desc: x\n    cmds: [go build]\n", map[string]bool{"build": false}, false, nil},
+		{"internal", "version: '3'\ntasks:\n  setup:\n    internal: true\n    cmds: [x]\n", map[string]bool{"setup": true}, false, nil},
+		{"aliases", "version: '3'\ntasks:\n  build:\n    aliases: [b, bld]\n    cmds: [x]\n", map[string]bool{"build": false, "b": false, "bld": false}, false, nil},
+		{"internal aliases", "version: '3'\ntasks:\n  setup:\n    internal: true\n    aliases: [s]\n", map[string]bool{"setup": true, "s": true}, false, nil},
+		{"version number", "version: 3\ntasks:\n  build: x\n", map[string]bool{"build": false}, false, nil},
+		{"version float", "version: 3.0\ntasks:\n  build: x\n", map[string]bool{"build": false}, false, nil},
+		{"version minor", "version: '3.38'\ntasks:\n  build: x\n", map[string]bool{"build": false}, false, nil},
+		{"version 2", "version: '2'\ntasks:\n  build: x\n", nil, false, nil},
+		{"missing version", "tasks:\n  build: x\n", nil, false, nil},
+		{"invalid yaml", "version: '3'\ntasks: [\n", nil, false, nil},
+		{"no tasks", "version: '3'\n", map[string]bool{}, false, nil},
+		{"templated name is opaque", "version: '3'\ntasks:\n  '{{.NAME}}': x\n  build: y\n", map[string]bool{"build": false}, true, nil},
+		{"wildcard name is a pattern", "version: '3'\ntasks:\n  'build-*': x\n  build: y\n", map[string]bool{"build": false}, false, []string{"build-*"}},
+		{"wildcard alias is a pattern", "version: '3'\ntasks:\n  build:\n    aliases: ['b-*']\n    cmds: [x]\n", map[string]bool{"build": false}, false, []string{"b-*"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -102,8 +105,9 @@ func TestParseSource(t *testing.T) {
 			if p == nil {
 				t.Fatal("rejected, want parsed")
 			}
-			if !maps.Equal(p.tasks, tt.tasks) || p.opaque != tt.opaque {
-				t.Errorf("got tasks=%v opaque=%v, want tasks=%v opaque=%v", p.tasks, p.opaque, tt.tasks, tt.opaque)
+			slices.Sort(p.patterns)
+			if !maps.Equal(p.tasks, tt.tasks) || p.opaque != tt.opaque || !slices.Equal(p.patterns, tt.patterns) {
+				t.Errorf("got tasks=%v opaque=%v patterns=%v, want tasks=%v opaque=%v patterns=%v", p.tasks, p.opaque, p.patterns, tt.tasks, tt.opaque, tt.patterns)
 			}
 		})
 	}
@@ -111,77 +115,142 @@ func TestParseSource(t *testing.T) {
 
 func TestLoadIncludes(t *testing.T) {
 	const docs = "version: '3'\ntasks:\n  build: x\n  hidden:\n    internal: true\n"
+	const withDefault = docs + "  default: y\n"
 	tests := []struct {
-		name    string
-		files   map[string]string // relative to the temp root; Taskfile.yml is loaded
-		tasks   map[string]bool
-		opaques []string
+		name     string
+		files    map[string]string // relative to the temp root; Taskfile.yml is loaded
+		tasks    map[string]bool
+		opaques  []string
+		opaque   bool
+		patterns []string
 	}{
 		{
 			"string include",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs: ./docs/Taskfile.yml\ntasks:\n  build: x\n", "docs/Taskfile.yml": docs},
 			map[string]bool{"build": false, "docs:": false, "docs:build": false, "docs:hidden": true},
-			nil,
+			nil, false, nil,
 		},
 		{
 			"map include with aliases",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs:\n    taskfile: ./docs/Taskfile.yml\n    aliases: [d]\n", "docs/Taskfile.yml": docs},
 			map[string]bool{"docs:": false, "docs:build": false, "docs:hidden": true, "d:": false, "d:build": false, "d:hidden": true},
-			nil,
+			nil, false, nil,
 		},
 		{
 			"directory include",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs: ./docs\n", "docs/Taskfile.yaml": docs},
 			map[string]bool{"docs:": false, "docs:build": false, "docs:hidden": true},
-			nil,
+			nil, false, nil,
 		},
 		{
 			"internal include",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs:\n    taskfile: ./docs/Taskfile.yml\n    internal: true\n", "docs/Taskfile.yml": docs},
 			map[string]bool{"docs:": false, "docs:build": true, "docs:hidden": true},
-			nil,
+			nil, false, nil,
 		},
 		{
 			"optional missing include",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  local:\n    taskfile: ./local.yml\n    optional: true\ntasks:\n  build: x\n"},
 			map[string]bool{"build": false},
-			nil,
+			nil, false, nil,
 		},
 		{
 			"missing include is opaque",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  local: ./local.yml\ntasks:\n  build: x\n"},
 			map[string]bool{"build": false},
 			[]string{"local:"},
+			false, nil,
 		},
 		{
 			"include with templated task is opaque",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  gen: ./gen.yml\n", "gen.yml": "version: '3'\ntasks:\n  '{{.X}}': y\n"},
 			map[string]bool{},
 			[]string{"gen:"},
+			false, nil,
 		},
 		{
 			"include with wrong version is opaque",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  old: ./old.yml\n", "old.yml": "version: '2'\ntasks:\n  x: y\n"},
 			map[string]bool{},
 			[]string{"old:"},
+			false, nil,
 		},
 		{
 			"nested include",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  a: ./a/Taskfile.yml\n", "a/Taskfile.yml": "version: '3'\nincludes:\n  b: ./b.yml\ntasks:\n  x: y\n", "a/b.yml": "version: '3'\ntasks:\n  y: z\n"},
 			map[string]bool{"a:": false, "a:x": false, "a:b:": false, "a:b:y": false},
-			nil,
+			nil, false, nil,
 		},
 		{
 			"nested remote include",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  a: ./a.yml\n", "a.yml": "version: '3'\nincludes:\n  r: https://example.com/Taskfile.yml\ntasks:\n  x: y\n"},
 			map[string]bool{"a:": false, "a:x": false},
 			[]string{"a:r:"},
+			false, nil,
 		},
 		{
 			"cycle",
 			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  a: ./a.yml\ntasks:\n  root: x\n", "a.yml": "version: '3'\nincludes:\n  back: ./Taskfile.yml\ntasks:\n  x: y\n"},
 			map[string]bool{"root": false, "a:": false, "a:x": false},
 			[]string{"a:back:"},
+			false, nil,
+		},
+		{
+			"bare namespace runs the include default",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs:\n    taskfile: ./docs.yml\n    aliases: [d]\n", "docs.yml": withDefault},
+			map[string]bool{"docs": false, "docs:": false, "docs:default": false, "docs:build": false, "docs:hidden": true, "d": false, "d:": false, "d:default": false, "d:build": false, "d:hidden": true},
+			nil, false, nil,
+		},
+		{
+			"bare namespace of an internal include is internal",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs:\n    taskfile: ./docs.yml\n    internal: true\n", "docs.yml": withDefault},
+			map[string]bool{"docs": true, "docs:": false, "docs:default": true, "docs:build": true, "docs:hidden": true},
+			nil, false, nil,
+		},
+		{
+			"root task shadows the bare namespace",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs:\n    taskfile: ./docs.yml\n    internal: true\ntasks:\n  docs: x\n", "docs.yml": withDefault},
+			map[string]bool{"docs": false, "docs:": false, "docs:default": true, "docs:build": true, "docs:hidden": true},
+			nil, false, nil,
+		},
+		{
+			"no default means no bare namespace",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  docs: ./docs.yml\n", "docs.yml": docs},
+			map[string]bool{"docs:": false, "docs:build": false, "docs:hidden": true},
+			nil, false, nil,
+		},
+		{
+			"flatten include merges unprefixed",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  lib:\n    taskfile: ./lib.yml\n    flatten: true\ntasks:\n  root: x\n", "lib.yml": "version: '3'\nincludes:\n  r: https://example.com/t.yml\ntasks:\n  x: y\n  'gen-*': z\n  hidden:\n    internal: true\n"},
+			map[string]bool{"root": false, "x": false, "hidden": true},
+			[]string{"r:"},
+			false,
+			[]string{"gen-*"},
+		},
+		{
+			"flatten internal include",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  lib:\n    taskfile: ./lib.yml\n    flatten: true\n    internal: true\n", "lib.yml": docs},
+			map[string]bool{"build": true, "hidden": true},
+			nil, false, nil,
+		},
+		{
+			"flatten missing include is opaque",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  lib:\n    taskfile: ./lib.yml\n    flatten: true\ntasks:\n  root: x\n"},
+			map[string]bool{"root": false},
+			nil, true, nil,
+		},
+		{
+			"diamond include",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  a: ./a.yml\n  b: ./b.yml\n  s: ./shared.yml\n", "a.yml": "version: '3'\nincludes:\n  lib: ./shared.yml\n", "b.yml": "version: '3'\nincludes:\n  lib: ./shared.yml\n", "shared.yml": "version: '3'\ntasks:\n  x: y\n"},
+			map[string]bool{"a:": false, "a:lib:": false, "a:lib:x": false, "b:": false, "b:lib:": false, "b:lib:x": false, "s:": false, "s:x": false},
+			nil, false, nil,
+		},
+		{
+			"wildcard in include is prefixed",
+			map[string]string{"Taskfile.yml": "version: '3'\nincludes:\n  a:\n    taskfile: ./a.yml\n    aliases: [b]\n", "a.yml": "version: '3'\ntasks:\n  'build-*': x\n"},
+			map[string]bool{"a:": false, "b:": false},
+			nil, false,
+			[]string{"a:build-*", "b:build-*"},
 		},
 	}
 	for _, tt := range tests {
@@ -201,8 +270,10 @@ func TestLoadIncludes(t *testing.T) {
 				t.Fatal("rejected, want parsed")
 			}
 			slices.Sort(p.opaques)
-			if !maps.Equal(p.tasks, tt.tasks) || !slices.Equal(p.opaques, tt.opaques) {
-				t.Errorf("got tasks=%v opaques=%v, want tasks=%v opaques=%v", p.tasks, p.opaques, tt.tasks, tt.opaques)
+			slices.Sort(p.patterns)
+			if !maps.Equal(p.tasks, tt.tasks) || !slices.Equal(p.opaques, tt.opaques) || p.opaque != tt.opaque || !slices.Equal(p.patterns, tt.patterns) {
+				t.Errorf("got tasks=%v opaques=%v opaque=%v patterns=%v, want tasks=%v opaques=%v opaque=%v patterns=%v",
+					p.tasks, p.opaques, p.opaque, p.patterns, tt.tasks, tt.opaques, tt.opaque, tt.patterns)
 			}
 		})
 	}
@@ -225,9 +296,23 @@ func TestRemote(t *testing.T) {
 	}
 }
 
+func TestWildcard(t *testing.T) {
+	p := &parsed{patterns: []string{"build-*", "docs:*-all"}}
+	for _, name := range []string{"build-linux", "build-", "build-a/b", "docs:x-all"} {
+		if !p.wildcard(name) {
+			t.Errorf("%q should match a wildcard task", name)
+		}
+	}
+	for _, name := range []string{"build", "xbuild-linux", "docs:all", "docs:-all:x"} {
+		if p.wildcard(name) {
+			t.Errorf("%q should not match a wildcard task", name)
+		}
+	}
+}
+
 func TestCallableAndOpaqueNS(t *testing.T) {
 	p := &parsed{
-		tasks:   map[string]bool{"build": false, "setup": true, "docs:": false, "docs:build": false},
+		tasks:   map[string]bool{"build": false, "setup": true, "docs": false, "docs:": false, "docs:build": false},
 		opaques: []string{"shared:"},
 	}
 	if got, want := p.callable(), []string{"build", "docs:build"}; !slices.Equal(got, want) {
