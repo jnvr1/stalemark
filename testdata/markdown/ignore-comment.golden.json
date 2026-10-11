@@ -1,0 +1,54 @@
+{
+  "Blocks": [
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 5,
+      "Lines": [
+        {
+          "Text": "npm run build",
+          "FileLine": 6
+        }
+      ],
+      "Ignored": false
+    },
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 10,
+      "Lines": [
+        {
+          "Text": "npm run buidl",
+          "FileLine": 11
+        }
+      ],
+      "Ignored": true
+    },
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 16,
+      "Lines": [
+        {
+          "Text": "npm run lint",
+          "FileLine": 17
+        }
+      ],
+      "Ignored": false
+    },
+    {
+      "Lang": "bash",
+      "Info": "",
+      "StartLine": 22,
+      "Lines": [
+        {
+          "Text": "npm run nope",
+          "FileLine": 23
+        }
+      ],
+      "Ignored": true
+    }
+  ],
+  "Spans": null,
+  "Links": null
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "yarn script \"buidl\" not found in package.json (did you mean \"build\"?)",
+    "Subject": "buidl",
+    "Suggestion": "build"
+  },
+  {
+    "Rule": "SM-A001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 9,
+    "Col": 0,
+    "Message": "pnpm script \"buidl\" not found in package.json (did you mean \"build\"?)",
+    "Subject": "buidl",
+    "Suggestion": "build"
+  }
+]

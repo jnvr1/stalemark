@@ -9,7 +9,8 @@
           "Text": "$ echo after",
           "FileLine": 8
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": [

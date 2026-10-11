@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "pnpm script \"deploy\" not found in packages/app/package.json",
+    "Subject": "deploy",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 12,
+    "Col": 0,
+    "Message": "pnpm script \"deploy\" not found in packages/lib/package.json",
+    "Subject": "deploy",
+    "Suggestion": ""
+  }
+]

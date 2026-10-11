@@ -9,7 +9,8 @@
           "Text": "$ ls",
           "FileLine": 6
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": [

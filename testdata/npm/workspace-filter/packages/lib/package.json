@@ -1,0 +1,6 @@
+{
+  "name": "@acme/lib",
+  "scripts": {
+    "build": "tsc"
+  }
+}

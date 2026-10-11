@@ -1,0 +1,13 @@
+{
+  "name": "shorthand",
+  "dependencies": {
+    "eslint": "^9"
+  },
+  "devDependencies": {
+    "jest": "^29"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  }
+}

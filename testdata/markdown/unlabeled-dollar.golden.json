@@ -13,7 +13,8 @@
           "Text": "cd /tmp",
           "FileLine": 5
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": null,

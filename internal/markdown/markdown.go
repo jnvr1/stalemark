@@ -25,10 +25,12 @@ type Doc struct {
 
 // CodeBlock is a fenced code block. Lang is the lowercased first word of the
 // info string and Info the rest of it verbatim. StartLine is the opening fence.
+// Ignored is set when a <!-- stalemark-ignore --> comment precedes the block.
 type CodeBlock struct {
 	Lang, Info string
 	StartLine  int
 	Lines      []Line
+	Ignored    bool
 }
 
 // Line is one line inside a fenced block, without its line ending.
@@ -68,6 +70,7 @@ func Parse(path string, src []byte) (*Doc, error) {
 	doc := &Doc{Path: path}
 
 	root := md.Parser().Parse(text.NewReader(body))
+	ignoreNext := false // an ignore comment was seen since the last fenced block
 	err := ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
 			return ast.WalkContinue, nil
@@ -75,8 +78,14 @@ func Parse(path string, src []byte) (*Doc, error) {
 		switch n := n.(type) {
 		case *ast.FencedCodeBlock:
 			if b, ok := codeBlock(n, body, ix); ok {
+				b.Ignored = ignoreNext
 				doc.Blocks = append(doc.Blocks, b)
 			}
+			ignoreNext = false
+		case *ast.HTMLBlock:
+			ignoreNext = ignoreNext || hasIgnore(n.Lines(), body)
+		case *ast.RawHTML:
+			ignoreNext = ignoreNext || hasIgnore(n.Segments, body)
 		case *ast.CodeSpan:
 			if s, ok := codeSpan(n, body, ix); ok {
 				doc.Spans = append(doc.Spans, s)
@@ -93,6 +102,18 @@ func Parse(path string, src []byte) (*Doc, error) {
 		return ast.WalkContinue, nil
 	})
 	return doc, err
+}
+
+// hasIgnore reports whether any of the raw HTML segments mentions the
+// stalemark-ignore marker.
+func hasIgnore(segs *text.Segments, body []byte) bool {
+	for i := range segs.Len() {
+		seg := segs.At(i)
+		if bytes.Contains(seg.Value(body), []byte("stalemark-ignore")) {
+			return true
+		}
+	}
+	return false
 }
 
 func codeSpan(n *ast.CodeSpan, body []byte, ix lineIndex) (InlineCode, bool) {

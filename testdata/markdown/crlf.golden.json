@@ -13,7 +13,8 @@
           "Text": "echo done",
           "FileLine": 5
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": [

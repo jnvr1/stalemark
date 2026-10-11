@@ -13,7 +13,8 @@
           "Text": "make test",
           "FileLine": 7
         }
-      ]
+      ],
+      "Ignored": false
     },
     {
       "Lang": "go",
@@ -24,7 +25,8 @@
           "Text": "package main",
           "FileLine": 13
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": [
