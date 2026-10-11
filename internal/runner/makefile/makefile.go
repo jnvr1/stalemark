@@ -46,10 +46,7 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if p.dynamic {
 		return nil
 	}
-	rel, err := filepath.Rel(ctx.Root, path)
-	if err != nil {
-		rel = path
-	}
+	rel := runner.Rel(ctx, path)
 	var out []finding.Finding
 	for _, target := range inv.targets {
 		if slices.Contains(p.targets, target) {
@@ -63,7 +60,7 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 			Subject:    target,
 			Suggestion: runner.Closest(target, p.targets),
 		}
-		f.Message = fmt.Sprintf("make target %q not found in %s", target, filepath.ToSlash(rel))
+		f.Message = fmt.Sprintf("make target %q not found in %s", target, rel)
 		if f.Suggestion != "" {
 			f.Message += fmt.Sprintf(" (did you mean %q?)", f.Suggestion)
 		}
@@ -96,6 +93,10 @@ func parseArgs(args []string) invocation {
 			}
 		case strings.HasPrefix(a, "--file="), strings.HasPrefix(a, "--makefile="):
 			inv.file = a[strings.Index(a, "=")+1:]
+		case strings.HasPrefix(a, "-C") && len(a) > 2:
+			inv.dir = a[2:]
+		case strings.HasPrefix(a, "-f") && len(a) > 2:
+			inv.file = a[2:]
 		case strings.HasPrefix(a, "-"), strings.Contains(a, "="):
 			// ponytail: every other option is assumed to take no value; a
 			// bundled "-j 4" style value shows up as a bogus target "4".
@@ -172,6 +173,9 @@ func parseInto(p *parsed, path string, seen map[string]bool, depth int) {
 
 // parseSource scans one makefile; include calls back for every literal
 // included path that exists, anything else marks the result dynamic.
+//
+// ponytail: ifeq/ifdef/else/endif are not evaluated, both branches are
+// parsed; over-inclusive is safe for a not-found check.
 func parseSource(p *parsed, src string, include func(string)) {
 	src = strings.ReplaceAll(src, "\r\n", "\n")
 	src = strings.ReplaceAll(src, "\\\n", " ")
@@ -180,7 +184,8 @@ func parseSource(p *parsed, src string, include func(string)) {
 		trimmed := strings.TrimSpace(line)
 		switch {
 		case inDefine:
-			inDefine = trimmed != "endef"
+			kw, _, _ := strings.Cut(trimmed, "#")
+			inDefine = strings.TrimSpace(kw) != "endef"
 			continue
 		case strings.HasPrefix(line, "\t"), trimmed == "", strings.HasPrefix(trimmed, "#"):
 			continue
@@ -210,18 +215,20 @@ func parseSource(p *parsed, src string, include func(string)) {
 		if !ok {
 			continue
 		}
-		for _, name := range strings.Fields(head) {
+		names := strings.Fields(head)
+		if strings.TrimSpace(head) == ".PHONY" {
+			deps, _, _ := strings.Cut(rest, "#")
+			deps, _, _ = strings.Cut(deps, ";")
+			names = strings.Fields(deps)
+		}
+		for _, name := range names {
 			switch {
 			case strings.Contains(name, "%"), strings.ContainsAny(name, "$"), name == ".DEFAULT":
 				p.dynamic = true
-			case strings.HasPrefix(name, "."):
+			case strings.HasPrefix(name, "."), name == "&": // special targets; "a b &:" grouped-target marker
 			default:
 				p.targets = append(p.targets, name)
 			}
-		}
-		if strings.TrimSpace(head) == ".PHONY" {
-			deps, _, _ := strings.Cut(rest, ";")
-			p.targets = append(p.targets, strings.Fields(deps)...)
 		}
 	}
 }
