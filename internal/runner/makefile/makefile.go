@@ -200,6 +200,7 @@ func parseSource(p *parsed, src string, include func(string)) {
 		}
 		if dynamicRe.MatchString(trimmed) {
 			p.dynamic = true
+			continue
 		}
 		if assignRe.MatchString(trimmed) {
 			continue
