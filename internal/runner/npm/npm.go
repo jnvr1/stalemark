@@ -40,7 +40,7 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if inv.script == "" {
 		return nil
 	}
-	dir := runner.WorkDir(ctx, cmd)
+	dir := filepath.Join(runner.WorkDir(ctx, cmd), filepath.FromSlash(inv.dir))
 	pkgPath := filepath.Join(dir, "package.json")
 	if inv.selector != "" {
 		pkgPath = workspace(dir, inv.selector)
@@ -58,7 +58,12 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if inv.bare && len(pkg.Scripts) == 0 {
 		return nil
 	}
-	if cmd.Name == "npm" && inv.script == "start" && exists(filepath.Join(dir, "server.js")) {
+	if (inv.bare || cmd.Name == "yarn") && pkg.dependsOn(inv.script) {
+		// "yarn run X", "yarn X" and "pnpm X" also run node_modules/.bin/X.
+		// ponytail: a package whose bin name differs from its name is not covered.
+		return nil
+	}
+	if cmd.Name == "npm" && inv.script == "start" && exists(filepath.Join(filepath.Dir(pkgPath), "server.js")) {
 		return nil // npm start falls back to node server.js
 	}
 
@@ -83,37 +88,54 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 }
 
 // invocation is what matters of a tool call: the script it runs, the
-// workspace it targets and whether the script came from a bare "yarn X".
+// workspace it targets, the directory a --cwd/-C/--dir/--prefix option
+// points at and whether the script came from a bare "yarn X".
 type invocation struct {
-	script, selector string
-	bare             bool
+	script, selector, dir string
+	bare                  bool
 }
+
+// dirOptions take a directory the tool switches to before running.
+var dirOptions = map[string]bool{"--cwd": true, "-C": true, "--dir": true, "--prefix": true}
 
 // npmBuiltins are the npm commands that run the script of the same name.
 var npmBuiltins = map[string]bool{"test": true, "start": true, "stop": true, "restart": true}
 
 // shorthandBuiltins are words after a bare "yarn X" / "pnpm X" that are tool
 // commands, not scripts. Conservative on purpose: when in doubt, no finding.
-var shorthandBuiltins = map[string]bool{}
+var shorthandBuiltins = map[string]bool{
+	"install": true, "i": true, "add": true, "remove": true, "rm": true, "init": true, "create": true,
+	"up": true, "upgrade": true, "update": true, "dlx": true, "exec": true, "link": true, "unlink": true,
+	"publish": true, "pack": true, "info": true, "list": true, "ls": true, "why": true, "outdated": true,
+	"audit": true, "cache": true, "config": true, "set": true, "get": true, "bin": true, "workspace": true,
+	"workspaces": true, "dedupe": true, "import": true, "patch": true, "patch-commit": true, "store": true,
+	"env": true, "setup": true, "help": true, "version": true, "login": true, "logout": true, "test": true,
+	"start": true, "build": true, "dev": true, "lint": true, "node": true, "run": true,
+}
 
-func init() {
-	for _, w := range strings.Fields(`install i add remove rm init create up upgrade update dlx exec link unlink
-		publish pack info list ls why outdated audit cache config set get bin workspace workspaces dedupe
-		import patch patch-commit store env setup help version login logout test start build dev lint node run`) {
-		shorthandBuiltins[w] = true
-	}
+// multiTarget flags run the script in every workspace or tolerate a missing
+// one, so the package.json at hand need not define it: never a finding.
+var multiTarget = map[string]bool{
+	"-r": true, "--recursive": true, "--parallel": true, "--workspaces": true, "-ws": true, "--if-present": true,
 }
 
 // parse locates the script name in args, consuming workspace selectors
 // wherever they appear and skipping other options. Parsing stops at "--".
 func parse(tool string, args []string) invocation {
 	var inv invocation
-	run := false
+	run, sawOpt := false, false
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch {
 		case a == "--":
 			return inv
+		case multiTarget[a]:
+			return invocation{}
+		case dirOptions[a]:
+			if i+1 < len(args) {
+				inv.dir = args[i+1]
+				i++
+			}
 		case a == "-w" || a == "--workspace" || a == "--filter" || a == "-F":
 			if i+1 < len(args) {
 				inv.selector = args[i+1]
@@ -122,14 +144,22 @@ func parse(tool string, args []string) invocation {
 		case strings.HasPrefix(a, "--workspace=") || strings.HasPrefix(a, "--filter="):
 			inv.selector = a[strings.Index(a, "=")+1:]
 		case strings.HasPrefix(a, "-"):
+			sawOpt = true
 		case inv.script != "": // positional after the script: an argument to it
 		case !run && (a == "run" || a == "run-script"):
 			run = true
+		case run && tool == "bun" && strings.ContainsAny(a, "./"):
+			return inv // bun run <file>: a path, not a script
 		case run:
 			inv.script = a
 		case tool == "npm" && npmBuiltins[a]:
 			inv.script = a
 		case (tool == "yarn" || tool == "pnpm") && !shorthandBuiltins[a]:
+			if sawOpt {
+				// ponytail: an unknown option (--loglevel x) may have consumed
+				// this word as its value; a bare shorthand after it is a guess.
+				return inv
+			}
 			inv.script, inv.bare = a, true
 		default:
 			return inv // a tool command such as install, or bun's own commands
@@ -139,8 +169,16 @@ func parse(tool string, args []string) invocation {
 }
 
 type pkgJSON struct {
-	Name    string            `json:"name"`
-	Scripts map[string]string `json:"scripts"`
+	Name            string                     `json:"name"`
+	Scripts         map[string]string          `json:"scripts"`
+	Dependencies    map[string]json.RawMessage `json:"dependencies"`
+	DevDependencies map[string]json.RawMessage `json:"devDependencies"`
+}
+
+func (p pkgJSON) dependsOn(name string) bool {
+	_, dep := p.Dependencies[name]
+	_, dev := p.DevDependencies[name]
+	return dep || dev
 }
 
 func readPackage(path string) (pkgJSON, bool) {

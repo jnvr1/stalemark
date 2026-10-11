@@ -7,4 +7,7 @@ yarn --version
 yarn
 yarn workspace app build
 pnpm buidl
+yarn run jest
+pnpm jest
+yarn run eslint .
 ```

@@ -1,7 +1,6 @@
 {
   "name": "app",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "build": "tsc"
   }
 }
