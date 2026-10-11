@@ -4,4 +4,5 @@
 make build
 make test
 make lint
+make deploy
 ```

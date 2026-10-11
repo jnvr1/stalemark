@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A002",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "make target \"deploy\" not found in Makefile (did you mean \"deps\"?)",
+    "Subject": "deploy",
+    "Suggestion": "deps"
+  }
+]
