@@ -1,0 +1,11 @@
+version: '3'
+
+includes:
+  lib:
+    taskfile: ./lib.yml
+    flatten: true
+
+tasks:
+  build:
+    cmds:
+      - go build ./...

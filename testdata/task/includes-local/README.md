@@ -4,4 +4,5 @@
 task docs:build
 task docs:publish
 task docs:
+task docs
 ```
