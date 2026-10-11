@@ -174,7 +174,7 @@ func parseInto(p *parsed, path string, seen map[string]bool, depth int) {
 // included path that exists, anything else marks the result dynamic.
 func parseSource(p *parsed, src string, include func(string)) {
 	src = strings.ReplaceAll(src, "\r\n", "\n")
-	src = strings.ReplaceAll(src, "\\n", " ")
+	src = strings.ReplaceAll(src, "\\\n", " ")
 	inDefine := false
 	for line := range strings.SplitSeq(src, "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -189,7 +189,8 @@ func parseSource(p *parsed, src string, include func(string)) {
 			continue
 		}
 		if m := includeRe.FindStringSubmatch(trimmed); m != nil {
-			for _, inc := range strings.Fields(m[1]) {
+			paths, _, _ := strings.Cut(m[1], "#")
+			for _, inc := range strings.Fields(paths) {
 				if strings.ContainsAny(inc, "$*?[") {
 					p.dynamic = true
 					continue
@@ -205,7 +206,7 @@ func parseSource(p *parsed, src string, include func(string)) {
 		if assignRe.MatchString(trimmed) {
 			continue
 		}
-		head, _, ok := strings.Cut(trimmed, ":")
+		head, rest, ok := strings.Cut(trimmed, ":")
 		if !ok {
 			continue
 		}
@@ -218,9 +219,8 @@ func parseSource(p *parsed, src string, include func(string)) {
 				p.targets = append(p.targets, name)
 			}
 		}
-		if head == ".PHONY" {
-			_, deps, _ := strings.Cut(trimmed, ":")
-			deps, _, _ = strings.Cut(deps, ";")
+		if strings.TrimSpace(head) == ".PHONY" {
+			deps, _, _ := strings.Cut(rest, ";")
 			p.targets = append(p.targets, strings.Fields(deps)...)
 		}
 	}

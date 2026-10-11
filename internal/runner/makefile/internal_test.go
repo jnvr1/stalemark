@@ -50,7 +50,9 @@ func TestParseSource(t *testing.T) {
 	}{
 		{"plain rule", "build:\n\tgo build\n", []string{"build"}, false},
 		{"multiple targets", "build test lint: deps\n\tgo $@\n", []string{"build", "lint", "test"}, false},
-		{"continuation", "build \\n test:\n\techo\n", []string{"build", "test"}, false},
+		{"continuation", "build \\\n test:\n\techo\n", []string{"build", "test"}, false},
+		{"phony continuation", ".PHONY: a \\\n b\n", []string{"a", "b"}, false},
+		{"phony with space before colon", ".PHONY : lint\n", []string{"lint"}, false},
 		{"double colon", "clean::\n\trm -f x\n", []string{"clean"}, false},
 		{"inline recipe", "build: deps ; echo hi\n", []string{"build"}, false},
 		{"define body skipped", "define rule\nfake:\n\techo\nendef\nreal:\n", []string{"real"}, false},
@@ -95,6 +97,7 @@ func TestParseFileIncludes(t *testing.T) {
 		{"include in subdir resolves from the makefile dir", map[string]string{"Makefile": "include mk/a.mk\n", "mk/a.mk": "include b.mk\n", "mk/b.mk": "deep:\n"}, []string{"deep"}, false},
 		{"sinclude", map[string]string{"Makefile": "sinclude rules.mk\n", "rules.mk": "lint:\n"}, []string{"lint"}, false},
 		{"-include missing", map[string]string{"Makefile": "-include local.mk\nbuild:\n"}, []string{"build"}, true},
+		{"include with trailing comment", map[string]string{"Makefile": "include rules.mk # local\nbuild:\n", "rules.mk": "lint:\n"}, []string{"build", "lint"}, false},
 		{"include cycle", map[string]string{"Makefile": "include a.mk\nbuild:\n", "a.mk": "include Makefile\nlint:\n"}, []string{"build", "lint"}, false},
 	}
 	for _, tt := range tests {
