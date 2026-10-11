@@ -24,6 +24,7 @@ var fixtures = []string{
 	"frontmatter",
 	"unclosed-fence",
 	"unlabeled-dollar",
+	"ignore-comment",
 }
 
 func fixturePath(name string) string {
@@ -189,6 +190,36 @@ func TestParseSpansAndLinks(t *testing.T) {
 			}
 			if !reflect.DeepEqual(doc.Links, tt.wantLinks) {
 				t.Errorf("Links = %+v, want %+v", doc.Links, tt.wantLinks)
+			}
+		})
+	}
+}
+
+func TestParseIgnored(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		want []bool
+	}{
+		{"no comment", "```sh\na\n```\n", []bool{false}},
+		{"html block before fence", "<!-- stalemark-ignore -->\n```sh\na\n```\n", []bool{true}},
+		{"blank line between", "<!-- stalemark-ignore -->\n\n```sh\na\n```\n", []bool{true}},
+		{"inline raw html", "skip <!-- stalemark-ignore --> this:\n\n```sh\na\n```\n", []bool{true}},
+		{"only the next block", "<!-- stalemark-ignore -->\n```sh\na\n```\n```sh\nb\n```\n", []bool{true, false}},
+		{"other comment", "<!-- todo -->\n```sh\na\n```\n", []bool{false}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			doc, err := markdown.Parse("t.md", []byte(tt.src))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var got []bool
+			for _, b := range doc.Blocks {
+				got = append(got, b.Ignored)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Ignored = %v, want %v", got, tt.want)
 			}
 		})
 	}

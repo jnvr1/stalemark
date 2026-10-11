@@ -17,7 +17,8 @@
           "Text": "go vet ./...",
           "FileLine": 8
         }
-      ]
+      ],
+      "Ignored": false
     },
     {
       "Lang": "sh",
@@ -28,7 +29,8 @@
           "Text": "echo nested",
           "FileLine": 14
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": [

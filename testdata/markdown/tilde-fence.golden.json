@@ -9,7 +9,8 @@
           "Text": "$ echo hi",
           "FileLine": 4
         }
-      ]
+      ],
+      "Ignored": false
     },
     {
       "Lang": "",
@@ -20,7 +21,8 @@
           "Text": "$ four tildes",
           "FileLine": 8
         }
-      ]
+      ],
+      "Ignored": false
     }
   ],
   "Spans": null,
