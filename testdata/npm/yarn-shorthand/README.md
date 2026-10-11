@@ -10,4 +10,6 @@ pnpm buidl
 yarn run jest
 pnpm jest
 yarn run eslint .
+bun run eslint .
+bun run jest
 ```

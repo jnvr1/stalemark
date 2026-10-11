@@ -9,4 +9,5 @@ npm start -w app
 npm run build --workspaces
 pnpm -r run build
 npm run build --if-present
+pnpm --filter @acme/lib run deploy
 ```

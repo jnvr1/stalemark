@@ -58,13 +58,16 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if inv.bare && len(pkg.Scripts) == 0 {
 		return nil
 	}
-	if (inv.bare || cmd.Name == "yarn") && pkg.dependsOn(inv.script) {
-		// "yarn run X", "yarn X" and "pnpm X" also run node_modules/.bin/X.
+	if (inv.bare || cmd.Name == "yarn" || cmd.Name == "bun") && pkg.dependsOn(inv.script) {
+		// "yarn run X", "yarn X", "pnpm X" and "bun run X" also run node_modules/.bin/X.
 		// ponytail: a package whose bin name differs from its name is not covered.
 		return nil
 	}
-	if cmd.Name == "npm" && inv.script == "start" && exists(filepath.Join(filepath.Dir(pkgPath), "server.js")) {
-		return nil // npm start falls back to node server.js
+	if cmd.Name == "npm" && (inv.script == "start" || inv.script == "restart") {
+		// npm restart runs stop + start; npm start falls back to node server.js.
+		if _, has := pkg.Scripts["start"]; has || exists(filepath.Join(filepath.Dir(pkgPath), "server.js")) {
+			return nil
+		}
 	}
 
 	rel, err := filepath.Rel(ctx.Root, pkgPath)
@@ -199,7 +202,7 @@ func exists(path string) bool {
 // selector looks like one, otherwise the first package (max depth 4, skipping
 // node_modules and .git) whose "name" equals it. "" when not found.
 func workspace(dir, selector string) string {
-	if strings.ContainsAny(selector, "/.") {
+	if !strings.HasPrefix(selector, "@") && strings.ContainsAny(selector, "/.") { // @scope/name is a name
 		p := filepath.Join(dir, filepath.FromSlash(selector), "package.json")
 		if exists(p) {
 			return p
