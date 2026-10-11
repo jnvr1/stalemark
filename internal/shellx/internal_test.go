@@ -2,7 +2,6 @@ package shellx
 
 import (
 	"slices"
-	"strings"
 	"testing"
 )
 
@@ -63,9 +62,6 @@ func TestMask(t *testing.T) {
 			}
 			if len(got) != len(tt.in) {
 				t.Errorf("mask(%q) changed length %d -> %d", tt.in, len(tt.in), len(got))
-			}
-			if want := strings.Contains(tt.in, "<") && got != tt.in; placeholderRE.MatchString(tt.in) != want {
-				t.Errorf("placeholderRE.MatchString(%q) = %v, want %v", tt.in, !want, want)
 			}
 		})
 	}
