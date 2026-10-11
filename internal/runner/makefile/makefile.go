@@ -76,30 +76,92 @@ type invocation struct {
 	targets   []string
 }
 
+// cd applies one -C: relative directories nest (make semantics), absolute
+// ones replace.
+func (inv *invocation) cd(d string) {
+	switch {
+	case d == "":
+	case inv.dir == "" || strings.HasPrefix(d, "/") || filepath.IsAbs(d):
+		inv.dir = d
+	default:
+		inv.dir += "/" + d
+	}
+}
+
+var (
+	numRe = regexp.MustCompile(`^[0-9.]+$`)
+	// bundleRe is a run of short flags such as -k or -sC.
+	bundleRe = regexp.MustCompile(`^-[a-zA-Z]+$`)
+	// long options whose value is the next argument.
+	valueLong = []string{"--include-dir", "--old-file", "--what-if", "--assume-old", "--assume-new", "--new-file", "--eval"}
+	// long options with an optional numeric value as the next argument.
+	numLong = []string{"--jobs", "--load-average", "--max-load"}
+)
+
+const (
+	shortValue    = "CfIoWE"           // short options that require a value
+	shortAttached = shortValue + "jlO" // letters that may start an attached value: -Csub, -j4, -Otarget
+)
+
+// parseArgs walks make's arguments, consuming option values so they are not
+// mistaken for targets. -O alone is a flag: its value is only ever attached.
 func parseArgs(args []string) invocation {
 	var inv invocation
+	next := func(i *int) string { // consumes the following argument, if any
+		if *i+1 < len(args) {
+			*i++
+			return args[*i]
+		}
+		return ""
+	}
+	skipNum := func(i *int) { // consumes the following argument when it is a number
+		if *i+1 < len(args) && numRe.MatchString(args[*i+1]) {
+			*i++
+		}
+	}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch {
-		case a == "-C" || a == "--directory":
-			if i+1 < len(args) {
-				inv.dir, i = args[i+1], i+1
-			}
+		case a == "--directory":
+			inv.cd(next(&i))
 		case strings.HasPrefix(a, "--directory="):
-			inv.dir = strings.TrimPrefix(a, "--directory=")
-		case a == "-f" || a == "--file" || a == "--makefile":
-			if i+1 < len(args) {
-				inv.file, i = args[i+1], i+1
+			inv.cd(strings.TrimPrefix(a, "--directory="))
+		case a == "--file" || a == "--makefile":
+			if v := next(&i); v != "" {
+				inv.file = v
 			}
 		case strings.HasPrefix(a, "--file="), strings.HasPrefix(a, "--makefile="):
 			inv.file = a[strings.Index(a, "=")+1:]
-		case strings.HasPrefix(a, "-C") && len(a) > 2:
-			inv.dir = a[2:]
-		case strings.HasPrefix(a, "-f") && len(a) > 2:
-			inv.file = a[2:]
+		case slices.Contains(valueLong, a):
+			next(&i)
+		case slices.Contains(numLong, a):
+			skipNum(&i)
+		case len(a) > 2 && a[0] == '-' && strings.IndexByte(shortAttached, a[1]) >= 0:
+			// attached value: -Csub, -fx.mk, -Iinc, -j4
+			switch a[1] {
+			case 'C':
+				inv.cd(a[2:])
+			case 'f':
+				inv.file = a[2:]
+			}
+		case bundleRe.MatchString(a):
+			// the last letter of a bundle (-C, -sC, -kf, -j) owns the next argument
+			switch last := a[len(a)-1]; last {
+			case 'C':
+				inv.cd(next(&i))
+			case 'f':
+				if v := next(&i); v != "" {
+					inv.file = v
+				}
+			case 'j', 'l':
+				skipNum(&i)
+			default:
+				if strings.IndexByte(shortValue, last) >= 0 {
+					next(&i)
+				}
+			}
 		case strings.HasPrefix(a, "-"), strings.Contains(a, "="):
-			// ponytail: every other option is assumed to take no value; a
-			// bundled "-j 4" style value shows up as a bogus target "4".
+			// other flags and variable assignments carry no target
 		default:
 			inv.targets = append(inv.targets, a)
 		}
@@ -145,6 +207,16 @@ var (
 	includeRe = regexp.MustCompile(`^-?s?include\s+(.+)$`)
 	dynamicRe = regexp.MustCompile(`\$\((eval|foreach|call)\b`)
 )
+
+// specialTargets are GNU make's built-in targets; they are never invoked.
+// Other dot-prefixed names (.env, .venv) are ordinary targets.
+var specialTargets = map[string]bool{
+	".PHONY": true, ".SUFFIXES": true, ".PRECIOUS": true, ".INTERMEDIATE": true,
+	".NOTINTERMEDIATE": true, ".SECONDARY": true, ".SECONDEXPANSION": true,
+	".DELETE_ON_ERROR": true, ".IGNORE": true, ".LOW_RESOLUTION_TIME": true,
+	".SILENT": true, ".EXPORT_ALL_VARIABLES": true, ".NOTPARALLEL": true,
+	".ONESHELL": true, ".POSIX": true, ".WAIT": true,
+}
 
 func parseFile(path string) parsed {
 	var p parsed
@@ -222,10 +294,12 @@ func parseSource(p *parsed, src string, include func(string)) {
 			names = strings.Fields(deps)
 		}
 		for _, name := range names {
+			name = strings.TrimSuffix(name, "&") // grouped-target marker: "a b &:" or "a b&:"
 			switch {
+			case name == "":
 			case strings.Contains(name, "%"), strings.ContainsAny(name, "$"), name == ".DEFAULT":
 				p.dynamic = true
-			case strings.HasPrefix(name, "."), name == "&": // special targets; "a b &:" grouped-target marker
+			case specialTargets[name]:
 			default:
 				p.targets = append(p.targets, name)
 			}

@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A002",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "make target \".envv\" not found in Makefile (did you mean \".env\"?)",
+    "Subject": ".envv",
+    "Suggestion": ".env"
+  }
+]
