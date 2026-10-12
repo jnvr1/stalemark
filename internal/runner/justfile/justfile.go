@@ -88,12 +88,17 @@ var (
 		"--evaluate": true, "--fmt": true, "--init": true, "--summary": true, "-s": true, "--show": true,
 		"--variables": true, "--changelog": true, "--completions": true, "-h": true, "--help": true,
 		"-V": true, "--version": true, "--groups": true, "-g": true, "--global-justfile": true,
+		"-c": true, "--command": true, // -c CMD ARGS...: runs CMD, never a recipe
 	}
 )
 
 // parseArgs walks just's arguments: "--" ends the options, NAME=VALUE tokens
 // before the first recipe are variable overrides, other dashed tokens are
 // flags and everything else is positional.
+//
+// ponytail: third copy of the option-value walk (see makefile, taskfile);
+// fold into a runner.ParseArgs(valued, silent map[string]bool) when a fourth
+// resolver needs it.
 func parseArgs(args []string) invocation {
 	var inv invocation
 	for i := 0; i < len(args); i++ {
@@ -131,7 +136,7 @@ func parseArgs(args []string) invocation {
 //
 // ponytail: treated as silent; upgrade = resolve against that directory.
 func withArgs(inv invocation, args []string) invocation {
-	if len(args) > 0 && strings.Contains(args[0], "/") {
+	if len(args) > 0 && (strings.Contains(args[0], "/") || args[0] == "." || args[0] == "..") {
 		inv.silent = true
 	}
 	inv.args = args
@@ -280,8 +285,8 @@ func load(path string, depth int, seen map[string]bool) *parsed {
 // backtick command, a parenthesized expression or function call (which may
 // contain spaces), or a bare word.
 //
-// ponytail: one level of parentheses; a nested one drops the recipe.
-// Upgrade = a loose "name ... :" match recorded as variadic.
+// ponytail: one level of parentheses; a header with nested ones falls back
+// to looseRE and is recorded as variadic (callable, arity unknown).
 const (
 	name  = `[A-Za-z_][A-Za-z0-9_-]*`
 	param = `([+*$]*)` + name + `(?:=(?:"[^"]*"|'[^']*'|` + "`[^`]*`" + `|(?:` + name + `)?\([^)]*\)|[^\s:]+))?`
@@ -291,6 +296,9 @@ var (
 	// headerRE matches a recipe header at column 0: optional @, the name,
 	// parameters and a ":" that is not ":=".
 	headerRE = regexp.MustCompile(`^@?(` + name + `)((?:\s+` + param + `)*)\s*:(?:[^=]|$)`)
+	// looseRE catches headers whose defaults headerRE cannot parse (nested
+	// parentheses). [^:]* stops at ":=", so assignments never match.
+	looseRE  = regexp.MustCompile(`^@?(` + name + `)\s[^:]*:(?:[^=]|$)`)
 	paramRE  = regexp.MustCompile(param)
 	aliasRE  = regexp.MustCompile(`^alias\s+(` + name + `)\s*:=\s*(` + name + `)`)
 	attrRE   = regexp.MustCompile(`^\[([^\]]*)\]`)
@@ -330,6 +338,8 @@ func parseSource(src []byte) *parsed {
 				r.variadic = r.variadic || strings.ContainsAny(pm[1], "+*")
 			}
 			p.recipes[m[1]] = r
+		} else if m := looseRE.FindStringSubmatch(line); m != nil {
+			p.recipes[m[1]] = recipe{variadic: true, private: private || strings.HasPrefix(m[1], "_")}
 		}
 		private = false
 	}
