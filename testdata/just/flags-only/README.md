@@ -6,4 +6,5 @@ just -l
 just --choose
 just --show build
 just --fmt --unstable
+just -c cargo build
 ```
