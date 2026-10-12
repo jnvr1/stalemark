@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 6,
+    "Col": 0,
+    "Message": "pdm script \"linnt\" not found in pyproject.toml (did you mean \"lint\"?)",
+    "Subject": "linnt",
+    "Suggestion": "lint"
+  }
+]
