@@ -1,0 +1,8 @@
+[project]
+name = "demo"
+version = "0.1.0"
+
+[tool.pdm.scripts]
+_.env_file = ".env"
+lint = "ruff check ."
+test = { cmd = "pytest", help = "run the tests" }

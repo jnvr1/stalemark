@@ -1,0 +1,9 @@
+[project]
+name = "sub"
+version = "0.1.0"
+
+[project.scripts]
+serve = "sub:main"
+
+[tool.pdm.scripts]
+lint = "ruff check ."
