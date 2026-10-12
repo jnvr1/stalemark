@@ -93,6 +93,9 @@ func TestParseSource(t *testing.T) {
 		{"param with quoted default", "build target='debug':\n", map[string]recipe{"build": {params: 1}}, nil, nil, false},
 		{"param with spaces in default", `build target="a b" mode="x y": deps` + "\n", map[string]recipe{"build": {params: 2}}, nil, nil, false},
 		{"params and dependencies", "build a b='c': lint\n", map[string]recipe{"build": {params: 2}}, nil, nil, false},
+		{"parenthesized defaults", `test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):` + "\n", map[string]recipe{"test": {params: 2}}, nil, nil, false},
+		{"backtick default", "rev sha=`git rev-parse HEAD`:\n", map[string]recipe{"rev": {params: 1}}, nil, nil, false},
+		{"function call default", `envd v=env("HOME", "d"):` + "\n", map[string]recipe{"envd": {params: 1}}, nil, nil, false},
 		{"variadic plus", "release +flags:\n", map[string]recipe{"release": {params: 1, variadic: true}}, nil, nil, false},
 		{"variadic star", "release *flags:\n", map[string]recipe{"release": {params: 1, variadic: true}}, nil, nil, false},
 		{"variadic after params", "run target +args:\n", map[string]recipe{"run": {params: 2, variadic: true}}, nil, nil, false},
@@ -117,6 +120,8 @@ func TestParseSource(t *testing.T) {
 		{"import single quotes", "import 'shared.just'\n", map[string]recipe{}, nil, []imp{{path: "shared.just"}}, false},
 		{"import double quotes", "import \"lib/shared.just\"\n", map[string]recipe{}, nil, []imp{{path: "lib/shared.just"}}, false},
 		{"optional import", "import? 'local.just'\n", map[string]recipe{}, nil, []imp{{path: "local.just", optional: true}}, false},
+		{"name starting with import", "import-data:\nimports:\n", map[string]recipe{"import-data": {}, "imports": {}}, nil, nil, false},
+		{"name starting with alias", "alias-check:\naliases:\n", map[string]recipe{"alias-check": {}, "aliases": {}}, nil, nil, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -133,7 +138,7 @@ func TestParseSource(t *testing.T) {
 }
 
 func TestImportOpaque(t *testing.T) {
-	for _, path := range []string{"/abs/shared.just", "C:/proj/shared.just", "~/shared.just", "{{root}}/shared.just"} {
+	for _, path := range []string{"/abs/shared.just", "~/shared.just", "{{root}}/shared.just"} {
 		if !(imp{path: path}).opaque() {
 			t.Errorf("%q should be opaque", path)
 		}

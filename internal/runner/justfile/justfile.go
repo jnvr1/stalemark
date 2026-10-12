@@ -276,10 +276,15 @@ func load(path string, depth int, seen map[string]bool) *parsed {
 }
 
 // name is a recipe, alias or parameter identifier; param is one parameter:
-// optional +, * or $ prefix, name and optional bare or quoted default.
+// optional +, * or $ prefix, name and optional default: a quoted string, a
+// backtick command, a parenthesized expression or function call (which may
+// contain spaces), or a bare word.
+//
+// ponytail: one level of parentheses; a nested one drops the recipe.
+// Upgrade = a loose "name ... :" match recorded as variadic.
 const (
 	name  = `[A-Za-z_][A-Za-z0-9_-]*`
-	param = `([+*$]*)` + name + `(?:=(?:"[^"]*"|'[^']*'|[^\s:]+))?`
+	param = `([+*$]*)` + name + `(?:=(?:"[^"]*"|'[^']*'|` + "`[^`]*`" + `|(?:` + name + `)?\([^)]*\)|[^\s:]+))?`
 )
 
 var (
@@ -312,26 +317,19 @@ func parseSource(src []byte) *parsed {
 			}
 			continue
 		}
-		switch {
-		case modRE.MatchString(line):
+		if modRE.MatchString(line) {
 			p.opaque = true
-		case strings.HasPrefix(line, "import"):
-			if m := importRE.FindStringSubmatch(line); m != nil {
-				p.imports = append(p.imports, imp{path: m[2] + m[3], optional: m[1] == "?"})
+		} else if m := importRE.FindStringSubmatch(line); m != nil {
+			p.imports = append(p.imports, imp{path: m[2] + m[3], optional: m[1] == "?"})
+		} else if m := aliasRE.FindStringSubmatch(line); m != nil {
+			p.aliases[m[1]] = m[2]
+		} else if m := headerRE.FindStringSubmatch(line); m != nil {
+			r := recipe{private: private || strings.HasPrefix(m[1], "_")}
+			for _, pm := range paramRE.FindAllStringSubmatch(m[2], -1) {
+				r.params++
+				r.variadic = r.variadic || strings.ContainsAny(pm[1], "+*")
 			}
-		case strings.HasPrefix(line, "alias"):
-			if m := aliasRE.FindStringSubmatch(line); m != nil {
-				p.aliases[m[1]] = m[2]
-			}
-		default:
-			if m := headerRE.FindStringSubmatch(line); m != nil {
-				r := recipe{private: private || strings.HasPrefix(m[1], "_")}
-				for _, pm := range paramRE.FindAllStringSubmatch(m[2], -1) {
-					r.params++
-					r.variadic = r.variadic || strings.ContainsAny(pm[1], "+*")
-				}
-				p.recipes[m[1]] = r
-			}
+			p.recipes[m[1]] = r
 		}
 		private = false
 	}
