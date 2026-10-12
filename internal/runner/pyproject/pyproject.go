@@ -73,6 +73,9 @@ func (Resolver) Resolve(ctx runner.Context, doc string, cmd shellx.Command) []fi
 	if strings.ContainsAny(name, `/\.`) || name == "python" || strings.HasPrefix(name, "python3") {
 		return nil // a file, a module path or the interpreter, never a script
 	}
+	if cmd.Name == "hatch" && hatchBuiltins[name] {
+		return nil
+	}
 	suggestion := runner.Closest(name, names)
 	if suggestion == "" || dependsOn(py, name) {
 		return nil
@@ -119,8 +122,8 @@ var valued = map[string]map[string]string{
 	"hatch": {"-e": "env", "--env": "env", "-p": "", "--python": "", "--data-dir": "", "--cache-dir": "", "--config": "", "--color": ""},
 }
 
-// hatchBuiltins are hatch's own commands; "hatch run fmt" names the command
-// mistyped as a script, never a script typo.
+// hatchBuiltins are hatch's own commands; a missing "hatch run fmt" is the
+// command written as a script, never a script typo.
 var hatchBuiltins = map[string]bool{
 	"build": true, "clean": true, "config": true, "dep": true, "env": true, "fmt": true, "new": true,
 	"project": true, "publish": true, "python": true, "run": true, "self": true, "shell": true,
@@ -160,8 +163,6 @@ func parse(tool string, args []string) invocation {
 		case tool == "uv" && (a == "-m" || a == "--module" || a == "--script"):
 			return invocation{}
 		case run && tool == "hatch" && strings.HasPrefix(a, "+"):
-		case run && tool == "hatch" && hatchBuiltins[a]:
-			return invocation{}
 		case strings.HasPrefix(a, "-"):
 		case !run && a == "run":
 			run = true
@@ -261,10 +262,11 @@ func dependencies(py map[string]any) []string {
 // requirementName is the project name of a PEP 508 requirement string: the
 // text before any extras, version specifier, marker, URL or parenthesis.
 func requirementName(req string) string {
+	req = strings.TrimSpace(req)
 	if i := strings.IndexAny(req, " [<>=!~;(@"); i >= 0 {
 		req = req[:i]
 	}
-	return strings.TrimSpace(req)
+	return req
 }
 
 var separators = regexp.MustCompile(`[-_.]+`)
