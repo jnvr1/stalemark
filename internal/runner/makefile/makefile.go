@@ -171,8 +171,6 @@ func parseArgs(args []string) invocation {
 
 // discover returns the makefile make would read in dir: file when given,
 // otherwise the first of GNUmakefile, makefile, Makefile. "" when none exists.
-// Names are matched against the directory listing so that case-insensitive
-// filesystems do not turn Makefile into "makefile" in findings.
 func discover(dir, file string) string {
 	if file != "" {
 		p := filepath.Join(dir, filepath.FromSlash(file))
@@ -181,18 +179,7 @@ func discover(dir, file string) string {
 		}
 		return ""
 	}
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return ""
-	}
-	for _, n := range []string{"GNUmakefile", "makefile", "Makefile"} {
-		for _, e := range entries {
-			if e.Name() == n && !e.IsDir() {
-				return filepath.Join(dir, n)
-			}
-		}
-	}
-	return ""
+	return runner.Discover(dir, "GNUmakefile", "makefile", "Makefile")
 }
 
 // parsed is the static view of a makefile: the literal targets it defines

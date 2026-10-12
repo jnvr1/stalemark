@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A003",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 4,
+    "Col": 0,
+    "Message": "task \"deploy\" not found in Taskfile.yml",
+    "Subject": "deploy",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A003",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "task \"buidl\" not found in Taskfile.yml (did you mean \"build\"?)",
+    "Subject": "buidl",
+    "Suggestion": "build"
+  }
+]

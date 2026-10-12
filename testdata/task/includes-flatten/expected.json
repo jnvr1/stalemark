@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A003",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "task \"lib:x\" not found in Taskfile.yml",
+    "Subject": "lib:x",
+    "Suggestion": ""
+  }
+]

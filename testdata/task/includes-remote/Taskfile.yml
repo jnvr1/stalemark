@@ -1,0 +1,9 @@
+version: '3'
+
+includes:
+  shared: https://raw.githubusercontent.com/example/shared/main/Taskfile.yml
+
+tasks:
+  build:
+    cmds:
+      - go build ./...
