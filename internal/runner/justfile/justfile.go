@@ -288,19 +288,19 @@ func load(path string, depth int, seen map[string]bool) *parsed {
 // ponytail: one level of parentheses; a header with nested ones falls back
 // to looseRE and is recorded as variadic (callable, arity unknown).
 const (
-	name  = `[A-Za-z_][A-Za-z0-9_-]*`
-	param = `([+*$]*)` + name + `(?:=(?:"[^"]*"|'[^']*'|` + "`[^`]*`" + `|(?:` + name + `)?\([^)]*\)|[^\s:]+))?`
+	ident = `[A-Za-z_][A-Za-z0-9_-]*`
+	param = `([+*$]*)` + ident + `(?:=(?:"[^"]*"|'[^']*'|` + "`[^`]*`" + `|(?:` + ident + `)?\([^)]*\)|[^\s:]+))?`
 )
 
 var (
 	// headerRE matches a recipe header at column 0: optional @, the name,
 	// parameters and a ":" that is not ":=".
-	headerRE = regexp.MustCompile(`^@?(` + name + `)((?:\s+` + param + `)*)\s*:(?:[^=]|$)`)
+	headerRE = regexp.MustCompile(`^@?(` + ident + `)((?:\s+` + param + `)*)\s*:(?:[^=]|$)`)
 	// looseRE catches headers whose defaults headerRE cannot parse (nested
 	// parentheses). [^:]* stops at ":=", so assignments never match.
-	looseRE  = regexp.MustCompile(`^@?(` + name + `)\s[^:]*:(?:[^=]|$)`)
+	looseRE  = regexp.MustCompile(`^@?(` + ident + `)\s[^:]*:(?:[^=]|$)`)
 	paramRE  = regexp.MustCompile(param)
-	aliasRE  = regexp.MustCompile(`^alias\s+(` + name + `)\s*:=\s*(` + name + `)`)
+	aliasRE  = regexp.MustCompile(`^alias\s+(` + ident + `)\s*:=\s*(` + ident + `)`)
 	attrRE   = regexp.MustCompile(`^\[([^\]]*)\]`)
 	modRE    = regexp.MustCompile(`^mod\??\s`)
 	importRE = regexp.MustCompile(`^import(\??)\s+(?:"([^"]*)"|'([^']*)')`)
