@@ -1,0 +1,9 @@
+_setup:
+    echo setup
+
+[private]
+clean:
+    rm -rf out
+
+build: _setup
+    echo build

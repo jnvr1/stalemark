@@ -1,0 +1,10 @@
+arch := "x86_64"
+
+test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
+    echo {{triple}} {{input}}
+
+rev sha=`git rev-parse HEAD`:
+    echo {{sha}}
+
+envd v=env("HOME", "d"):
+    echo {{v}}

@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A005",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 4,
+    "Col": 0,
+    "Message": "just recipe \"deploy\" not found in justfile",
+    "Subject": "deploy",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A005",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "just recipe \"buidl\" not found in justfile (did you mean \"build\"?)",
+    "Subject": "buidl",
+    "Suggestion": "build"
+  }
+]
