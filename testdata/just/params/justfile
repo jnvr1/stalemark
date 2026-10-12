@@ -1,0 +1,8 @@
+build target='debug':
+    echo {{target}}
+
+release +flags:
+    echo {{flags}}
+
+test:
+    echo test

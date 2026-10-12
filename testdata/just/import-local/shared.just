@@ -1,0 +1,2 @@
+publish:
+    echo publish

@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A005",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 8,
+    "Col": 0,
+    "Message": "just recipe \"y\" not found in alt.just (did you mean \"x\"?)",
+    "Subject": "y",
+    "Suggestion": "x"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A005",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 8,
+    "Col": 0,
+    "Message": "just recipe \"deploy\" not found in justfile",
+    "Subject": "deploy",
+    "Suggestion": ""
+  }
+]
