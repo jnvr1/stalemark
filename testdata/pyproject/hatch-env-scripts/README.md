@@ -7,4 +7,5 @@ hatch run docs:biuld
 hatch run buil
 hatch run tset
 hatch run fmt
+hatch run coverage report
 ```

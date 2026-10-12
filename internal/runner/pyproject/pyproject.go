@@ -117,8 +117,15 @@ var valued = map[string]map[string]string{
 		"--resolution": "", "--prerelease": "", "--link-mode": "", "--index-strategy": "",
 		"--keyring-provider": "", "--python-preference": "", "--refresh-package": "",
 		"--reinstall-package": "", "--upgrade-package": "", "--no-binary-package": "", "--no-build-package": "",
+		"-w": "", "-f": "", "-i": "", "-P": "", "-C": "", "--config-setting": "", "--config-settings-package": "",
+		"--no-extra": "", "--upgrade-group": "", "--python-platform": "", "--fork-strategy": "",
+		"--exclude-newer-package": "", "--no-build-isolation-package": "", "--no-editable-package": "",
+		"--no-sources-package": "", "--prerelease-package": "", "--allow-insecure-host": "",
 	},
-	"pdm":   {"-p": "dir", "--project": "dir"},
+	"pdm": {
+		"-p": "dir", "--project": "dir",
+		"-k": "", "--skip": "", "--venv": "", "--env": "", "--env-file": "", "--working-dir": "",
+	},
 	"hatch": {"-e": "env", "--env": "env", "-p": "", "--python": "", "--data-dir": "", "--cache-dir": "", "--config": "", "--color": ""},
 }
 
@@ -225,8 +232,8 @@ func dependsOn(py map[string]any, name string) bool {
 
 // dependencies collects every declared dependency name, normalized:
 // PEP 621 dependencies and optional-dependencies, PEP 735 dependency
-// groups, poetry's dependency tables, pdm's and uv's dev-dependencies and
-// the build-system requires.
+// groups, poetry's dependency tables, pdm's and uv's dev-dependencies,
+// hatch env dependencies and the build-system requires.
 func dependencies(py map[string]any) []string {
 	var out []string
 	reqs := func(v any) {
@@ -255,6 +262,10 @@ func dependencies(py map[string]any) []string {
 		reqs(v)
 	}
 	reqs(table(py, "tool", "uv")["dev-dependencies"])
+	for e := range table(py, "tool", "hatch", "envs") {
+		reqs(table(py, "tool", "hatch", "envs", e)["dependencies"])
+		reqs(table(py, "tool", "hatch", "envs", e)["extra-dependencies"])
+	}
 	reqs(table(py, "build-system")["requires"])
 	return out
 }

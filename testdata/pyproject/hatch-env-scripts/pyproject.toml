@@ -2,8 +2,12 @@
 name = "demo"
 version = "0.1.0"
 
+[tool.hatch.envs.default]
+dependencies = ["coverage[toml]>=6.5", "pytest"]
+
 [tool.hatch.envs.default.scripts]
 test = "pytest"
+cov = "coverage run -m pytest"
 
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build"

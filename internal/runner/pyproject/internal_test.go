@@ -31,6 +31,7 @@ func TestParse(t *testing.T) {
 		{"uv run serve", invocation{script: "serve"}},
 		{"uv run --with rich serve", invocation{script: "serve"}},
 		{"uv run --with=rich serve", invocation{script: "serve"}},
+		{"uv run -w rich serve", invocation{script: "serve"}},
 		{"uv run --with-requirements req.txt serve", invocation{script: "serve"}},
 		{"uv run --with-editable . serve", invocation{script: "serve"}},
 		{"uv run -p 3.12 serve", invocation{script: "serve"}},
@@ -63,6 +64,7 @@ func TestParse(t *testing.T) {
 		{"pdm run --project=sub lint", invocation{dir: "sub", script: "lint"}},
 		{"pdm run -s lint", invocation{script: "lint"}},
 		{"pdm run --site-packages lint", invocation{script: "lint"}},
+		{"pdm run -k :all all", invocation{script: "all"}},
 		{"pdm add requests", invocation{}},
 		// hatch: env option, env: prefix, matrix selectors, built-ins
 		{"hatch run test", invocation{script: "test"}},
@@ -221,6 +223,12 @@ docs = ["sphinx>=7"]
 
 [tool.uv]
 dev-dependencies = ["black==24.1"]
+
+[tool.hatch.envs.default]
+dependencies = ["coverage[toml]>=6.5"]
+
+[tool.hatch.envs.docs]
+extra-dependencies = ["mkdocs-material"]
 `
 
 func TestDependsOn(t *testing.T) {
@@ -229,21 +237,23 @@ func TestDependsOn(t *testing.T) {
 		t.Fatal(err)
 	}
 	tests := map[string]bool{
-		"requests":      true, // [project.dependencies], case folded
-		"python-dotenv": true, // extras and marker stripped, _ normalized
-		"python_dotenv": true, // the query is normalized too
-		"mkdocs":        true, // optional-dependencies, URL requirement
-		"pytest":        true, // dependency-groups
-		"ruff":          true, // a group reached through include-group
-		"include-group": false,
-		"flask":         true, // poetry table keys
-		"mypy":          true,
-		"pytest-cov":    true, // poetry group, mixed case and underscore
-		"sphinx":        true, // pdm dev-dependencies
-		"black":         true, // uv dev-dependencies
-		"hatchling":     true, // build-system
-		"serve":         false,
-		"dotenv":        false, // ponytail: bin name differs from the package
+		"requests":        true, // [project.dependencies], case folded
+		"python-dotenv":   true, // extras and marker stripped, _ normalized
+		"python_dotenv":   true, // the query is normalized too
+		"mkdocs":          true, // optional-dependencies, URL requirement
+		"pytest":          true, // dependency-groups
+		"ruff":            true, // a group reached through include-group
+		"include-group":   false,
+		"flask":           true, // poetry table keys
+		"mypy":            true,
+		"pytest-cov":      true, // poetry group, mixed case and underscore
+		"sphinx":          true, // pdm dev-dependencies
+		"black":           true, // uv dev-dependencies
+		"hatchling":       true, // build-system
+		"coverage":        true, // hatch env dependencies
+		"mkdocs-material": true, // hatch env extra-dependencies
+		"serve":           false,
+		"dotenv":          false, // ponytail: bin name differs from the package
 	}
 	for name, want := range tests {
 		if got := dependsOn(py, name); got != want {
