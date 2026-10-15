@@ -33,6 +33,8 @@ var catalog = map[string]ruleDoc{
 	"SM-A008": {"go run of a non-main package", "The docs run a directory with go run, but it has no main package."},
 	"SM-A009": {"cargo target not found", "A cargo --bin, --example or -p target named in the docs is not in Cargo.toml."},
 	"SM-D001": {"superseded-by points at a missing ADR", "An ADR status says it is superseded by an ADR number that does not exist."},
+	"SM-D002": {"ADR link points at a missing ADR", "An ADR links to another ADR file that does not exist next to it."},
+	"SM-D003": {"module path not found", "A Go import path of this module named in an ADR does not map to a directory."},
 	"SM-E001": {"env var not in .env.example", "A variable the docs name is missing from the nearest .env.example"},
 	"SM-N001": {"documented localhost port not published", "A localhost port the docs name is not published by any Dockerfile EXPOSE or compose ports entry."},
 	"SM-V001": {"documented tool version differs from version file", "A node, go, python or rust version the docs state differs from the one .nvmrc, go.mod, pyproject.toml or another version file pins."},

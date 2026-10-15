@@ -30,6 +30,8 @@ type Config struct {
 	// ADR.Dirs overrides the default ADR directories, relative to the root.
 	ADR struct {
 		Dirs []string `yaml:"dirs"`
+		// Historical is "warn" (default) or "skip": how deprecated and superseded ADRs are checked.
+		Historical string `yaml:"historical"`
 	} `yaml:"adr"`
 }
 
@@ -51,6 +53,9 @@ func Load(root string) (Config, error) {
 		if err := dec.Decode(&cfg); err != nil && !errors.Is(err, io.EOF) {
 			return Config{}, fmt.Errorf("%s: %w", fileName, err)
 		}
+	}
+	if h := cfg.ADR.Historical; h != "" && h != "warn" && h != "skip" {
+		return Config{}, fmt.Errorf("%s: adr.historical must be warn or skip", fileName)
 	}
 	if len(cfg.Include) == 0 {
 		cfg.Include = []string{"README.md", "CONTRIBUTING.md", "docs/**/*.md"}
