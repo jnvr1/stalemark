@@ -1,0 +1,11 @@
+[package]
+name = "cli"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1"
+core = { path = "../../crates/core" }
+my-log = { package = "log", version = "0.4" }
+
+[target.'cfg(unix)'.dev-dependencies]
+libc = "0.2"
