@@ -53,9 +53,13 @@ baseline entries that no longer match anything.
 Text for humans, JSON for machines, SARIF 2.1.0 for GitHub code scanning.
 Exit `0` clean, `1` findings, `2` tool error.
 
-## Distribution (planned)
+## Distribution
 
-GitHub Releases binary, Docker image, GitHub Action, pre-commit hook.
+Binaries for Linux, macOS and Windows (amd64, arm64) and a Docker image at `ghcr.io/jnvr1/stalemark` are built by the release workflow on `v*` tags.
+
+```sh
+docker run --rm -v "$PWD:/work" ghcr.io/jnvr1/stalemark check
+```
 
 ## License
 
