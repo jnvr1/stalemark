@@ -32,7 +32,11 @@ include: [README.md, CONTRIBUTING.md, "docs/**/*.md"] # doublestar globs
 exclude: ["docs/research/**"]
 disable: [SM-A001]                                    # rule IDs to skip
 baseline: .stalemark-baseline.json
+env:
+  documented-unused: true                             # opt in to SM-E004
 ```
+
+How env vars are compared with the code is described in [docs/checks/env.md](docs/checks/env.md).
 
 To adopt stalemark without fixing history, run `stalemark baseline` to record
 the current findings. `stalemark check` then skips them, matching on rule,
@@ -51,7 +55,7 @@ baseline entries that no longer match anything.
 ## Output
 
 Text for humans, JSON for machines, SARIF 2.1.0 for GitHub code scanning.
-Exit `0` clean, `1` findings, `2` tool error.
+Exit `0` clean (notes do not fail the run), `1` findings, `2` tool error.
 
 ## Distribution
 

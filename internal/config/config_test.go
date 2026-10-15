@@ -54,10 +54,21 @@ func TestLoadParsesKeys(t *testing.T) {
 	}
 }
 
+func TestLoadEnvSection(t *testing.T) {
+	cfg, err := config.Load(write(t, map[string]string{".stalemark.yml": "env:\n  documented-unused: true\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Env.DocumentedUnused {
+		t.Errorf("cfg.Env = %+v, want DocumentedUnused", cfg.Env)
+	}
+}
+
 func TestLoadErrors(t *testing.T) {
 	tests := map[string]struct{ yml, want string }{
-		"unknown key":  {"includes: [a.md]\n", "includes"},
-		"invalid yaml": {"include: [a.md\n", ".stalemark.yml"},
+		"unknown key":     {"includes: [a.md]\n", "includes"},
+		"unknown env key": {"env:\n  nope: true\n", "nope"},
+		"invalid yaml":    {"include: [a.md\n", ".stalemark.yml"},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

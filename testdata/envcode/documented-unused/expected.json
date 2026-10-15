@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-E004",
+    "Severity": "warning",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "env var \"UNUSED\" is documented but never read by code",
+    "Subject": "UNUSED",
+    "Suggestion": ""
+  }
+]

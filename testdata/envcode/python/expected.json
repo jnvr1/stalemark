@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-E003",
+    "Severity": "note",
+    "Path": "app/settings.py",
+    "Line": 5,
+    "Col": 0,
+    "Message": "env var \"C\" is read by code but not documented",
+    "Subject": "C",
+    "Suggestion": ""
+  }
+]

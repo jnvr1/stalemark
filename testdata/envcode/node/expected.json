@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-E003",
+    "Severity": "note",
+    "Path": "src/other.ts",
+    "Line": 2,
+    "Col": 0,
+    "Message": "env var \"SECRET\" is read by code but not documented",
+    "Subject": "SECRET",
+    "Suggestion": ""
+  }
+]

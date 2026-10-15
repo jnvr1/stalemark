@@ -24,6 +24,9 @@ type Config struct {
 	Exclude  []string `yaml:"exclude"`
 	Disable  []string `yaml:"disable"`
 	Baseline string   `yaml:"baseline"`
+	Env      struct {
+		DocumentedUnused bool `yaml:"documented-unused"`
+	} `yaml:"env"`
 }
 
 // Load reads root/.stalemark.yml; a missing file yields the defaults. Unknown

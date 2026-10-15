@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-E003",
+    "Severity": "note",
+    "Path": "main.go",
+    "Line": 7,
+    "Col": 0,
+    "Message": "env var \"REGION\" is read by code but not documented",
+    "Subject": "REGION",
+    "Suggestion": ""
+  }
+]
