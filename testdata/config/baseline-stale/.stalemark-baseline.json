@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "fingerprint": "cf87144f01f89f9e",
+      "rule": "SM-A001",
+      "file": "README.md",
+      "subject": "nothing"
+    }
+  ]
+}

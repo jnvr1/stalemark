@@ -3,6 +3,7 @@ package cli_test
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"os"
 	"path/filepath"
 	"strings"
@@ -201,6 +202,102 @@ func TestRunDeterministic(t *testing.T) {
 			first = out.String()
 		} else if out.String() != first {
 			t.Fatalf("run %d differs:\n%s\nvs\n%s", i, out.String(), first)
+		}
+	}
+}
+
+var update = flag.Bool("update", false, "rewrite testdata/config expected.txt files from the current output")
+
+func TestConfigFixtures(t *testing.T) {
+	cases := map[string]struct {
+		code       int
+		wantStderr string
+	}{
+		"defaults":            {1, ""},
+		"exclude":             {1, ""},
+		"disable-rule":        {1, ""},
+		"baseline-hit":        {0, ""},
+		"baseline-moved-line": {0, ""},
+		"baseline-stale":      {0, "notice: baseline entry"},
+		"invalid-yaml":        {2, ".stalemark.yml"},
+		"unknown-key":         {2, "includes"},
+	}
+	entries, err := os.ReadDir(filepath.Join("..", "..", "testdata", "config"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		want, ok := cases[e.Name()]
+		if !ok {
+			t.Errorf("fixture %s has no expected exit code", e.Name())
+			continue
+		}
+		t.Run(e.Name(), func(t *testing.T) {
+			dir := filepath.Join("..", "..", "testdata", "config", e.Name())
+			var stdout, stderr bytes.Buffer
+			if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != want.code {
+				t.Errorf("exit code = %d, want %d (stderr: %q)", code, want.code, stderr.String())
+			}
+			if !strings.Contains(stderr.String(), want.wantStderr) {
+				t.Errorf("stderr = %q, want it to contain %q", stderr.String(), want.wantStderr)
+			}
+			if want.wantStderr == "" && stderr.Len() > 0 {
+				t.Errorf("unexpected stderr: %q", stderr.String())
+			}
+			golden := filepath.Join(dir, "expected.txt")
+			if *update {
+				if err := os.WriteFile(golden, stdout.Bytes(), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			exp, err := os.ReadFile(golden)
+			if err != nil {
+				t.Fatalf("read golden: %v (run with -update to create it)", err)
+			}
+			if got := stdout.String(); got != string(exp) {
+				t.Errorf("stdout differs from %s (run with -update to refresh)\ngot:\n%s\nwant:\n%s", golden, got, exp)
+			}
+		})
+	}
+}
+
+func TestBaselineCommand(t *testing.T) {
+	dir := fixture(t, map[string]string{"README.md": badDoc, "package.json": pkgJSON})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"baseline", dir}, &stdout, &stderr); code != 0 {
+		t.Fatalf("baseline exit = %d (stderr: %q)", code, stderr.String())
+	}
+	if want := "wrote 1 entry to .stalemark-baseline.json\n"; stdout.String() != want {
+		t.Errorf("stdout = %q, want %q", stdout.String(), want)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, ".stalemark-baseline.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !json.Valid(raw) {
+		t.Errorf("baseline is not valid JSON: %s", raw)
+	}
+
+	stdout.Reset()
+	stderr.Reset()
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 0 || stdout.String() != "no findings\n" {
+		t.Errorf("check after baseline: exit %d, stdout %q, stderr %q", code, stdout.String(), stderr.String())
+	}
+}
+
+func TestBaselineCommandCounts(t *testing.T) {
+	two := fixture(t, map[string]string{"README.md": badDoc + "\n```bash\nnpm run buidl2\n```\n", "package.json": pkgJSON})
+	zero := fixture(t, map[string]string{"README.md": goodDoc, "package.json": pkgJSON})
+	for dir, want := range map[string]string{
+		two:  "wrote 2 entries to .stalemark-baseline.json\n",
+		zero: "wrote 0 entries to .stalemark-baseline.json\n",
+	} {
+		var stdout, stderr bytes.Buffer
+		if code := cli.Run([]string{"baseline", dir}, &stdout, &stderr); code != 0 {
+			t.Fatalf("exit = %d (stderr: %q)", code, stderr.String())
+		}
+		if stdout.String() != want {
+			t.Errorf("stdout = %q, want %q", stdout.String(), want)
 		}
 	}
 }
