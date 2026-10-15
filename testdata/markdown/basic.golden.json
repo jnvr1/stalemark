@@ -52,5 +52,12 @@
       "Line": 22,
       "Col": 26
     }
+  ],
+  "Headings": [
+    {
+      "Level": 1,
+      "Text": "Basic",
+      "Line": 1
+    }
   ]
 }

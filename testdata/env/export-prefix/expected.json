@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-E001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "env var \"BAR\" not found in .env.example (did you mean \"FOO\"?)",
+    "Subject": "BAR",
+    "Suggestion": "FOO"
+  },
+  {
+    "Rule": "SM-E001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 6,
+    "Col": 0,
+    "Message": "env var \"BAZ\" not found in .env.example (did you mean \"FOO\"?)",
+    "Subject": "BAZ",
+    "Suggestion": "FOO"
+  }
+]

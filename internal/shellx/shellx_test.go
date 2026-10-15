@@ -6,6 +6,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -108,6 +109,22 @@ func FuzzExtract(f *testing.F) {
 			}
 		}
 	})
+}
+
+// TestExtractExport: export is a declaration clause for the parser, not a call,
+// but it is exposed as a command named export with one arg per variable.
+func TestExtractExport(t *testing.T) {
+	block := markdown.CodeBlock{Lang: "bash", StartLine: 1}
+	for i, l := range []string{`export A=1 B -n C="x y"`, `A=1 cmd`, `export D=$HOME`} {
+		block.Lines = append(block.Lines, markdown.Line{Text: l, FileLine: i + 2})
+	}
+	got := shellx.Extract(block)
+	if len(got) != 3 || got[0].Name != "export" || got[0].FileLine != 2 || !reflect.DeepEqual(got[0].Args, []string{"A=1", "B", "C=x y"}) {
+		t.Fatalf("Extract = %+v, want export with args A=1 B C=x y first", got)
+	}
+	if got[1].Name != "cmd" || got[1].Env["A"] != "1" || !got[2].Placeholder {
+		t.Errorf("Extract = %+v", got)
+	}
 }
 
 // TestExtractFileLines cross-checks every FileLine against the raw fixture bytes,
