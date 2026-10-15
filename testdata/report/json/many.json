@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "rule": "SM-A001",
+      "severity": "error",
+      "file": "README.md",
+      "line": 7,
+      "column": 3,
+      "message": "npm script \"buidl\" not found in package.json",
+      "subject": "buidl",
+      "fingerprint": "b0689fc23d95639a"
+    },
+    {
+      "rule": "SM-A001",
+      "severity": "error",
+      "file": "README.md",
+      "line": 20,
+      "column": 0,
+      "message": "npm script \"lint\" not found in package.json",
+      "subject": "lint",
+      "fingerprint": "73c66850323ae0b5"
+    },
+    {
+      "rule": "SM-A002",
+      "severity": "error",
+      "file": "README.md",
+      "line": 20,
+      "column": 0,
+      "message": "make target \"bild\" not found in Makefile",
+      "subject": "bild",
+      "fingerprint": "141d04b502c20c4a"
+    },
+    {
+      "rule": "SM-A006",
+      "severity": "error",
+      "file": "docs/guide.md",
+      "line": 4,
+      "column": 0,
+      "message": "poetry script \"serve\" not found in pyproject.toml",
+      "subject": "serve",
+      "fingerprint": "bb72d1e6e54c9726"
+    },
+    {
+      "rule": "SM-A001",
+      "severity": "error",
+      "file": "docs/guide.md",
+      "line": 12,
+      "column": 0,
+      "message": "npm script \"tset\" not found in package.json (did you mean \"test\"?)",
+      "subject": "tset",
+      "fingerprint": "d40a9fc714fb2386"
+    }
+  ]
+}

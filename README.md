@@ -17,6 +17,7 @@ that shaped the scope.
 ```sh
 stalemark check
 stalemark check --format text README.md
+stalemark check --format json
 ```
 
 ## Planned checks
