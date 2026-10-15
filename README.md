@@ -57,6 +57,10 @@ Exit `0` clean, `1` findings, `2` tool error.
 
 GitHub Releases binary, Docker image, GitHub Action, pre-commit hook.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 MIT
