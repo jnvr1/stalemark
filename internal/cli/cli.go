@@ -12,6 +12,7 @@ import (
 	"slices"
 
 	"github.com/jnvr1/stalemark/internal/adr"
+	"github.com/jnvr1/stalemark/internal/adrlibs"
 	"github.com/jnvr1/stalemark/internal/adrrefs"
 	"github.com/jnvr1/stalemark/internal/config"
 	"github.com/jnvr1/stalemark/internal/envvars"
@@ -229,6 +230,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 			scanned[runner.Rel(ctx, p)] = true
 		}
 		all = adrrefs.Check(ctx, adrs, scanned, cfg.ADR.Historical, all)
+		all = append(all, adrlibs.Check(ctx, adrs, cfg.ADR.Freetext)...)
 	}
 	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
 	return root, cfg, all, nil

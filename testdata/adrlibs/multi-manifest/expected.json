@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-D004",
+    "Severity": "error",
+    "Path": "docs/adr/0002-web.md",
+    "Line": 3,
+    "Col": 0,
+    "Message": "ADR says it uses \"axum\" but no manifest lists it (axum)",
+    "Subject": "axum",
+    "Suggestion": ""
+  }
+]

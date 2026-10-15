@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-D005",
+    "Severity": "note",
+    "Path": "docs/adr/0001-stack.md",
+    "Line": 3,
+    "Col": 0,
+    "Message": "ADR says it uses \"mycorp-internal-lib\", which is not in any manifest and has no alias; add it to internal/adrlibs/aliases.yml if it is a dependency",
+    "Subject": "mycorp-internal-lib",
+    "Suggestion": ""
+  }
+]

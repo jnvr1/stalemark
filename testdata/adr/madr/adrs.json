@@ -21,6 +21,10 @@
     "Path": "docs/decisions/0003-choose-another-database.md",
     "Links": [
       2
+    ],
+    "Uses": [
+      "mysql",
+      "redis"
     ]
   }
 ]

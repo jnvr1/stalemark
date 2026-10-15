@@ -35,6 +35,8 @@ var catalog = map[string]ruleDoc{
 	"SM-D001": {"superseded-by points at a missing ADR", "An ADR status says it is superseded by an ADR number that does not exist."},
 	"SM-D002": {"ADR link points at a missing ADR", "An ADR links to another ADR file that does not exist next to it."},
 	"SM-D003": {"module path not found", "A Go import path of this module named in an ADR does not map to a directory."},
+	"SM-D004": {"ADR dependency not in any manifest", "An accepted ADR declares a dependency (front matter uses: or a Uses section; prose with adr.freetext) that no manifest lists, directly or through an alias."},
+	"SM-D005": {"ADR dependency has no alias", "An accepted ADR declares a dependency that is in no manifest and has no entry in internal/adrlibs/aliases.yml; add an alias if it is a dependency."},
 	"SM-E001": {"env var not in .env.example", "A variable the docs name is missing from the nearest .env.example"},
 	"SM-N001": {"documented localhost port not published", "A localhost port the docs name is not published by any Dockerfile EXPOSE or compose ports entry."},
 	"SM-V001": {"documented tool version differs from version file", "A node, go, python or rust version the docs state differs from the one .nvmrc, go.mod, pyproject.toml or another version file pins."},

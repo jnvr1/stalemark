@@ -24,6 +24,10 @@
     "Path": "doc/adr/0003-use-mysql.md",
     "Links": [
       2
+    ],
+    "Uses": [
+      "MySQL",
+      "redis"
     ]
   }
 ]

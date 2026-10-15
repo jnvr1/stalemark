@@ -23,8 +23,9 @@ type view struct {
 	Title        string
 	Status       string
 	Path         string
-	SupersededBy []int `json:",omitempty"`
-	Links        []int `json:",omitempty"`
+	SupersededBy []int    `json:",omitempty"`
+	Links        []int    `json:",omitempty"`
+	Uses         []string `json:",omitempty"`
 }
 
 func golden(t *testing.T, path string, v any) {
@@ -77,7 +78,7 @@ func TestGolden(t *testing.T) {
 				if a.Doc == nil {
 					t.Errorf("ADR %d has no Doc", a.Number)
 				}
-				views = append(views, view{a.Number, a.Title, a.Status, runner.Rel(ctx, a.Path), a.SupersededBy, a.Links})
+				views = append(views, view{a.Number, a.Title, a.Status, runner.Rel(ctx, a.Path), a.SupersededBy, a.Links, a.Uses})
 			}
 			golden(t, filepath.Join(root, "adrs.json"), views)
 
@@ -102,5 +103,20 @@ func TestMADRSupersededStatusText(t *testing.T) {
 	}
 	if len(adrs) != 1 || adrs[0].Status != "superseded" || !reflect.DeepEqual(adrs[0].SupersededBy, []int{3}) {
 		t.Errorf("got %+v", adrs)
+	}
+}
+
+func TestUsesCommaString(t *testing.T) {
+	dir := t.TempDir()
+	body := "---\nstatus: accepted\nuses: redis, `pg`,\n---\n\n# 1. X\n"
+	if err := os.WriteFile(filepath.Join(dir, "0001-x.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	adrs, err := adr.Load(dir, []string{"."})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(adrs[0].Uses, []string{"redis", "pg"}) || !reflect.DeepEqual(adrs[0].UsesLines, []int{3, 3}) {
+		t.Errorf("got %+v %+v", adrs[0].Uses, adrs[0].UsesLines)
 	}
 }
