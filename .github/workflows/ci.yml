@@ -62,6 +62,24 @@ jobs:
           git -c user.name=ci -c user.email=ci@example.com commit -qm fixture
           ! pre-commit try-repo "$GITHUB_WORKSPACE" stalemark --all-files
 
+  # The repo checks its own docs; a stale command or path fails CI. Fix the doc or baseline it with a reason,
+  # never disable the rule.
+  # ponytail: runs the freshly built binary; switch to `uses: ./` once the composite Action (#17) lands.
+  dogfood:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: make build
+      - name: Check this repository
+        run: ./bin/stalemark check --format github .
+      - name: Drifted fixture must fail
+        run: "! ./bin/stalemark check testdata/e2e/drifted"
+
   # Catches .goreleaser.yaml rot on every PR; docker and publish are skipped (no registry on the runner).
   snapshot:
     needs: test
