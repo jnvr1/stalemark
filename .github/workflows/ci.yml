@@ -37,3 +37,20 @@ jobs:
         run: go build ./cmd/stalemark
         env:
           CGO_ENABLED: "0"
+
+  # Catches .goreleaser.yaml rot on every PR; docker and publish are skipped (no registry on the runner).
+  snapshot:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          version: "~> v2"
+          args: release --snapshot --clean --skip=docker,publish
