@@ -38,7 +38,7 @@ const usage = `Usage:
                            write the baseline file from the current findings
   stalemark --version      print version and exit
 
-Exit codes: 0 clean, 1 findings, 2 tool error.
+Exit codes: 0 clean (notes do not fail the run), 1 findings, 2 tool error.
 `
 
 // Run executes the CLI with the given arguments and returns the process exit code.
@@ -121,7 +121,8 @@ func check(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "stalemark:", err)
 		return 2
 	}
-	if len(reported) > 0 {
+	// Notes are reported but do not fail the run.
+	if slices.ContainsFunc(reported, func(f finding.Finding) bool { return f.Severity != finding.Note }) {
 		return 1
 	}
 	return 0
@@ -190,6 +191,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 
 	reg := runner.New(npm.New(), makefile.New(), taskfile.New(), justfile.New(), pyproject.New(), gocargo.New())
 	ctx := runner.Context{Root: root}
+	documented := map[string]envvars.Loc{}
 	for _, p := range docs {
 		d, err := markdown.Load(p)
 		if err != nil {
@@ -200,6 +202,19 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		all = append(all, envvars.Check(ctx, d)...)
 		all = append(all, ports.Check(ctx, d)...)
 		all = append(all, toolver.Check(ctx, d)...)
+		for name, loc := range envvars.Documented(ctx, d) {
+			if _, ok := documented[name]; !ok {
+				documented[name] = loc
+			}
+		}
+	}
+	// ponytail: the code pass runs only on a directory check; a single-file check sees one doc, so "undocumented" would be noise.
+	if info.IsDir() {
+		reads, err := envvars.ScanCode(root)
+		if err != nil {
+			return "", cfg, nil, err
+		}
+		all = append(all, envvars.CheckCode(documented, reads, cfg.Env.DocumentedUnused)...)
 	}
 	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
 	return root, cfg, all, nil

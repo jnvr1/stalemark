@@ -78,6 +78,30 @@ func Check(ctx runner.Context, d *markdown.Doc) []finding.Finding {
 		return nil
 	}
 
+	docPath, exampleRel := runner.Rel(ctx, d.Path), runner.Rel(ctx, example)
+	var out []finding.Finding
+	seen := map[string]bool{}
+	for _, m := range mentions(d) {
+		if seen[m.name] || !identRE.MatchString(m.name) || tooling(m.name) || slices.Contains(keys, m.name) {
+			continue
+		}
+		seen[m.name] = true
+		f := finding.Finding{
+			Rule: RuleEnvNotInExample, Severity: finding.Error, Path: docPath,
+			Line: m.line, Col: m.col, Subject: m.name,
+			Message:    "env var " + `"` + m.name + `"` + " not found in " + exampleRel,
+			Suggestion: runner.Closest(m.name, keys),
+		}
+		if f.Suggestion != "" {
+			f.Message += " (did you mean " + `"` + f.Suggestion + `"` + "?)"
+		}
+		out = append(out, f)
+	}
+	return out
+}
+
+// mentions returns every env var mention of d in document order.
+func mentions(d *markdown.Doc) []mention {
 	var ms []mention
 	for _, b := range d.Blocks {
 		if b.Ignored {
@@ -122,24 +146,23 @@ func Check(ctx runner.Context, d *markdown.Doc) []finding.Finding {
 	sort.SliceStable(ms, func(i, j int) bool {
 		return ms[i].line < ms[j].line || ms[i].line == ms[j].line && ms[i].col < ms[j].col
 	})
-	docPath, exampleRel := runner.Rel(ctx, d.Path), runner.Rel(ctx, example)
-	var out []finding.Finding
-	seen := map[string]bool{}
-	for _, m := range ms {
-		if seen[m.name] || !identRE.MatchString(m.name) || tooling(m.name) || slices.Contains(keys, m.name) {
-			continue
+	return ms
+}
+
+// Loc is where a variable is first documented.
+type Loc struct {
+	Path      string
+	Line, Col int
+}
+
+// Documented returns the app variables d mentions (platform and toolchain
+// names excluded), keyed by name, each at its first mention.
+func Documented(ctx runner.Context, d *markdown.Doc) map[string]Loc {
+	out := map[string]Loc{}
+	for _, m := range mentions(d) {
+		if _, ok := out[m.name]; !ok && identRE.MatchString(m.name) && !tooling(m.name) {
+			out[m.name] = Loc{runner.Rel(ctx, d.Path), m.line, m.col}
 		}
-		seen[m.name] = true
-		f := finding.Finding{
-			Rule: RuleEnvNotInExample, Severity: finding.Error, Path: docPath,
-			Line: m.line, Col: m.col, Subject: m.name,
-			Message:    "env var " + `"` + m.name + `"` + " not found in " + exampleRel,
-			Suggestion: runner.Closest(m.name, keys),
-		}
-		if f.Suggestion != "" {
-			f.Message += " (did you mean " + `"` + f.Suggestion + `"` + "?)"
-		}
-		out = append(out, f)
 	}
 	return out
 }
