@@ -25,6 +25,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/runner/npm"
 	"github.com/jnvr1/stalemark/internal/runner/pyproject"
 	"github.com/jnvr1/stalemark/internal/runner/taskfile"
+	"github.com/jnvr1/stalemark/internal/toolver"
 )
 
 // version is injected at build time via -ldflags "-X github.com/jnvr1/stalemark/internal/cli.version=...".
@@ -198,6 +199,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		all = append(all, pathref.Check(ctx, d)...)
 		all = append(all, envvars.Check(ctx, d)...)
 		all = append(all, ports.Check(ctx, d)...)
+		all = append(all, toolver.Check(ctx, d)...)
 	}
 	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
 	return root, cfg, all, nil

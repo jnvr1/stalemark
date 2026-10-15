@@ -23,6 +23,15 @@ type Doc struct {
 	Links  []Link
 	// Headings lists every heading in document order.
 	Headings []Heading
+	// Paragraphs lists the plain text of every paragraph and tight list item in
+	// document order, line breaks joined with a space.
+	Paragraphs []Paragraph
+}
+
+// Paragraph is the plain text of a paragraph; Line is its first line.
+type Paragraph struct {
+	Text string
+	Line int
 }
 
 // Heading is a heading of any level; Text is its plain text, Line its first line.
@@ -103,6 +112,10 @@ func Parse(path string, src []byte) (*Doc, error) {
 			if first := firstText(n); first != nil {
 				doc.Headings = append(doc.Headings, Heading{n.Level, plainText(n, body), ix.line(first.Segment.Start)})
 			}
+		case *ast.Paragraph, *ast.TextBlock:
+			if first := firstText(n); first != nil {
+				doc.Paragraphs = append(doc.Paragraphs, Paragraph{plainText(n, body), ix.line(first.Segment.Start)})
+			}
 		case *ast.Link:
 			if l, ok := link(n, n.Destination, body, ix); ok {
 				doc.Links = append(doc.Links, l)
@@ -179,6 +192,9 @@ func plainText(n ast.Node, body []byte) string {
 	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
 		if t, ok := c.(*ast.Text); ok {
 			sb.Write(t.Segment.Value(body))
+			if t.SoftLineBreak() || t.HardLineBreak() {
+				sb.WriteByte(' ')
+			}
 		} else {
 			sb.WriteString(plainText(c, body))
 		}

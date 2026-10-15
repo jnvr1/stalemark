@@ -34,6 +34,7 @@ var catalog = map[string]ruleDoc{
 	"SM-A009": {"cargo target not found", "A cargo --bin, --example or -p target named in the docs is not in Cargo.toml."},
 	"SM-E001": {"env var not in .env.example", "A variable the docs name is missing from the nearest .env.example"},
 	"SM-N001": {"documented localhost port not published", "A localhost port the docs name is not published by any Dockerfile EXPOSE or compose ports entry."},
+	"SM-V001": {"documented tool version differs from version file", "A node, go, python or rust version the docs state differs from the one .nvmrc, go.mod, pyproject.toml or another version file pins."},
 	"SM-P001": {"path not found", "A file or directory referenced in the docs does not exist in the repository."},
 }
 
