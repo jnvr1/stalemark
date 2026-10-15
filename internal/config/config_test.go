@@ -64,6 +64,17 @@ func TestLoadEnvSection(t *testing.T) {
 	}
 }
 
+func TestLoadADRDirs(t *testing.T) {
+	dir := write(t, map[string]string{".stalemark.yml": "adr:\n  dirs: [decisions]\n"})
+	cfg, err := config.Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := []string{"decisions"}; !reflect.DeepEqual(cfg.ADR.Dirs, want) {
+		t.Errorf("ADR.Dirs = %v, want %v", cfg.ADR.Dirs, want)
+	}
+}
+
 func TestLoadErrors(t *testing.T) {
 	tests := map[string]struct{ yml, want string }{
 		"unknown key":     {"includes: [a.md]\n", "includes"},
