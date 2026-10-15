@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-E003",
+    "Severity": "note",
+    "Path": "src/main.rs",
+    "Line": 2,
+    "Col": 0,
+    "Message": "env var \"APP_KEY\" is read by code but not documented",
+    "Subject": "APP_KEY",
+    "Suggestion": ""
+  }
+]

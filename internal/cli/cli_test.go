@@ -318,6 +318,35 @@ func TestBaselineCommand(t *testing.T) {
 	}
 }
 
+func TestEnvCodePass(t *testing.T) {
+	src := "const x = process.env.X;\n"
+	noteOnly := fixture(t, map[string]string{"README.md": "# x\n", "src/app.js": src})
+	unused := fixture(t, map[string]string{
+		"README.md":      "# x\n\n## Setup\n\n```bash\nexport Y=1\n```\n",
+		".env.example":   "Y=1\n",
+		"src/app.js":     src,
+		".stalemark.yml": "env:\n  documented-unused: true\n",
+	})
+	tests := []struct {
+		name     string
+		dir      string
+		wantCode int
+		wantOut  string
+	}{
+		{"a note alone does not fail the run", noteOnly, 0, "SM-E003"},
+		{"documented-unused warns and fails", unused, 1, "SM-E004"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			code := cli.Run([]string{"check", tt.dir}, &stdout, &stderr)
+			if code != tt.wantCode || !strings.Contains(stdout.String(), tt.wantOut) {
+				t.Errorf("exit = %d, stdout = %q (stderr %q), want exit %d with %s", code, stdout.String(), stderr.String(), tt.wantCode, tt.wantOut)
+			}
+		})
+	}
+}
+
 func TestBaselineCommandCounts(t *testing.T) {
 	two := fixture(t, map[string]string{"README.md": badDoc + "\n```bash\nnpm run buidl2\n```\n", "package.json": pkgJSON})
 	zero := fixture(t, map[string]string{"README.md": goodDoc, "package.json": pkgJSON})
