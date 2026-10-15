@@ -1,0 +1,6 @@
+[tool.poetry]
+name = "root"
+version = "0.1.0"
+
+[tool.poetry.scripts]
+serve = "root:main"

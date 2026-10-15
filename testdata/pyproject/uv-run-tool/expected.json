@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "uv script \"srve\" not found in pyproject.toml (did you mean \"serve\"?)",
+    "Subject": "srve",
+    "Suggestion": "serve"
+  }
+]

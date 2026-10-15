@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 6,
+    "Col": 0,
+    "Message": "hatch script \"docs:biuld\" not found in pyproject.toml (did you mean \"docs:build\"?)",
+    "Subject": "docs:biuld",
+    "Suggestion": "docs:build"
+  },
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 8,
+    "Col": 0,
+    "Message": "hatch script \"tset\" not found in pyproject.toml (did you mean \"test\"?)",
+    "Subject": "tset",
+    "Suggestion": "test"
+  }
+]

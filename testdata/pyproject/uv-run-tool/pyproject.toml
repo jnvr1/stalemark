@@ -1,0 +1,11 @@
+[project]
+name = "demo"
+version = "0.1.0"
+dependencies = ["rich>=13"]
+
+[project.scripts]
+serve = "demo:main"
+ruff-all = "demo.tools:ruff_all"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff"]

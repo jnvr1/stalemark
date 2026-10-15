@@ -1,0 +1,42 @@
+[
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "poetry script \"srve\" not found in sub/pyproject.toml (did you mean \"serve\"?)",
+    "Subject": "srve",
+    "Suggestion": "serve"
+  },
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 6,
+    "Col": 0,
+    "Message": "uv script \"srve\" not found in sub/pyproject.toml (did you mean \"serve\"?)",
+    "Subject": "srve",
+    "Suggestion": "serve"
+  },
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "uv script \"srve\" not found in sub/pyproject.toml (did you mean \"serve\"?)",
+    "Subject": "srve",
+    "Suggestion": "serve"
+  },
+  {
+    "Rule": "SM-A006",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 9,
+    "Col": 0,
+    "Message": "pdm script \"linnt\" not found in sub/pyproject.toml (did you mean \"lint\"?)",
+    "Subject": "linnt",
+    "Suggestion": "lint"
+  }
+]
