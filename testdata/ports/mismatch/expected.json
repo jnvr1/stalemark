@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-N001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 3,
+    "Col": 7,
+    "Message": "port 3000 is documented but not published (compose.yml publishes 8080)",
+    "Subject": "3000",
+    "Suggestion": "8080"
+  }
+]

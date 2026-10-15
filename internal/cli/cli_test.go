@@ -200,6 +200,17 @@ func TestRunEnvVars(t *testing.T) {
 	}
 }
 
+func TestRunPorts(t *testing.T) {
+	dir := fixture(t, map[string]string{"compose.yml": "services:\n  web:\n    ports:\n      - \"8080:80\"\n", "README.md": "# x\n\nOpen `localhost:3000`.\n"})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-N001") {
+		t.Errorf("stdout = %q, want it to contain SM-N001", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,
