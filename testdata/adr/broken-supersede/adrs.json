@@ -1,0 +1,21 @@
+[
+  {
+    "Number": 1,
+    "Title": "X",
+    "Status": "superseded",
+    "Path": "docs/adr/0001-x.md",
+    "SupersededBy": [
+      12
+    ]
+  },
+  {
+    "Number": 2,
+    "Title": "Y",
+    "Status": "superseded",
+    "Path": "docs/adr/0002-y.md",
+    "SupersededBy": [
+      1,
+      44
+    ]
+  }
+]

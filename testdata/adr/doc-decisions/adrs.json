@@ -1,0 +1,8 @@
+[
+  {
+    "Number": 1,
+    "Title": "X",
+    "Status": "deprecated",
+    "Path": "doc/decisions/0001-x.md"
+  }
+]

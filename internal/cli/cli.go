@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 
+	"github.com/jnvr1/stalemark/internal/adr"
 	"github.com/jnvr1/stalemark/internal/config"
 	"github.com/jnvr1/stalemark/internal/envvars"
 	"github.com/jnvr1/stalemark/internal/finding"
@@ -215,6 +216,13 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 			return "", cfg, nil, err
 		}
 		all = append(all, envvars.CheckCode(documented, reads, cfg.Env.DocumentedUnused)...)
+	}
+	if info.IsDir() {
+		adrs, err := adr.Load(root, cfg.ADR.Dirs)
+		if err != nil {
+			return "", cfg, nil, err
+		}
+		all = append(all, adr.CheckSupersedes(ctx, adrs)...)
 	}
 	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
 	return root, cfg, all, nil

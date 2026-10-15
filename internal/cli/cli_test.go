@@ -222,6 +222,17 @@ func TestRunToolVersions(t *testing.T) {
 	}
 }
 
+func TestRunADRSupersede(t *testing.T) {
+	dir := fixture(t, map[string]string{"docs/adr/0001-a.md": "# 1. A\n\n## Status\n\nSuperseded by 0002\n"})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-D001") {
+		t.Errorf("stdout = %q, want it to contain SM-D001", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,

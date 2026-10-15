@@ -27,6 +27,10 @@ type Config struct {
 	Env      struct {
 		DocumentedUnused bool `yaml:"documented-unused"`
 	} `yaml:"env"`
+	// ADR.Dirs overrides the default ADR directories, relative to the root.
+	ADR struct {
+		Dirs []string `yaml:"dirs"`
+	} `yaml:"adr"`
 }
 
 // Load reads root/.stalemark.yml; a missing file yields the defaults. Unknown

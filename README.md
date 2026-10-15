@@ -8,7 +8,7 @@ commands that no longer exist, paths that were moved, env vars that were
 renamed, tool versions that drifted. Deterministic first, zero false positives
 as a design goal, non-zero exit code when something is stale.
 
-**Status: pre-alpha.** `stalemark check` runs the v0.1 command checks (npm/pnpm/yarn/bun scripts, `make` targets, `task`, `just`, poetry/uv/pdm/hatch scripts, `go` packages, `cargo` targets), file/directory references (backticked paths and link targets), env vars against `.env.example`, localhost ports against Docker and compose files and tool versions against version files on `README.md`, `CONTRIBUTING.md` and `docs/**/*.md`; the other milestones are not implemented yet.
+**Status: pre-alpha.** `stalemark check` runs the v0.1 command checks (npm/pnpm/yarn/bun scripts, `make` targets, `task`, `just`, poetry/uv/pdm/hatch scripts, `go` packages, `cargo` targets), file/directory references (backticked paths and link targets), env vars against `.env.example`, localhost ports against Docker and compose files and tool versions against version files and ADR status links on `README.md`, `CONTRIBUTING.md` and `docs/**/*.md`; the other milestones are not implemented yet.
 See [docs/research](docs/research/) for the landscape and feasibility studies
 that shaped the scope.
 
@@ -34,6 +34,7 @@ disable: [SM-A001]                                    # rule IDs to skip
 baseline: .stalemark-baseline.json
 env:
   documented-unused: true                             # opt in to SM-E004
+adr: {dirs: [docs/adr]}                               # ADR directories (default: docs/adr, docs/adrs, adr, doc/adr, doc/decisions, docs/decisions)
 ```
 
 How env vars are compared with the code is described in [docs/checks/env.md](docs/checks/env.md).

@@ -1,0 +1,26 @@
+[
+  {
+    "Number": 1,
+    "Title": "Use Markdown Architectural Decision Records",
+    "Status": "accepted",
+    "Path": "docs/decisions/0001-use-markdown-architectural-decision-records.md"
+  },
+  {
+    "Number": 2,
+    "Title": "Choose database",
+    "Status": "superseded",
+    "Path": "docs/decisions/0002-choose-database.md",
+    "SupersededBy": [
+      3
+    ]
+  },
+  {
+    "Number": 3,
+    "Title": "Choose another database",
+    "Status": "accepted",
+    "Path": "docs/decisions/0003-choose-another-database.md",
+    "Links": [
+      2
+    ]
+  }
+]

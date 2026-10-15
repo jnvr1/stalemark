@@ -1,0 +1,14 @@
+[
+  {
+    "Number": 4,
+    "Title": "Ok",
+    "Status": "accepted",
+    "Path": "docs/adr/0004-ok.md"
+  },
+  {
+    "Number": 2024,
+    "Title": "01 01 meeting",
+    "Status": "",
+    "Path": "docs/adr/2024-01-01-meeting.md"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-D001",
+    "Severity": "error",
+    "Path": "docs/adr/0001-x.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "ADR is superseded by 0012, which does not exist",
+    "Subject": "0012",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-D001",
+    "Severity": "error",
+    "Path": "docs/adr/0002-y.md",
+    "Line": 1,
+    "Col": 0,
+    "Message": "ADR is superseded by 0044, which does not exist",
+    "Subject": "0044",
+    "Suggestion": ""
+  }
+]
