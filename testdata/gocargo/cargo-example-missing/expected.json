@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "cargo example \"dmeo\" not found in Cargo.toml (did you mean \"demo\"?)",
+    "Subject": "dmeo",
+    "Suggestion": "demo"
+  },
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 8,
+    "Col": 0,
+    "Message": "cargo example \"gone\" not found in Cargo.toml",
+    "Subject": "gone",
+    "Suggestion": ""
+  }
+]

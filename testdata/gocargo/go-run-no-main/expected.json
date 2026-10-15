@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A008",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 4,
+    "Col": 0,
+    "Message": "go run \"./internal/lib\" is not a main package",
+    "Subject": "./internal/lib",
+    "Suggestion": ""
+  }
+]

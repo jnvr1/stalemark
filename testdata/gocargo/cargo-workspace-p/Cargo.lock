@@ -1,0 +1,13 @@
+version = 3
+
+[[package]]
+name = "cli"
+version = "0.1.0"
+
+[[package]]
+name = "core"
+version = "0.1.0"
+
+[[package]]
+name = "tokio"
+version = "1.0.0"

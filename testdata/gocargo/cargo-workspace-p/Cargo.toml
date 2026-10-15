@@ -1,0 +1,6 @@
+[workspace]
+members = ["crates/*", "tools/cli"]
+exclude = ["crates/skip"]
+
+[workspace.dependencies]
+serde = "1"

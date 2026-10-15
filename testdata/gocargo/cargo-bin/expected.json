@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 8,
+    "Col": 0,
+    "Message": "cargo bin \"tol\" not found in Cargo.toml (did you mean \"tool\"?)",
+    "Subject": "tol",
+    "Suggestion": "tool"
+  }
+]

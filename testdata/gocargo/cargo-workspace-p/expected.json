@@ -1,0 +1,42 @@
+[
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 9,
+    "Col": 0,
+    "Message": "cargo package \"skip\" not found in Cargo.toml (did you mean \"cli\"?)",
+    "Subject": "skip",
+    "Suggestion": "cli"
+  },
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 10,
+    "Col": 0,
+    "Message": "cargo package \"clii\" not found in Cargo.toml (did you mean \"cli\"?)",
+    "Subject": "clii",
+    "Suggestion": "cli"
+  },
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 11,
+    "Col": 0,
+    "Message": "cargo bin \"missing\" not found in Cargo.toml",
+    "Subject": "missing",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A009",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 22,
+    "Col": 0,
+    "Message": "cargo package \"nope\" not found in Cargo.toml (did you mean \"core\"?)",
+    "Subject": "nope",
+    "Suggestion": "core"
+  }
+]

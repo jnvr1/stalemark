@@ -1,0 +1,32 @@
+[
+  {
+    "Rule": "SM-A007",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 4,
+    "Col": 0,
+    "Message": "go package \"./cmd/missing\" not found (no directory cmd/missing)",
+    "Subject": "./cmd/missing",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A007",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 6,
+    "Col": 0,
+    "Message": "go package \"./pkg/...\" not found (no directory pkg)",
+    "Subject": "./pkg/...",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-A007",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "go file \"main.go\" not found",
+    "Subject": "main.go",
+    "Suggestion": ""
+  }
+]
