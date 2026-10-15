@@ -177,6 +177,17 @@ func TestRunJSONFindings(t *testing.T) {
 	}
 }
 
+func TestRunPathRefs(t *testing.T) {
+	dir := fixture(t, map[string]string{"README.md": "# x\n\nSee `cmd/nope/main.go`.\n"})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-P001") {
+		t.Errorf("stdout = %q, want it to contain SM-P001", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,

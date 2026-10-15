@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 10,
+    "Message": "path \"docs/y.md\" not found",
+    "Subject": "docs/y.md",
+    "Suggestion": ""
+  }
+]

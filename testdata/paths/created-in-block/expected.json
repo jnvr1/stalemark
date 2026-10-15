@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 12,
+    "Col": 8,
+    "Message": "path \"other/thing.go\" not found",
+    "Subject": "other/thing.go",
+    "Suggestion": ""
+  }
+]

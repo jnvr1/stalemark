@@ -13,6 +13,7 @@ import (
 
 	"github.com/jnvr1/stalemark/internal/finding"
 	"github.com/jnvr1/stalemark/internal/markdown"
+	"github.com/jnvr1/stalemark/internal/pathref"
 	"github.com/jnvr1/stalemark/internal/report"
 	"github.com/jnvr1/stalemark/internal/runner"
 	"github.com/jnvr1/stalemark/internal/runner/gocargo"
@@ -100,6 +101,7 @@ func check(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		all = append(all, reg.CheckDoc(ctx, d)...)
+		all = append(all, pathref.Check(ctx, d)...)
 	}
 
 	if err := render(stdout, all); err != nil {

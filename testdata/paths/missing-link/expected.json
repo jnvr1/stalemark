@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 3,
+    "Col": 10,
+    "Message": "path \"docs/missing.md\" not found",
+    "Subject": "docs/missing.md",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 3,
+    "Message": "path \"assets/nope.png\" not found",
+    "Subject": "assets/nope.png",
+    "Suggestion": ""
+  }
+]
