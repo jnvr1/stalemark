@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 3,
+    "Col": 17,
+    "Message": "path \"cmd/gone/main.go\" not found",
+    "Subject": "cmd/gone/main.go",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 8,
+    "Message": "path \"cmd/gone/main.go\" not found",
+    "Subject": "cmd/gone/main.go",
+    "Suggestion": ""
+  }
+]
