@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "rule": "SM-A001",
+      "severity": "error",
+      "file": "README.md",
+      "line": 7,
+      "column": 0,
+      "message": "npm script \"buidl\" not found in package.json (did you mean \"build\"?)",
+      "subject": "buidl",
+      "fingerprint": "b0689fc23d95639a"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -96,6 +97,12 @@ func TestRun(t *testing.T) {
 			wantStdout: finding1 + "\n1 finding in 1 file\n",
 		},
 		{
+			name:       "--format json on a clean dir renders an empty findings array",
+			args:       []string{"check", "--format", "json", clean},
+			wantCode:   0,
+			wantStdout: "{\n  \"version\": 1,\n  \"findings\": []\n}\n",
+		},
+		{
 			name:       "unknown format exits 2",
 			args:       []string{"check", "--format", "xml", drift},
 			wantCode:   2,
@@ -139,6 +146,23 @@ func TestRun(t *testing.T) {
 				t.Errorf("stderr = %q, want it to contain %q", stderr.String(), tt.wantStderr)
 			}
 		})
+	}
+}
+
+func TestRunJSONFindings(t *testing.T) {
+	drift := fixture(t, map[string]string{"README.md": badDoc, "package.json": pkgJSON})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", "--format", "json", drift}, &stdout, &stderr); code != 1 {
+		t.Fatalf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	var doc struct {
+		Findings []struct{ Rule, File string }
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &doc); err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Findings) != 1 || doc.Findings[0].File != "README.md" || doc.Findings[0].Rule != "SM-A001" {
+		t.Errorf("findings = %+v", doc.Findings)
 	}
 }
 
