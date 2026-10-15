@@ -26,7 +26,7 @@ import (
 var version = "dev"
 
 const usage = `Usage:
-  stalemark check [--format text] [path]
+  stalemark check [--format text|json] [path]
                            check Markdown docs against the repository (default path: .)
   stalemark --version      print version and exit
 
@@ -66,14 +66,15 @@ func check(args []string, stdout, stderr io.Writer) int {
 	flags := flag.NewFlagSet("stalemark check", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	flags.Usage = func() { fmt.Fprint(stderr, usage) }
-	format := flags.String("format", "text", "output format (text)")
+	format := flags.String("format", "text", "output format (text|json)")
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
 		}
 		return 2
 	}
-	if *format != "text" {
+	render, ok := report.Formats[*format]
+	if !ok {
 		fmt.Fprintf(stderr, "stalemark: unknown format %q\n", *format)
 		return 2
 	}
@@ -100,7 +101,7 @@ func check(args []string, stdout, stderr io.Writer) int {
 		all = append(all, reg.CheckDoc(ctx, d)...)
 	}
 
-	if err := report.Text(stdout, all); err != nil {
+	if err := render(stdout, all); err != nil {
 		fmt.Fprintln(stderr, "stalemark:", err)
 		return 2
 	}
