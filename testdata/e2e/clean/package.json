@@ -1,0 +1,9 @@
+{
+  "name": "demo",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  }
+}

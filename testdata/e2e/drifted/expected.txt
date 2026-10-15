@@ -1,0 +1,11 @@
+README.md:7: SM-A001 npm script "buidl" not found in package.json (did you mean "build"?)
+README.md:9: SM-A002 make target "bild" not found in Makefile (did you mean "build"?)
+README.md:11: SM-A003 task "lnt" not found in Taskfile.yml (did you mean "lint"?)
+README.md:13: SM-A005 just recipe "deplyo" not found in justfile (did you mean "deploy"?)
+README.md:15: SM-A006 poetry script "srve" not found in pyproject.toml (did you mean "serve"?)
+README.md:17: SM-A007 go package "./cmd/missing" not found (no directory cmd/missing)
+README.md:20:56: SM-P001 path "cmd/gone/main.go" not found
+
+docs/guide.md:3:10: SM-P001 path "setup/install.md" not found
+
+8 findings in 2 files
