@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "rule": "SM-A001",
+      "severity": "error",
+      "file": "README.md",
+      "line": 7,
+      "column": 0,
+      "message": "npm script \"buidl\" not found in package.json (did you mean \"build\"?)",
+      "subject": "buidl",
+      "fingerprint": "b0689fc23d95639a"
+    },
+    {
+      "rule": "SM-A002",
+      "severity": "error",
+      "file": "README.md",
+      "line": 9,
+      "column": 0,
+      "message": "make target \"bild\" not found in Makefile (did you mean \"build\"?)",
+      "subject": "bild",
+      "fingerprint": "141d04b502c20c4a"
+    },
+    {
+      "rule": "SM-A003",
+      "severity": "error",
+      "file": "README.md",
+      "line": 11,
+      "column": 0,
+      "message": "task \"lnt\" not found in Taskfile.yml (did you mean \"lint\"?)",
+      "subject": "lnt",
+      "fingerprint": "409269b830dfcfab"
+    },
+    {
+      "rule": "SM-A005",
+      "severity": "error",
+      "file": "README.md",
+      "line": 13,
+      "column": 0,
+      "message": "just recipe \"deplyo\" not found in justfile (did you mean \"deploy\"?)",
+      "subject": "deplyo",
+      "fingerprint": "e2b55bba57e55fcc"
+    },
+    {
+      "rule": "SM-A006",
+      "severity": "error",
+      "file": "README.md",
+      "line": 15,
+      "column": 0,
+      "message": "poetry script \"srve\" not found in pyproject.toml (did you mean \"serve\"?)",
+      "subject": "srve",
+      "fingerprint": "8eab1ae2e1281d17"
+    },
+    {
+      "rule": "SM-A007",
+      "severity": "error",
+      "file": "README.md",
+      "line": 17,
+      "column": 0,
+      "message": "go package \"./cmd/missing\" not found (no directory cmd/missing)",
+      "subject": "./cmd/missing",
+      "fingerprint": "8d11aaf8927d1a9b"
+    },
+    {
+      "rule": "SM-P001",
+      "severity": "error",
+      "file": "README.md",
+      "line": 20,
+      "column": 56,
+      "message": "path \"cmd/gone/main.go\" not found",
+      "subject": "cmd/gone/main.go",
+      "fingerprint": "f0a70a4b53393e78"
+    },
+    {
+      "rule": "SM-P001",
+      "severity": "error",
+      "file": "docs/guide.md",
+      "line": 3,
+      "column": 10,
+      "message": "path \"setup/install.md\" not found",
+      "subject": "setup/install.md",
+      "fingerprint": "97a05819acf41e12"
+    }
+  ]
+}

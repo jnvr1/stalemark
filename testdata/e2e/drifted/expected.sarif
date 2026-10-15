@@ -1,0 +1,276 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "stalemark",
+          "version": "dev",
+          "informationUri": "https://github.com/jnvr1/stalemark",
+          "rules": [
+            {
+              "id": "SM-A001",
+              "shortDescription": {
+                "text": "npm script not found"
+              },
+              "help": {
+                "text": "A package.json script named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-A002",
+              "shortDescription": {
+                "text": "make target not found"
+              },
+              "help": {
+                "text": "A Makefile target named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-A003",
+              "shortDescription": {
+                "text": "task not found"
+              },
+              "help": {
+                "text": "A Taskfile task named in the docs is not defined."
+              }
+            },
+            {
+              "id": "SM-A005",
+              "shortDescription": {
+                "text": "just recipe not found"
+              },
+              "help": {
+                "text": "A justfile recipe named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-A006",
+              "shortDescription": {
+                "text": "pyproject script not found"
+              },
+              "help": {
+                "text": "A pyproject.toml script named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-A007",
+              "shortDescription": {
+                "text": "go package or file not found"
+              },
+              "help": {
+                "text": "A local Go package directory or .go file named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-P001",
+              "shortDescription": {
+                "text": "path not found"
+              },
+              "help": {
+                "text": "A file or directory referenced in the docs does not exist in the repository."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SM-A001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "npm script \"buidl\" not found in package.json (did you mean \"build\"?)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "b0689fc23d95639a"
+          }
+        },
+        {
+          "ruleId": "SM-A002",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "make target \"bild\" not found in Makefile (did you mean \"build\"?)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 9
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "141d04b502c20c4a"
+          }
+        },
+        {
+          "ruleId": "SM-A003",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "task \"lnt\" not found in Taskfile.yml (did you mean \"lint\"?)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 11
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "409269b830dfcfab"
+          }
+        },
+        {
+          "ruleId": "SM-A005",
+          "ruleIndex": 3,
+          "level": "error",
+          "message": {
+            "text": "just recipe \"deplyo\" not found in justfile (did you mean \"deploy\"?)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 13
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "e2b55bba57e55fcc"
+          }
+        },
+        {
+          "ruleId": "SM-A006",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "poetry script \"srve\" not found in pyproject.toml (did you mean \"serve\"?)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "8eab1ae2e1281d17"
+          }
+        },
+        {
+          "ruleId": "SM-A007",
+          "ruleIndex": 5,
+          "level": "error",
+          "message": {
+            "text": "go package \"./cmd/missing\" not found (no directory cmd/missing)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "8d11aaf8927d1a9b"
+          }
+        },
+        {
+          "ruleId": "SM-P001",
+          "ruleIndex": 6,
+          "level": "error",
+          "message": {
+            "text": "path \"cmd/gone/main.go\" not found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 56
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "f0a70a4b53393e78"
+          }
+        },
+        {
+          "ruleId": "SM-P001",
+          "ruleIndex": 6,
+          "level": "error",
+          "message": {
+            "text": "path \"setup/install.md\" not found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/guide.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "97a05819acf41e12"
+          }
+        }
+      ]
+    }
+  ]
+}
