@@ -1,0 +1,3 @@
+docs/guide.md:4: SM-A001 npm script "buidl" not found in package.json (did you mean "build"?)
+
+1 finding in 1 file

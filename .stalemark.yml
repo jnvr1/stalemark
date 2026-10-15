@@ -1,0 +1,2 @@
+# Research notes mention other repos' paths on purpose.
+exclude: ["docs/research/**"]

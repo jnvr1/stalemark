@@ -6,11 +6,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
 
+	"github.com/jnvr1/stalemark/internal/config"
 	"github.com/jnvr1/stalemark/internal/finding"
 	"github.com/jnvr1/stalemark/internal/markdown"
 	"github.com/jnvr1/stalemark/internal/pathref"
@@ -30,6 +31,8 @@ var version = "dev"
 const usage = `Usage:
   stalemark check [--format text|json|sarif|github] [path]
                            check Markdown docs against the repository (default path: .)
+  stalemark baseline [path]
+                           write the baseline file from the current findings
   stalemark --version      print version and exit
 
 Exit codes: 0 clean, 1 findings, 2 tool error.
@@ -59,6 +62,8 @@ func Run(args []string, stdout, stderr io.Writer) int {
 	switch fs.Arg(0) {
 	case "check":
 		return check(fs.Args()[1:], stdout, stderr)
+	case "baseline":
+		return baseline(fs.Args()[1:], stdout, stderr)
 	default:
 		fs.Usage()
 		return 2
@@ -82,74 +87,114 @@ func check(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
-	path := "."
-	if flags.NArg() > 0 {
-		path = flags.Arg(0)
+	root, cfg, all, err := pipeline(flags.Arg(0))
+	var base map[string]config.Entry
+	if err == nil {
+		base, err = config.ReadBaseline(filepath.Join(root, cfg.Baseline))
 	}
-	root, docs, err := discover(path)
 	if err != nil {
 		fmt.Fprintln(stderr, "stalemark:", err)
 		return 2
 	}
 
-	reg := runner.New(npm.New(), makefile.New(), taskfile.New(), justfile.New(), pyproject.New(), gocargo.New())
-	ctx := runner.Context{Root: root}
-	var all []finding.Finding
-	for _, p := range docs {
-		d, err := markdown.Load(p)
-		if err != nil {
-			fmt.Fprintln(stderr, "stalemark:", err)
-			return 2
+	var reported []finding.Finding
+	matched := map[string]bool{}
+	for _, f := range all {
+		if _, ok := base[f.Fingerprint()]; ok {
+			matched[f.Fingerprint()] = true
+		} else {
+			reported = append(reported, f)
 		}
-		all = append(all, reg.CheckDoc(ctx, d)...)
-		all = append(all, pathref.Check(ctx, d)...)
+	}
+	// ponytail: checking a single file reports every other file's baseline entry as stale; scope the notice to the checked docs if that gets noisy.
+	for _, fp := range slices.Sorted(maps.Keys(base)) {
+		if !matched[fp] {
+			e := base[fp]
+			fmt.Fprintf(stderr, "stalemark: notice: baseline entry %s (%s %s %s) no longer matches\n", fp, e.Rule, e.File, e.Subject)
+		}
 	}
 
-	if err := render(stdout, all); err != nil {
+	if err := render(stdout, reported); err != nil {
 		fmt.Fprintln(stderr, "stalemark:", err)
 		return 2
 	}
-	if len(all) > 0 {
+	if len(reported) > 0 {
 		return 1
 	}
 	return 0
 }
 
-// discover returns the absolute check root and the sorted Markdown files to
-// check: path itself when it is a file, otherwise README.md, CONTRIBUTING.md
-// and docs/**/*.md under it.
-//
-// ponytail: hardcoded include set (README.md, CONTRIBUTING.md, docs/**/*.md) until .stalemark.yml (#14) makes it configurable.
-func discover(path string) (root string, docs []string, err error) {
+// baseline writes every current finding (after rule disabling, before any
+// baseline filtering) to the configured baseline file.
+func baseline(args []string, stdout, stderr io.Writer) int {
+	flags := flag.NewFlagSet("stalemark baseline", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	flags.Usage = func() { fmt.Fprint(stderr, usage) }
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return 0
+		}
+		return 2
+	}
+
+	root, cfg, all, err := pipeline(flags.Arg(0))
+	var entries map[string]config.Entry
+	if err == nil {
+		path := filepath.Join(root, cfg.Baseline)
+		if err = config.WriteBaseline(path, all); err == nil {
+			entries, err = config.ReadBaseline(path)
+		}
+	}
+	if err != nil {
+		fmt.Fprintln(stderr, "stalemark:", err)
+		return 2
+	}
+	noun := "entries"
+	if len(entries) == 1 {
+		noun = "entry"
+	}
+	fmt.Fprintf(stdout, "wrote %d %s to %s\n", len(entries), noun, filepath.ToSlash(cfg.Baseline))
+	return 0
+}
+
+// pipeline loads the config, finds the docs of path ("" means ".") and runs
+// every check on them, dropping the findings of disabled rules. A file path
+// checks only that file, with its directory as root.
+func pipeline(path string) (root string, cfg config.Config, all []finding.Finding, err error) {
+	if path == "" {
+		path = "."
+	}
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		return "", nil, err
+		return "", cfg, nil, err
 	}
 	info, err := os.Stat(abs)
 	if err != nil {
-		return "", nil, err
+		return "", cfg, nil, err
 	}
+	root, docs := abs, []string(nil)
 	if !info.IsDir() {
-		return filepath.Dir(abs), []string{abs}, nil
+		root, docs = filepath.Dir(abs), []string{abs}
+	}
+	if cfg, err = config.Load(root); err != nil {
+		return "", cfg, nil, err
+	}
+	if info.IsDir() {
+		if docs, err = cfg.Docs(root); err != nil {
+			return "", cfg, nil, err
+		}
 	}
 
-	for _, name := range []string{"README.md", "CONTRIBUTING.md"} {
-		if p := runner.Discover(abs, name); p != "" {
-			docs = append(docs, p)
-		}
-	}
-	docsDir := filepath.Join(abs, "docs")
-	if _, err := os.Stat(docsDir); err == nil {
-		err = filepath.WalkDir(docsDir, func(p string, d fs.DirEntry, err error) error {
-			if err == nil && !d.IsDir() && filepath.Ext(p) == ".md" {
-				docs = append(docs, p)
-			}
-			return err
-		})
+	reg := runner.New(npm.New(), makefile.New(), taskfile.New(), justfile.New(), pyproject.New(), gocargo.New())
+	ctx := runner.Context{Root: root}
+	for _, p := range docs {
+		d, err := markdown.Load(p)
 		if err != nil {
-			return "", nil, err
+			return "", cfg, nil, err
 		}
+		all = append(all, reg.CheckDoc(ctx, d)...)
+		all = append(all, pathref.Check(ctx, d)...)
 	}
-	slices.Sort(docs)
-	return abs, docs, nil
+	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
+	return root, cfg, all, nil
 }

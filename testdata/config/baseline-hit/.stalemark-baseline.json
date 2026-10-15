@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "fingerprint": "b0689fc23d95639a",
+      "rule": "SM-A001",
+      "file": "README.md",
+      "subject": "buidl"
+    }
+  ]
+}

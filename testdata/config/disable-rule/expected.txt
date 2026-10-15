@@ -1,0 +1,3 @@
+README.md:3:6: SM-P001 path "cmd/nope/main.go" not found
+
+1 finding in 1 file

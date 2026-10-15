@@ -20,7 +20,24 @@ stalemark check --format text README.md
 stalemark check --format json
 stalemark check --format sarif > stalemark.sarif
 stalemark check --format github
+stalemark baseline
 ```
+
+## Configuration
+
+An optional `.stalemark.yml` in the checked directory (unknown keys are an error):
+
+```yaml
+include: [README.md, CONTRIBUTING.md, "docs/**/*.md"] # doublestar globs
+exclude: ["docs/research/**"]
+disable: [SM-A001]                                    # rule IDs to skip
+baseline: .stalemark-baseline.json
+```
+
+To adopt stalemark without fixing history, run `stalemark baseline` to record
+the current findings. `stalemark check` then skips them, matching on rule,
+document and subject (not line numbers), and prints a notice on stderr for
+baseline entries that no longer match anything.
 
 ## Planned checks
 
