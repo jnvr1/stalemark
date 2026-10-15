@@ -20,5 +20,12 @@
       "Col": 7
     }
   ],
-  "Links": null
+  "Links": null,
+  "Headings": [
+    {
+      "Level": 1,
+      "Text": "Front matter",
+      "Line": 5
+    }
+  ]
 }

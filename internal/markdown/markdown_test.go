@@ -45,10 +45,11 @@ func TestLoadGolden(t *testing.T) {
 			}
 
 			got, err := json.MarshalIndent(struct {
-				Blocks []markdown.CodeBlock
-				Spans  []markdown.InlineCode
-				Links  []markdown.Link
-			}{doc.Blocks, doc.Spans, doc.Links}, "", "  ")
+				Blocks   []markdown.CodeBlock
+				Spans    []markdown.InlineCode
+				Links    []markdown.Link
+				Headings []markdown.Heading
+			}{doc.Blocks, doc.Spans, doc.Links, doc.Headings}, "", "  ")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -192,6 +193,22 @@ func TestParseSpansAndLinks(t *testing.T) {
 				t.Errorf("Links = %+v, want %+v", doc.Links, tt.wantLinks)
 			}
 		})
+	}
+}
+
+func TestParseHeadings(t *testing.T) {
+	src := "---\na: 1\n---\n# Top `x`\n\ntext\n\n## Getting *started*\n\nSetup\n=====\n"
+	want := []markdown.Heading{
+		{Level: 1, Text: "Top x", Line: 4},
+		{Level: 2, Text: "Getting started", Line: 8},
+		{Level: 1, Text: "Setup", Line: 10},
+	}
+	doc, err := markdown.Parse("t.md", []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(doc.Headings, want) {
+		t.Errorf("Headings = %+v, want %+v", doc.Headings, want)
 	}
 }
 

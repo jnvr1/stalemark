@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-E001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 6,
+    "Message": "env var \"DATABSE_URL\" not found in .env.example (did you mean \"DATABASE_URL\"?)",
+    "Subject": "DATABSE_URL",
+    "Suggestion": "DATABASE_URL"
+  },
+  {
+    "Rule": "SM-E001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 8,
+    "Col": 0,
+    "Message": "env var \"SECRET_KEY\" not found in .env.example",
+    "Subject": "SECRET_KEY",
+    "Suggestion": ""
+  }
+]

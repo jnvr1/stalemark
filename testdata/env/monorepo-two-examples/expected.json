@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-E001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "env var \"API_VAR\" not found in .env.example",
+    "Subject": "API_VAR",
+    "Suggestion": ""
+  }
+]

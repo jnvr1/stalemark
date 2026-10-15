@@ -30,5 +30,12 @@
       "Line": 8,
       "Col": 16
     }
+  ],
+  "Headings": [
+    {
+      "Level": 1,
+      "Text": "CRLF",
+      "Line": 1
+    }
   ]
 }

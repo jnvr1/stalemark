@@ -50,5 +50,12 @@
     }
   ],
   "Spans": null,
-  "Links": null
+  "Links": null,
+  "Headings": [
+    {
+      "Level": 1,
+      "Text": "Ignore comment",
+      "Line": 1
+    }
+  ]
 }

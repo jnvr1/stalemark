@@ -189,6 +189,17 @@ func TestRunPathRefs(t *testing.T) {
 	}
 }
 
+func TestRunEnvVars(t *testing.T) {
+	dir := fixture(t, map[string]string{".env.example": "A=1\n", "README.md": "# x\n\n```bash\nexport B=2\n```\n"})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-E001") {
+		t.Errorf("stdout = %q, want it to contain SM-E001", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,

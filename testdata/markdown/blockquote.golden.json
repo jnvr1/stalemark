@@ -26,5 +26,12 @@
       "Line": 9,
       "Col": 8
     }
+  ],
+  "Headings": [
+    {
+      "Level": 1,
+      "Text": "Quote",
+      "Line": 1
+    }
   ]
 }

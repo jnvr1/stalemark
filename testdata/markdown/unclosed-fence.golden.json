@@ -18,5 +18,12 @@
     }
   ],
   "Spans": null,
-  "Links": null
+  "Links": null,
+  "Headings": [
+    {
+      "Level": 1,
+      "Text": "Unclosed",
+      "Line": 1
+    }
+  ]
 }
