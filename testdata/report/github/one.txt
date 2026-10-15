@@ -1,0 +1,1 @@
+::error file=README.md,line=7,title=SM-A001::npm script "buidl" not found in package.json (did you mean "build"?)

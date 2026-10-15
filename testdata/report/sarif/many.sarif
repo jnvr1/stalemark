@@ -1,0 +1,167 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "stalemark",
+          "version": "dev",
+          "informationUri": "https://github.com/jnvr1/stalemark",
+          "rules": [
+            {
+              "id": "SM-A001",
+              "shortDescription": {
+                "text": "npm script not found"
+              },
+              "help": {
+                "text": "A package.json script named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-A002",
+              "shortDescription": {
+                "text": "make target not found"
+              },
+              "help": {
+                "text": "A Makefile target named in the docs does not exist."
+              }
+            },
+            {
+              "id": "SM-A006",
+              "shortDescription": {
+                "text": "pyproject script not found"
+              },
+              "help": {
+                "text": "A pyproject.toml script named in the docs does not exist."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SM-A001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "npm script \"buidl\" not found in package.json"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "b0689fc23d95639a"
+          }
+        },
+        {
+          "ruleId": "SM-A001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "npm script \"lint\" not found in package.json"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "73c66850323ae0b5"
+          }
+        },
+        {
+          "ruleId": "SM-A002",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "make target \"bild\" not found in Makefile"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "README.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "141d04b502c20c4a"
+          }
+        },
+        {
+          "ruleId": "SM-A006",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "poetry script \"serve\" not found in pyproject.toml"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/guide.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "bb72d1e6e54c9726"
+          }
+        },
+        {
+          "ruleId": "SM-A001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "npm script \"tset\" not found in package.json (did you mean \"test\"?)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/guide.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "d40a9fc714fb2386"
+          }
+        }
+      ]
+    }
+  ]
+}

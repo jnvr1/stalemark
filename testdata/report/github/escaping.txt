@@ -1,0 +1,1 @@
+::error file=a%2Cb%3Ac/x.md,line=2,col=7,title=SM-A001::100%25 sure%0D%0Anpm script "x": not found

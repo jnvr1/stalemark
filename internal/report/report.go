@@ -14,7 +14,7 @@ import (
 // Formats maps --format names to reporters.
 //
 // ponytail: a function type is the interface; a Reporter interface with options appears when SARIF (#13) needs configuration.
-var Formats = map[string]func(io.Writer, []finding.Finding) error{"text": Text, "json": JSON}
+var Formats = map[string]func(io.Writer, []finding.Finding) error{"text": Text, "json": JSON, "sarif": SARIF, "github": GitHub}
 
 // Text writes findings as "path:line[:col]: RULE message", grouped by file in
 // (path, line, col, rule, subject) order, followed by a summary line. The

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/cos02/schemas/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "stalemark",
+          "version": "dev",
+          "informationUri": "https://github.com/jnvr1/stalemark",
+          "rules": [
+            {
+              "id": "SM-A001",
+              "shortDescription": {
+                "text": "npm script not found"
+              },
+              "help": {
+                "text": "A package.json script named in the docs does not exist."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SM-A001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "npm script \"x\" not found in package.json"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/guide.md",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "stalemark/v1": "95a246667e77cb96"
+          }
+        }
+      ]
+    }
+  ]
+}
