@@ -38,6 +38,30 @@ jobs:
         env:
           CGO_ENABLED: "0"
 
+  # Proves .pre-commit-hooks.yaml works end to end. pre-commit runs hooks from the git root of the
+  # target, so each fixture becomes a throwaway git repo instead of a subdirectory of this one.
+  pre-commit:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+      - run: pip install pre-commit
+      - name: Clean fixture passes
+        run: |
+          cp -r testdata/e2e/clean "$RUNNER_TEMP/clean"
+          cd "$RUNNER_TEMP/clean"
+          git init -q && git add -A
+          git -c user.name=ci -c user.email=ci@example.com commit -qm fixture
+          pre-commit try-repo "$GITHUB_WORKSPACE" stalemark --all-files
+      - name: Drifted fixture fails
+        run: |
+          cp -r testdata/e2e/drifted "$RUNNER_TEMP/drifted"
+          cd "$RUNNER_TEMP/drifted"
+          git init -q && git add -A
+          git -c user.name=ci -c user.email=ci@example.com commit -qm fixture
+          ! pre-commit try-repo "$GITHUB_WORKSPACE" stalemark --all-files
+
   # Catches .goreleaser.yaml rot on every PR; docker and publish are skipped (no registry on the runner).
   snapshot:
     needs: test

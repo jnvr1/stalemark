@@ -61,6 +61,18 @@ Binaries for Linux, macOS and Windows (amd64, arm64) and a Docker image at `ghcr
 docker run --rm -v "$PWD:/work" ghcr.io/jnvr1/stalemark check
 ```
 
+### Pre-commit
+
+```yaml
+repos:
+  - repo: https://github.com/jnvr1/stalemark
+    rev: <tag>
+    hooks:
+      - id: stalemark
+```
+
+Replace `<tag>` with a release tag once one is published. The hook builds from source with `language: golang` and runs `stalemark check` on the repository root whenever a Markdown file changes.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
