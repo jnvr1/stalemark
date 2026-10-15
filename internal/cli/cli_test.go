@@ -37,6 +37,11 @@ func TestRun(t *testing.T) {
 	empty := t.TempDir()
 	drift := fixture(t, map[string]string{"README.md": badDoc, "package.json": pkgJSON})
 	clean := fixture(t, map[string]string{"README.md": goodDoc, "package.json": pkgJSON})
+	goDrift := fixture(t, map[string]string{
+		"README.md":       "# x\n\n```bash\ngo run ./cmd/missing\n```\n",
+		"go.mod":          "module example.com/x\n\ngo 1.22\n",
+		"cmd/app/main.go": "package main\n\nfunc main() {}\n",
+	})
 	nested := fixture(t, map[string]string{
 		"README.md":        goodDoc,
 		"package.json":     pkgJSON,
@@ -88,6 +93,12 @@ func TestRun(t *testing.T) {
 			args:       []string{"check", clean},
 			wantCode:   0,
 			wantStdout: "no findings\n",
+		},
+		{
+			name:       "go run of a missing package is reported",
+			args:       []string{"check", goDrift},
+			wantCode:   1,
+			wantStdout: `README.md:4: SM-A007 go package "./cmd/missing" not found (no directory cmd/missing)` + "\n\n1 finding in 1 file\n",
 		},
 		{
 			name:       "explicit --format text is the default",

@@ -8,7 +8,7 @@ commands that no longer exist, paths that were moved, env vars that were
 renamed, tool versions that drifted. Deterministic first, zero false positives
 as a design goal, non-zero exit code when something is stale.
 
-**Status: pre-alpha.** `stalemark check` runs the v0.1 command checks (npm/pnpm/yarn/bun scripts, `make` targets, `task`, `just`, poetry/uv/pdm/hatch scripts) on `README.md`, `CONTRIBUTING.md` and `docs/**/*.md`; path checks and the other milestones are not implemented yet.
+**Status: pre-alpha.** `stalemark check` runs the v0.1 command checks (npm/pnpm/yarn/bun scripts, `make` targets, `task`, `just`, poetry/uv/pdm/hatch scripts, `go` packages, `cargo` targets) on `README.md`, `CONTRIBUTING.md` and `docs/**/*.md`; path checks and the other milestones are not implemented yet.
 See [docs/research](docs/research/) for the landscape and feasibility studies
 that shaped the scope.
 

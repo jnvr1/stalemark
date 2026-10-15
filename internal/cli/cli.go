@@ -15,6 +15,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/markdown"
 	"github.com/jnvr1/stalemark/internal/report"
 	"github.com/jnvr1/stalemark/internal/runner"
+	"github.com/jnvr1/stalemark/internal/runner/gocargo"
 	"github.com/jnvr1/stalemark/internal/runner/justfile"
 	"github.com/jnvr1/stalemark/internal/runner/makefile"
 	"github.com/jnvr1/stalemark/internal/runner/npm"
@@ -88,7 +89,7 @@ func check(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
-	reg := runner.New(npm.New(), makefile.New(), taskfile.New(), justfile.New(), pyproject.New())
+	reg := runner.New(npm.New(), makefile.New(), taskfile.New(), justfile.New(), pyproject.New(), gocargo.New())
 	ctx := runner.Context{Root: root}
 	var all []finding.Finding
 	for _, p := range docs {
