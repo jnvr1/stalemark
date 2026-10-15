@@ -1,0 +1,7 @@
+- id: stalemark
+  name: stalemark
+  description: Check Markdown docs against the repository
+  entry: stalemark check
+  language: golang
+  files: \.md$
+  pass_filenames: false
