@@ -27,11 +27,13 @@ type Config struct {
 	Env      struct {
 		DocumentedUnused bool `yaml:"documented-unused"`
 	} `yaml:"env"`
-	// ADR.Dirs overrides the default ADR directories, relative to the root.
+	// ADR.Dirs overrides the default ADR directories, relative to the root;
+	// ADR.Freetext turns on the "we use X" prose check.
 	ADR struct {
 		Dirs []string `yaml:"dirs"`
 		// Historical is "warn" (default) or "skip": how deprecated and superseded ADRs are checked.
 		Historical string `yaml:"historical"`
+		Freetext   bool   `yaml:"freetext"`
 	} `yaml:"adr"`
 }
 

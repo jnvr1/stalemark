@@ -32,7 +32,9 @@ var DefaultDirs = []string{"docs/adr", "docs/adrs", "adr", "doc/adr", "doc/decis
 // ("proposed", "accepted", "deprecated", "superseded"...; the raw lowercased
 // first word when unknown, "" when none was found). SupersededBy holds the
 // numbers a "superseded by" status names; Links the numbers of the other ADR
-// files this one links to.
+// files this one links to. Uses are the dependency names the ADR declares
+// (front matter "uses:" or a "## Uses" list), as written; UsesLines holds the
+// line of each one.
 type ADR struct {
 	Number       int
 	Title        string
@@ -40,6 +42,8 @@ type ADR struct {
 	Path         string
 	SupersededBy []int
 	Links        []int
+	Uses         []string
+	UsesLines    []int
 	Doc          *markdown.Doc
 
 	supLine int // line to report SupersededBy findings on
@@ -110,6 +114,7 @@ func load(path, digits string) (ADR, error) {
 	}
 	slices.Sort(a.Links)
 	a.Links = slices.Compact(a.Links)
+	a.loadUses(src, doc)
 	if !a.frontMatterStatus(src) {
 		a.sectionStatus(doc)
 	}
@@ -168,6 +173,60 @@ func (a *ADR) frontMatterStatus(src []byte) bool {
 	}
 	a.SupersededBy = nums(sup)
 	return true
+}
+
+// loadUses fills Uses from the front matter "uses:" key (a list or a
+// comma-separated string), else from the list items of a "Uses" section.
+func (a *ADR) loadUses(src []byte, doc *markdown.Doc) {
+	if v, ok := frontMatter(src)["uses"]; ok {
+		line := 1
+		for i, l := range strings.Split(string(src), "\n") {
+			if strings.HasPrefix(l, "uses:") {
+				line = i + 1
+				break
+			}
+		}
+		var names []string
+		if list, ok := v.([]any); ok {
+			for _, e := range list {
+				names = append(names, fmt.Sprint(e))
+			}
+		} else if v != nil {
+			names = strings.Split(fmt.Sprint(v), ",")
+		}
+		for _, n := range names {
+			if n = strings.Trim(n, " `"); n != "" {
+				a.Uses = append(a.Uses, n)
+				a.UsesLines = append(a.UsesLines, line)
+			}
+		}
+		return
+	}
+	hi := slices.IndexFunc(doc.Headings, func(h markdown.Heading) bool {
+		return strings.EqualFold(strings.TrimSpace(h.Text), "uses")
+	})
+	if hi < 0 {
+		return
+	}
+	end := int(^uint(0) >> 1)
+	if hi+1 < len(doc.Headings) {
+		end = doc.Headings[hi+1].Line
+	}
+	for _, p := range doc.Paragraphs {
+		if p.Line <= doc.Headings[hi].Line || p.Line >= end {
+			continue
+		}
+		// ponytail: one name per paragraph or list item; "name - why" and "name: why" keep the name.
+		n := strings.Trim(p.Text, " `-*")
+		if i := strings.Index(n, " - "); i >= 0 {
+			n = n[:i]
+		}
+		n, _, _ = strings.Cut(n, ":")
+		if n = strings.Trim(n, " `"); n != "" {
+			a.Uses = append(a.Uses, n)
+			a.UsesLines = append(a.UsesLines, p.Line)
+		}
+	}
 }
 
 func frontMatter(src []byte) map[string]any {
