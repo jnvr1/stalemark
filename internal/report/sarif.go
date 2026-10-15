@@ -32,6 +32,7 @@ var catalog = map[string]ruleDoc{
 	"SM-A007": {"go package or file not found", "A local Go package directory or .go file named in the docs does not exist."},
 	"SM-A008": {"go run of a non-main package", "The docs run a directory with go run, but it has no main package."},
 	"SM-A009": {"cargo target not found", "A cargo --bin, --example or -p target named in the docs is not in Cargo.toml."},
+	"SM-E001": {"env var not in .env.example", "A variable the docs name is missing from the nearest .env.example"},
 	"SM-P001": {"path not found", "A file or directory referenced in the docs does not exist in the repository."},
 }
 

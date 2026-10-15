@@ -21,6 +21,15 @@ type Doc struct {
 	Blocks []CodeBlock
 	Spans  []InlineCode
 	Links  []Link
+	// Headings lists every heading in document order.
+	Headings []Heading
+}
+
+// Heading is a heading of any level; Text is its plain text, Line its first line.
+type Heading struct {
+	Level int
+	Text  string
+	Line  int
 }
 
 // CodeBlock is a fenced code block. Lang is the lowercased first word of the
@@ -90,6 +99,10 @@ func Parse(path string, src []byte) (*Doc, error) {
 			if s, ok := codeSpan(n, body, ix); ok {
 				doc.Spans = append(doc.Spans, s)
 			}
+		case *ast.Heading:
+			if first := firstText(n); first != nil {
+				doc.Headings = append(doc.Headings, Heading{n.Level, plainText(n, body), ix.line(first.Segment.Start)})
+			}
 		case *ast.Link:
 			if l, ok := link(n, n.Destination, body, ix); ok {
 				doc.Links = append(doc.Links, l)
@@ -158,6 +171,19 @@ func link(n ast.Node, dest, body []byte, ix lineIndex) (Link, bool) {
 	}
 	l.Line, l.Col = ix.lineCol(start + i)
 	return l, true
+}
+
+// plainText concatenates the text of every descendant of n.
+func plainText(n ast.Node, body []byte) string {
+	var sb strings.Builder
+	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
+		if t, ok := c.(*ast.Text); ok {
+			sb.Write(t.Segment.Value(body))
+		} else {
+			sb.WriteString(plainText(c, body))
+		}
+	}
+	return sb.String()
 }
 
 // firstText returns the first ast.Text descendant of n in document order.

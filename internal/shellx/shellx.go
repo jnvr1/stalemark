@@ -71,6 +71,25 @@ func extractShell(block markdown.CodeBlock) []Command {
 			return false
 		case *syntax.Redirect: // an unquoted heredoc body may hold $(...); only its opener is a command
 			return n.Hdoc == nil
+		case *syntax.DeclClause: // export is a declaration for the parser, a command for us
+			if n.Variant.Value != "export" {
+				return true
+			}
+			c := Command{Name: "export", Dir: dir, FileLine: block.Lines[n.Pos().Line()-1].FileLine}
+			for _, a := range n.Args {
+				if a.Name == nil { // a flag such as -p
+					continue
+				}
+				arg := a.Name.Value
+				if !a.Naked {
+					v, ph := word(src, a.Value)
+					arg += "=" + v
+					c.Placeholder = c.Placeholder || ph
+				}
+				c.Args = append(c.Args, arg)
+			}
+			cmds = append(cmds, c)
+			return true
 		case *syntax.CallExpr:
 			if len(n.Args) == 0 { // FOO=bar alone is not a command
 				return true
