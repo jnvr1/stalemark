@@ -211,6 +211,17 @@ func TestRunPorts(t *testing.T) {
 	}
 }
 
+func TestRunToolVersions(t *testing.T) {
+	dir := fixture(t, map[string]string{".nvmrc": "22\n", "README.md": "# x\n\n## Setup\n\nNode 18+\n"})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-V001") {
+		t.Errorf("stdout = %q, want it to contain SM-V001", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,

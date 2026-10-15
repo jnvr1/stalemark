@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-V001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "documented python 3.11+ but pyproject.toml says 3.10",
+    "Subject": "python 3.11+",
+    "Suggestion": "3.10"
+  }
+]

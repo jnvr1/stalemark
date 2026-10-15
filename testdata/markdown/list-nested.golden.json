@@ -53,5 +53,23 @@
       "Text": "Nested",
       "Line": 1
     }
+  ],
+  "Paragraphs": [
+    {
+      "Text": "First step:",
+      "Line": 3
+    },
+    {
+      "Text": "Second step with inline code",
+      "Line": 11
+    },
+    {
+      "Text": "nested bullet",
+      "Line": 12
+    },
+    {
+      "Text": "see config",
+      "Line": 16
+    }
   ]
 }

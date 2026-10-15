@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-V001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "documented node 18+ but .nvmrc says 22",
+    "Subject": "node 18+",
+    "Suggestion": "22"
+  }
+]

@@ -59,5 +59,19 @@
       "Text": "Basic",
       "Line": 1
     }
+  ],
+  "Paragraphs": [
+    {
+      "Text": "Run the build:",
+      "Line": 3
+    },
+    {
+      "Text": "Install with go install ./cmd/stalemark and read the docs.",
+      "Line": 10
+    },
+    {
+      "Text": "See the guide and logo.",
+      "Line": 22
+    }
   ]
 }
