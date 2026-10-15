@@ -16,6 +16,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/finding"
 	"github.com/jnvr1/stalemark/internal/markdown"
 	"github.com/jnvr1/stalemark/internal/pathref"
+	"github.com/jnvr1/stalemark/internal/ports"
 	"github.com/jnvr1/stalemark/internal/report"
 	"github.com/jnvr1/stalemark/internal/runner"
 	"github.com/jnvr1/stalemark/internal/runner/gocargo"
@@ -196,6 +197,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		all = append(all, reg.CheckDoc(ctx, d)...)
 		all = append(all, pathref.Check(ctx, d)...)
 		all = append(all, envvars.Check(ctx, d)...)
+		all = append(all, ports.Check(ctx, d)...)
 	}
 	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
 	return root, cfg, all, nil

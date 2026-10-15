@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-N001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 6,
+    "Message": "port 3000 is documented but not published (Dockerfile exposes 8080, 9090)",
+    "Subject": "3000",
+    "Suggestion": ""
+  }
+]

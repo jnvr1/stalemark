@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-N001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 8,
+    "Message": "port 5432 is documented but not published (compose.yml publishes 3000, 4000)",
+    "Subject": "5432",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-N001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 6,
+    "Col": 11,
+    "Message": "port 9999 is documented but not published (compose.yml publishes 3000, 4000)",
+    "Subject": "9999",
+    "Suggestion": ""
+  }
+]
