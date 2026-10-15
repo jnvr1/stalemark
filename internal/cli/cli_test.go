@@ -233,6 +233,17 @@ func TestRunADRSupersede(t *testing.T) {
 	}
 }
 
+func TestRunADRLink(t *testing.T) {
+	dir := fixture(t, map[string]string{"docs/adr/0001-x.md": "# 1. X\n\n## Status\n\nAccepted\n\nSee [y](0009-y.md).\n"})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-D002") {
+		t.Errorf("stdout = %q, want it to contain SM-D002", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,

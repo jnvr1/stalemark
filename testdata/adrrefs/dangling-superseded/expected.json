@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-P001",
+    "Severity": "warning",
+    "Path": "docs/adr/0001-x.md",
+    "Line": 9,
+    "Col": 13,
+    "Message": "path \"src/billing/\" not found",
+    "Subject": "src/billing/",
+    "Suggestion": ""
+  }
+]

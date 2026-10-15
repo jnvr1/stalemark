@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-D003",
+    "Severity": "error",
+    "Path": "docs/adr/0001-x.md",
+    "Line": 9,
+    "Col": 7,
+    "Message": "module path \"example.com/mod/internal/gone\" does not resolve to a directory",
+    "Subject": "example.com/mod/internal/gone",
+    "Suggestion": ""
+  }
+]

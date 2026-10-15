@@ -75,6 +75,19 @@ func TestLoadADRDirs(t *testing.T) {
 	}
 }
 
+func TestLoadADRHistorical(t *testing.T) {
+	for _, v := range []string{"warn", "skip"} {
+		cfg, err := config.Load(write(t, map[string]string{".stalemark.yml": "adr:\n  historical: " + v + "\n"}))
+		if err != nil || cfg.ADR.Historical != v {
+			t.Errorf("historical %s: got %q, %v", v, cfg.ADR.Historical, err)
+		}
+	}
+	_, err := config.Load(write(t, map[string]string{".stalemark.yml": "adr:\n  historical: nope\n"}))
+	if err == nil || err.Error() != ".stalemark.yml: adr.historical must be warn or skip" {
+		t.Errorf("err = %v", err)
+	}
+}
+
 func TestLoadErrors(t *testing.T) {
 	tests := map[string]struct{ yml, want string }{
 		"unknown key":     {"includes: [a.md]\n", "includes"},

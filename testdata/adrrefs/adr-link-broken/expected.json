@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-D002",
+    "Severity": "error",
+    "Path": "docs/adr/0001-x.md",
+    "Line": 9,
+    "Col": 6,
+    "Message": "ADR link \"0007-gone.md\" does not exist",
+    "Subject": "0007-gone.md",
+    "Suggestion": ""
+  }
+]
