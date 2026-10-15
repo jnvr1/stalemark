@@ -58,6 +58,18 @@ a rule to get green.
 - Keep every command and path in the docs real. The repo checks itself with
   `.stalemark.yml`, so a stale doc fails the build.
 
+## Dogfooding
+
+The `dogfood` CI job builds the binary with `make build` and runs it against
+this repository's README, CONTRIBUTING and `docs/`. It also runs it against
+`testdata/e2e/drifted` and requires findings there, so the job cannot go green
+by checking nothing. Run `go run ./cmd/stalemark check .` locally to get the
+same result.
+
+If the job fails on your PR, either the doc is stale (fix it) or the finding is
+wrong (open a false-positive issue). A baseline entry with a justification
+comment is acceptable only for an intentional example. Never `disable` a rule.
+
 ## Stack rules
 
 Read `docs/adr/0002-go-single-static-binary.md` before changing the stack.
