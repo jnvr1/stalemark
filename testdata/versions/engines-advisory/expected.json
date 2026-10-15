@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-V001",
+    "Severity": "warning",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "documented node 20+ but package.json says 18",
+    "Subject": "node 20+",
+    "Suggestion": "18"
+  }
+]

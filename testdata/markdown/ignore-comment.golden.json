@@ -57,5 +57,19 @@
       "Text": "Ignore comment",
       "Line": 1
     }
+  ],
+  "Paragraphs": [
+    {
+      "Text": "Checked:",
+      "Line": 3
+    },
+    {
+      "Text": "Checked again, the comment only covers the next block:",
+      "Line": 14
+    },
+    {
+      "Text": "Inline  in a paragraph works too:",
+      "Line": 20
+    }
   ]
 }

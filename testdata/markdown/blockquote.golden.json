@@ -33,5 +33,15 @@
       "Text": "Quote",
       "Line": 1
     }
+  ],
+  "Paragraphs": [
+    {
+      "Text": "Note:",
+      "Line": 3
+    },
+    {
+      "Text": "See config and make.",
+      "Line": 9
+    }
   ]
 }

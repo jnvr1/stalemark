@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-V001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 0,
+    "Message": "documented go 1.21+ but go.mod says 1.22",
+    "Subject": "go 1.21+",
+    "Suggestion": "1.22"
+  }
+]
