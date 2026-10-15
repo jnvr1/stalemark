@@ -18,6 +18,8 @@ that shaped the scope.
 stalemark check
 stalemark check --format text README.md
 stalemark check --format json
+stalemark check --format sarif > stalemark.sarif
+stalemark check --format github
 ```
 
 ## Planned checks

@@ -28,7 +28,7 @@ import (
 var version = "dev"
 
 const usage = `Usage:
-  stalemark check [--format text|json] [path]
+  stalemark check [--format text|json|sarif|github] [path]
                            check Markdown docs against the repository (default path: .)
   stalemark --version      print version and exit
 
@@ -37,6 +37,7 @@ Exit codes: 0 clean, 1 findings, 2 tool error.
 
 // Run executes the CLI with the given arguments and returns the process exit code.
 func Run(args []string, stdout, stderr io.Writer) int {
+	report.ToolVersion = version
 	fs := flag.NewFlagSet("stalemark", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	fs.Usage = func() { fmt.Fprint(stderr, usage) }
@@ -68,7 +69,7 @@ func check(args []string, stdout, stderr io.Writer) int {
 	flags := flag.NewFlagSet("stalemark check", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	flags.Usage = func() { fmt.Fprint(stderr, usage) }
-	format := flags.String("format", "text", "output format (text|json)")
+	format := flags.String("format", "text", "output format (text|json|sarif|github)")
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
