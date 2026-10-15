@@ -1,0 +1,8 @@
+README.md:7:3: SM-A001 npm script "buidl" not found in package.json
+README.md:20: SM-A001 npm script "lint" not found in package.json
+README.md:20: SM-A002 make target "bild" not found in Makefile
+
+docs/guide.md:4: SM-A006 poetry script "serve" not found in pyproject.toml
+docs/guide.md:12: SM-A001 npm script "tset" not found in package.json (did you mean "test"?)
+
+5 findings in 2 files
