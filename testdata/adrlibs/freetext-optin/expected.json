@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-D004",
+    "Severity": "warning",
+    "Path": "docs/adr/0001-events.md",
+    "Line": 7,
+    "Col": 0,
+    "Message": "ADR says it uses \"Postgres\" but no manifest lists it (pg, psycopg, sqlx, github.com/lib/pq)",
+    "Subject": "Postgres",
+    "Suggestion": ""
+  }
+]

@@ -244,6 +244,20 @@ func TestRunADRLink(t *testing.T) {
 	}
 }
 
+func TestRunADRLibs(t *testing.T) {
+	dir := fixture(t, map[string]string{
+		"docs/adr/0001-a.md": "---\nstatus: accepted\nuses: [redis]\n---\n\n# 1. A\n",
+		"package.json":       `{"dependencies": {}}`,
+	})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "SM-D004") {
+		t.Errorf("stdout = %q, want it to contain SM-D004", stdout.String())
+	}
+}
+
 func TestRunDeterministic(t *testing.T) {
 	dir := fixture(t, map[string]string{
 		"README.md": badDoc, "package.json": pkgJSON,

@@ -88,6 +88,13 @@ func TestLoadADRHistorical(t *testing.T) {
 	}
 }
 
+func TestLoadADRFreetext(t *testing.T) {
+	cfg, err := config.Load(write(t, map[string]string{".stalemark.yml": "adr:\n  freetext: true\n"}))
+	if err != nil || !cfg.ADR.Freetext {
+		t.Errorf("Freetext = %v, err = %v, want true", cfg.ADR.Freetext, err)
+	}
+}
+
 func TestLoadErrors(t *testing.T) {
 	tests := map[string]struct{ yml, want string }{
 		"unknown key":     {"includes: [a.md]\n", "includes"},

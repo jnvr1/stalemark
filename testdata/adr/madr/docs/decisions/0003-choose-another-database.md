@@ -1,6 +1,7 @@
 ---
 status: "accepted"
 date: 2020-03-01
+uses: [mysql, redis]
 ---
 
 # Choose another database

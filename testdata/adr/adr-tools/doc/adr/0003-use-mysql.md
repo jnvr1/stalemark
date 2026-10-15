@@ -8,6 +8,11 @@ Accepted
 
 Supersedes [2. Use Postgres](0002-use-postgres.md)
 
+## Uses
+
+- MySQL
+- `redis`: cache
+
 ## Context
 
 Postgres did not fit our hosting.

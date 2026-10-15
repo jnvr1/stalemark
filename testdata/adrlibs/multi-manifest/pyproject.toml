@@ -1,0 +1,5 @@
+[project]
+name = "x"
+
+[dependency-groups]
+dev = ["pytest>=8"]
