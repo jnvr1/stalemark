@@ -44,6 +44,31 @@ the current findings. `stalemark check` then skips them, matching on rule,
 document and subject (not line numbers), and prints a notice on stderr for
 baseline entries that no longer match anything.
 
+## API docs
+
+Opt-in checks that wrap external tools ([ADR 0003](docs/adr/0003-external-tool-orchestration.md)).
+Without the `api` key of `.stalemark.yml` nothing runs. They run once per directory check.
+
+### pydoclint
+
+Docstrings against Python signatures (rules SM-B010 to SM-B013). Install the tool
+(Python 3.10+, minimum version 0.11.1) and make sure it is on PATH; an activated
+virtualenv puts it there. A missing or older `pydoclint` is a tool error (exit 2).
+
+```sh
+pip install pydoclint
+```
+
+```yaml
+api:
+  pydoclint: {paths: [src], min-version: "0.11.1", severity: warning} # paths default to ["."]
+```
+
+stalemark runs it from the checked directory, so the `[tool.pydoclint]` section of
+`pyproject.toml` (style, options, baseline) applies. Baseline auto-regeneration is
+forced off: stalemark never writes into the repository. Findings default to
+`warning`; `severity: note` reports them without failing the run.
+
 ## Planned checks
 
 | Milestone | Check | Compares |

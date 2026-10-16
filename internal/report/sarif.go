@@ -14,6 +14,17 @@ import (
 // the ldflags-injected version.
 var ToolVersion = "dev"
 
+// ToolExtension is an external tool a wrapper ran during the check.
+type ToolExtension struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+// ToolExtensions lists the wrapped tools that ran; SARIF writes them as
+// runs[0].tool.extensions and omits the key when the list is empty. Wrappers
+// append to it, cli.Run resets it.
+var ToolExtensions []ToolExtension
+
 // maxResults is GitHub's cap on results (code scanning) and annotations per run.
 const maxResults = 25000
 
@@ -32,6 +43,10 @@ var catalog = map[string]ruleDoc{
 	"SM-A007": {"go package or file not found", "A local Go package directory or .go file named in the docs does not exist."},
 	"SM-A008": {"go run of a non-main package", "The docs run a directory with go run, but it has no main package."},
 	"SM-A009": {"cargo target not found", "A cargo --bin, --example or -p target named in the docs is not in Cargo.toml."},
+	"SM-B010": {"docstring arguments differ from the signature", "pydoclint (DOC101-103): a docstring lists arguments the function does not have, or misses some it has."},
+	"SM-B011": {"docstring argument order or type hint differs", "pydoclint (DOC104-105): docstring arguments are in another order than the signature, or their type hints differ."},
+	"SM-B012": {"docstring return section disagrees with the function", "pydoclint (DOC201-203): the return section is missing, extra, or inconsistent with the return annotation."},
+	"SM-B013": {"docstring raises section disagrees with the body", "pydoclint (DOC501-503): the raises section does not match the exceptions the function body raises."},
 	"SM-D001": {"superseded-by points at a missing ADR", "An ADR status says it is superseded by an ADR number that does not exist."},
 	"SM-D002": {"ADR link points at a missing ADR", "An ADR links to another ADR file that does not exist next to it."},
 	"SM-D003": {"module path not found", "A Go import path of this module named in an ADR does not map to a directory."},
@@ -102,7 +117,8 @@ type sarifDriver struct {
 
 type sarifRun struct {
 	Tool struct {
-		Driver sarifDriver `json:"driver"`
+		Driver     sarifDriver     `json:"driver"`
+		Extensions []ToolExtension `json:"extensions,omitempty"`
 	} `json:"tool"`
 	Invocations []sarifInvocation `json:"invocations,omitempty"`
 	Results     []sarifResult     `json:"results"`
@@ -136,6 +152,7 @@ func SARIF(w io.Writer, findings []finding.Finding) error {
 		InformationURI: "https://github.com/jnvr1/stalemark",
 		Rules:          []sarifRule{},
 	}
+	run.Tool.Extensions = ToolExtensions
 	for _, id := range ids {
 		doc, ok := catalog[id]
 		if !ok {

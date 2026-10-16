@@ -35,6 +35,18 @@ type Config struct {
 		Historical string `yaml:"historical"`
 		Freetext   bool   `yaml:"freetext"`
 	} `yaml:"adr"`
+	// API enables the wrappers of external API docs tools; a nil entry means off.
+	API struct {
+		Pydoclint *PydoclintConfig `yaml:"pydoclint"`
+	} `yaml:"api"`
+}
+
+// PydoclintConfig is api.pydoclint with defaults applied: Paths ["."],
+// MinVersion "0.11.1", Severity "warning".
+type PydoclintConfig struct {
+	Paths      []string `yaml:"paths"`
+	MinVersion string   `yaml:"min-version"`
+	Severity   string   `yaml:"severity"`
 }
 
 // Load reads root/.stalemark.yml; a missing file yields the defaults. Unknown
@@ -58,6 +70,20 @@ func Load(root string) (Config, error) {
 	}
 	if h := cfg.ADR.Historical; h != "" && h != "warn" && h != "skip" {
 		return Config{}, fmt.Errorf("%s: adr.historical must be warn or skip", fileName)
+	}
+	if p := cfg.API.Pydoclint; p != nil {
+		if p.Severity == "" {
+			p.Severity = "warning"
+		}
+		if p.Severity != "warning" && p.Severity != "note" && p.Severity != "error" {
+			return Config{}, fmt.Errorf("%s: api.pydoclint.severity must be note, warning or error", fileName)
+		}
+		if len(p.Paths) == 0 {
+			p.Paths = []string{"."}
+		}
+		if p.MinVersion == "" {
+			p.MinVersion = "0.11.1"
+		}
 	}
 	if len(cfg.Include) == 0 {
 		cfg.Include = []string{"README.md", "CONTRIBUTING.md", "docs/**/*.md"}
