@@ -1,14 +1,15 @@
 name: action
 
-# ponytail: release/dispatch only, a PR run would fail by construction before the first release; add pull_request (paths: action.yml, scripts/**) once one exists.
+# A release published by goreleaser with GITHUB_TOKEN does not fire `release` events, so this
+# runs on PRs that touch the Action and on demand against any published version.
 on:
+  pull_request:
+    paths: [action.yml, scripts/**, .github/workflows/action.yml]
   workflow_dispatch:
     inputs:
       version:
         description: Release to install (without v), or latest
         default: latest
-  release:
-    types: [published]
 
 permissions:
   contents: read
