@@ -1,0 +1,32 @@
+[
+  {
+    "filePath": "<root>/src/index.js",
+    "messages": [
+      {
+        "ruleId": "jsdoc/require-param",
+        "severity": 2,
+        "message": "Missing JSDoc @param \"b\" declaration.",
+        "line": 1,
+        "column": 1,
+        "nodeType": "Block",
+        "endLine": 5,
+        "endColumn": 4,
+        "fix": {
+          "range": [
+            0,
+            93
+          ],
+          "text": "/**\n * Adds two numbers.\n * @param {number} a First addend.\n * @param b\n * @returns {number} The sum.\n */"
+        }
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 1,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 1,
+    "fixableWarningCount": 0,
+    "source": "/**\n * Adds two numbers.\n * @param {number} a First addend.\n * @returns {number} The sum.\n */\nexport function add(a, b) {\n  return a + b;\n}\n",
+    "usedDeprecatedRules": []
+  }
+]

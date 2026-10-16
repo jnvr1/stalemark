@@ -1,0 +1,42 @@
+[
+  {
+    "filePath": "<root>/src/index.js",
+    "messages": [
+      {
+        "ruleId": "jsdoc/check-types",
+        "severity": 2,
+        "message": "Invalid JSDoc @param \"label\" type \"String\"; prefer: \"string\".",
+        "line": 3,
+        "column": 1,
+        "nodeType": "Block",
+        "endLine": 3,
+        "endColumn": 1,
+        "fix": {
+          "range": [
+            0,
+            142
+          ],
+          "text": "/**\n * Shouts a label.\n * @param {string} label The label.\n * @param {Widget} widget Not defined anywhere.\n * @returns {string} The shout.\n */"
+        }
+      },
+      {
+        "ruleId": "jsdoc/no-undefined-types",
+        "severity": 2,
+        "message": "The type 'Widget' is undefined.",
+        "line": 4,
+        "column": 1,
+        "nodeType": "Block",
+        "endLine": 4,
+        "endColumn": 1
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 1,
+    "fixableWarningCount": 0,
+    "source": "/**\n * Shouts a label.\n * @param {String} label The label.\n * @param {Widget} widget Not defined anywhere.\n * @returns {string} The shout.\n */\nexport function shout(label, widget) {\n  return `${label}${widget}`.toUpperCase();\n}\n",
+    "usedDeprecatedRules": []
+  }
+]

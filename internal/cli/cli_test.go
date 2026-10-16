@@ -445,3 +445,15 @@ func TestBaselineCommandCounts(t *testing.T) {
 		}
 	}
 }
+
+func TestRunJsdocMissingTool(t *testing.T) {
+	dir := fixture(t, map[string]string{".stalemark.yml": "api:\n  jsdoc: {}\n", "README.md": "# x\n"})
+	t.Setenv("PATH", t.TempDir())
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 2 {
+		t.Errorf("exit code = %d, want 2", code)
+	}
+	if !strings.Contains(stderr.String(), `tool "eslint" not found on PATH`) {
+		t.Errorf("stderr = %q", stderr.String())
+	}
+}

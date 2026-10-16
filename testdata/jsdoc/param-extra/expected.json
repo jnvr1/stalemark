@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B020",
+    "Severity": "warning",
+    "Path": "src/index.js",
+    "Line": 5,
+    "Col": 1,
+    "Message": "eslint-plugin-jsdoc jsdoc/check-param-names: @param \"c\" does not match an existing function parameter.",
+    "Subject": "c",
+    "Suggestion": "Remove the extra @param \"c\"."
+  }
+]
