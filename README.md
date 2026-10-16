@@ -51,7 +51,7 @@ baseline entries that no longer match anything.
 | v0.1 | Commands & paths | README code blocks vs `package.json` scripts, `Makefile`, `Taskfile`, `justfile`, `pyproject`, and referenced files |
 | v0.2 | Onboarding | Documented env vars vs `.env.example` and code; documented tool versions vs `.nvmrc`, `.tool-versions`, `go.mod`, `engines` |
 | v0.3 | ADR references | Files, modules and dependencies named in ADRs that no longer exist |
-| later | API docs | Wraps `oasdiff` and docstring linters instead of rebuilding them |
+| later | API docs | Wraps oasdiff, pydoclint and eslint-plugin-jsdoc instead of rebuilding them ([ADR 0003](docs/adr/0003-external-tool-orchestration.md)) |
 
 ## Output
 
