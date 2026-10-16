@@ -1,0 +1,1 @@
+[{"id":"response-required-property-removed","text":"removed the required property `name` from the response with the `200` status","level":3,"operation":"GET","operationId":"listPets","path":"/pets","section":"paths","baseSource":{"file":"schemas/pet.yaml","line":6,"column":3,"endLine":7,"endColumn":17},"fingerprint":"43565af2d351"}]

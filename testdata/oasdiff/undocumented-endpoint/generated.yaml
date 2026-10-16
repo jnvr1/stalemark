@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  title: Pets
+  version: "1.0"
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, name]
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+  /owners:
+    get:
+      operationId: listOwners
+      responses:
+        "200":
+          description: ok
+    post:
+      operationId: createOwner
+      responses:
+        "201":
+          description: created

@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B001",
+    "Severity": "warning",
+    "Path": "openapi.yaml",
+    "Line": 13,
+    "Col": 13,
+    "Message": "oasdiff request-parameter-type-changed: for the 'query' request parameter 'limit', the 'type' was changed from 'integer' to 'boolean'",
+    "Subject": "GET /pets limit",
+    "Suggestion": ""
+  }
+]

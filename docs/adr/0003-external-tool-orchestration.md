@@ -73,6 +73,8 @@ itself must not.
 
 ### oasdiff: library, not subprocess
 
+Superseded in part by the amendment at the end of this ADR: oasdiff runs as a
+subprocess like the other wrappers. Original decision, kept for the record:
 oasdiff is imported as a Go module. It is the only wrapper that stays inside
 the single binary: no PATH lookup, no version check, the version is pinned by
 `go.mod` and the output is Go structs, not text to parse. The cost is the
@@ -126,3 +128,22 @@ the run.
 - Adding a wrapper means a config key, a min-version, a code-to-rule map, raw
   output fixtures and SARIF catalog entries. Anything that cannot be mapped
   deterministically to a file and line is out of scope.
+
+## Amendment 2026-10-16: oasdiff as a subprocess
+
+The decision "oasdiff: library, not subprocess" is reversed. Importing oasdiff
+and kin-openapi was built and measured before merging, as the decision required:
+the stalemark binary grew from 7,729,664 to 23,462,912 bytes (3x) and the module
+graph gained 12 modules. Twelve extra modules and three times the
+size for one optional wrapper breaks the single small static binary of ADR 0002
+for every user, including those who never enable it, so the library attempt was
+rejected.
+
+oasdiff now follows the same subprocess contract as pydoclint: looked up on PATH
+only, version checked against a min-version key (default 1.33.0), a missing or
+older tool is a tool error (exit 2) only when `api.oasdiff` is set, stalemark
+passes the format flags itself, and raw output is committed as golden fixtures
+that the tools CI job regenerates. The parser targets the JSON of the
+`oasdiff changelog` command, which lists breaking (ERR, WARN) and informational
+changes in one call. Specs are still local files only: URLs are rejected so a
+check never touches the network. Everything else in this ADR is unchanged.

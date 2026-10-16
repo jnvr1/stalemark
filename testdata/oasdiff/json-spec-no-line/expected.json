@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B001",
+    "Severity": "warning",
+    "Path": "openapi.json",
+    "Line": 1,
+    "Col": 0,
+    "Message": "oasdiff api-path-removed-without-deprecation: api path removed without deprecation",
+    "Subject": "GET /owners",
+    "Suggestion": ""
+  }
+]

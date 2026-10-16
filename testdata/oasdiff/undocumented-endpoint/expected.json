@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B003",
+    "Severity": "note",
+    "Path": "openapi.yaml",
+    "Line": 1,
+    "Col": 0,
+    "Message": "oasdiff endpoint-added: endpoint added",
+    "Subject": "POST /owners",
+    "Suggestion": ""
+  }
+]

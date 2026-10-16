@@ -1,0 +1,1 @@
+[{"id":"api-path-removed-without-deprecation","text":"api path removed without deprecation","level":3,"operation":"GET","operationId":"listOwners","path":"/owners","section":"paths","baseSource":{"file":"openapi.json"},"fingerprint":"e6f9c003400c"}]

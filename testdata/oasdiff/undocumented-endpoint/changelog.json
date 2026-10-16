@@ -1,0 +1,1 @@
+[{"id":"endpoint-added","text":"endpoint added","level":1,"operation":"POST","operationId":"createOwner","path":"/owners","section":"paths","revisionSource":{"file":"generated.yaml","line":35,"column":5,"endLine":39,"endColumn":31},"fingerprint":"52368b00b347"}]

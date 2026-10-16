@@ -18,6 +18,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/envvars"
 	"github.com/jnvr1/stalemark/internal/finding"
 	"github.com/jnvr1/stalemark/internal/markdown"
+	"github.com/jnvr1/stalemark/internal/oasdiff"
 	"github.com/jnvr1/stalemark/internal/pathref"
 	"github.com/jnvr1/stalemark/internal/ports"
 	"github.com/jnvr1/stalemark/internal/pydoclint"
@@ -222,6 +223,13 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		all = append(all, envvars.CheckCode(documented, reads, cfg.Env.DocumentedUnused)...)
 		if cfg.API.Pydoclint != nil {
 			fs, err := pydoclint.Check(ctx, *cfg.API.Pydoclint)
+			if err != nil {
+				return "", cfg, nil, err
+			}
+			all = append(all, fs...)
+		}
+		if cfg.API.Oasdiff != nil {
+			fs, err := oasdiff.Check(ctx, *cfg.API.Oasdiff)
 			if err != nil {
 				return "", cfg, nil, err
 			}
