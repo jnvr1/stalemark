@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -220,6 +221,39 @@ func TestRunPydoclintMissingTool(t *testing.T) {
 	}
 	if !strings.Contains(stderr.String(), `tool "pydoclint" not found on PATH`) {
 		t.Errorf("stderr = %q", stderr.String())
+	}
+}
+
+func TestRunOasdiffMissingTool(t *testing.T) {
+	dir := fixture(t, map[string]string{
+		".stalemark.yml": "api:\n  oasdiff: {spec: a.yaml, against: b.yaml}\n", "README.md": "# x\n",
+		"a.yaml": "openapi: 3.0.3\n", "b.yaml": "openapi: 3.0.3\n",
+	})
+	t.Setenv("PATH", t.TempDir())
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 2 {
+		t.Errorf("exit code = %d, want 2", code)
+	}
+	if !strings.Contains(stderr.String(), `tool "oasdiff" not found on PATH`) {
+		t.Errorf("stderr = %q", stderr.String())
+	}
+}
+
+func TestRunOasdiffDrift(t *testing.T) {
+	if _, err := exec.LookPath("oasdiff"); err != nil {
+		t.Skip("oasdiff not on PATH")
+	}
+	spec := "openapi: 3.0.3\ninfo: {title: t, version: \"1\"}\npaths:\n  /a:\n    get:\n      responses: {\"200\": {description: ok}}\n  /b:\n    get:\n      responses: {\"200\": {description: ok}}\n"
+	dir := fixture(t, map[string]string{
+		".stalemark.yml": "api:\n  oasdiff: {spec: a.yaml, against: b.yaml}\n", "README.md": "# x\n",
+		"a.yaml": spec, "b.yaml": strings.Replace(spec, "  /b:\n    get:\n      responses: {\"200\": {description: ok}}\n", "", 1),
+	})
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 1 {
+		t.Errorf("exit code = %d, want 1 (stderr: %q)", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "a.yaml:8:5: SM-B001") {
+		t.Errorf("stdout = %q", stdout.String())
 	}
 }
 

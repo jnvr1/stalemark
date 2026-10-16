@@ -1,0 +1,4 @@
+api:
+  oasdiff:
+    spec: openapi.yaml
+    against: generated.yaml

@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B001",
+    "Severity": "warning",
+    "Path": "openapi.yaml",
+    "Line": 27,
+    "Col": 21,
+    "Message": "oasdiff response-required-property-removed: removed the required property 'items/name' from the response with the '200' status",
+    "Subject": "GET /pets items/name",
+    "Suggestion": ""
+  }
+]

@@ -1,0 +1,4 @@
+api:
+  oasdiff:
+    spec: openapi.json
+    against: generated.json

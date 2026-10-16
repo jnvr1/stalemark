@@ -211,3 +211,39 @@ func TestLoadAPIPydoclint(t *testing.T) {
 		t.Error("an invalid severity must fail")
 	}
 }
+
+func TestLoadAPIOasdiff(t *testing.T) {
+	cfg, err := config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  oasdiff: {spec: openapi.yaml, against: build/gen.yaml}\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := config.OasdiffConfig{Spec: "openapi.yaml", Against: "build/gen.yaml", MinVersion: "1.33.0", Severity: "warning"}
+	if cfg.API.Oasdiff == nil || *cfg.API.Oasdiff != want {
+		t.Errorf("Oasdiff = %+v, want %+v", cfg.API.Oasdiff, want)
+	}
+	cfg, err = config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  oasdiff: {spec: a.json, against: b.json, min-version: \"1.40.0\", severity: error}\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want = config.OasdiffConfig{Spec: "a.json", Against: "b.json", MinVersion: "1.40.0", Severity: "error"}
+	if *cfg.API.Oasdiff != want {
+		t.Errorf("Oasdiff = %+v, want %+v", *cfg.API.Oasdiff, want)
+	}
+	if cfg, _ = config.Load(t.TempDir()); cfg.API.Oasdiff != nil {
+		t.Error("an absent api key must leave the wrapper off")
+	}
+	for name, body := range map[string]string{
+		"missing both":    "api:\n  oasdiff: {}\n",
+		"missing against": "api:\n  oasdiff: {spec: a.yaml}\n",
+		"url":             "api:\n  oasdiff: {spec: a.yaml, against: \"https://example.com/b.yaml\"}\n",
+		"bad severity":    "api:\n  oasdiff: {spec: a.yaml, against: b.yaml, severity: fatal}\n",
+	} {
+		if _, err := config.Load(write(t, map[string]string{".stalemark.yml": body})); err == nil {
+			t.Errorf("%s must fail", name)
+		}
+	}
+	_, err = config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  oasdiff: {spec: a.yaml}\n"}))
+	if err == nil || !strings.Contains(err.Error(), ".stalemark.yml: api.oasdiff.spec and against are required") {
+		t.Errorf("required error = %v", err)
+	}
+}

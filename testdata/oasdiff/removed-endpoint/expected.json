@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B001",
+    "Severity": "warning",
+    "Path": "openapi.yaml",
+    "Line": 30,
+    "Col": 5,
+    "Message": "oasdiff api-path-removed-without-deprecation: api path removed without deprecation",
+    "Subject": "GET /owners",
+    "Suggestion": ""
+  }
+]
