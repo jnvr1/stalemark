@@ -1,0 +1,3 @@
+mod.py:1: DOC201: Function `double` does not have a return section in docstring
+mod.py:1: DOC203: Function `double` return type(s) in docstring not consistent with the return annotation. Return annotation has 1 type(s); docstring return section has 0 type(s).
+mod.py:10: DOC203: Function `log` return type(s) in docstring not consistent with the return annotation. Return annotation types: ['None']; docstring return section types: ['int']

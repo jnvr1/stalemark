@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B012",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 1,
+    "Col": 0,
+    "Message": "pydoclint DOC203: Function `add` return type(s) in docstring not consistent with the return annotation. Return annotation has 0 type(s); docstring return section has 1 type(s).",
+    "Subject": "add",
+    "Suggestion": ""
+  }
+]

@@ -20,6 +20,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/markdown"
 	"github.com/jnvr1/stalemark/internal/pathref"
 	"github.com/jnvr1/stalemark/internal/ports"
+	"github.com/jnvr1/stalemark/internal/pydoclint"
 	"github.com/jnvr1/stalemark/internal/report"
 	"github.com/jnvr1/stalemark/internal/runner"
 	"github.com/jnvr1/stalemark/internal/runner/gocargo"
@@ -47,6 +48,7 @@ Exit codes: 0 clean (notes do not fail the run), 1 findings, 2 tool error.
 // Run executes the CLI with the given arguments and returns the process exit code.
 func Run(args []string, stdout, stderr io.Writer) int {
 	report.ToolVersion = version
+	report.ToolExtensions = nil
 	fs := flag.NewFlagSet("stalemark", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	fs.Usage = func() { fmt.Fprint(stderr, usage) }
@@ -218,6 +220,13 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 			return "", cfg, nil, err
 		}
 		all = append(all, envvars.CheckCode(documented, reads, cfg.Env.DocumentedUnused)...)
+		if cfg.API.Pydoclint != nil {
+			fs, err := pydoclint.Check(ctx, *cfg.API.Pydoclint)
+			if err != nil {
+				return "", cfg, nil, err
+			}
+			all = append(all, fs...)
+		}
 	}
 	if info.IsDir() {
 		adrs, err := adr.Load(root, cfg.ADR.Dirs)

@@ -80,6 +80,29 @@ jobs:
       - name: Drifted fixture must fail
         run: "! ./bin/stalemark check testdata/e2e/drifted"
 
+  # External tools of the API docs wrappers (ADR 0003). The default jobs stay tool-free; here the real tool
+  # must run (no skip) and its raw output must match the committed fixtures.
+  tools:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-python@v7
+      - run: pip install "pydoclint==0.11.1"
+      - name: Wrapper tests with the real tool
+        run: |
+          go test ./internal/pydoclint -run TestCheckWithTool -v | tee tools.log
+          grep -q -e '--- PASS: TestCheckWithTool' tools.log
+          ! grep -q SKIP tools.log
+      - name: Raw output fixtures are current
+        run: |
+          make fixtures-pydoclint
+          git diff --exit-code testdata/pydoclint
+
   # Catches .goreleaser.yaml rot on every PR; docker and publish are skipped (no registry on the runner).
   snapshot:
     needs: test

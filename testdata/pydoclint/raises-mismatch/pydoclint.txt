@@ -1,0 +1,1 @@
+mod.py:1: DOC503: Function `check` exceptions in the "Raises" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['KeyError']. Raised exceptions in the body: ['ValueError'].

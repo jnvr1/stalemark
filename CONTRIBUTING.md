@@ -33,6 +33,10 @@ Strict TDD. Fixtures come first.
 4. Run the golden test with `-update` only to confirm it is a no-op. If it
    rewrites `expected.json`, your hand-written golden was wrong or the code is.
 
+Wrappers of external tools keep the tool's raw output as a fixture
+(`testdata/pydoclint/*/pydoclint.txt`). `make fixtures-pydoclint` re-records them
+and needs the tool installed; the `tools` CI job fails if they differ.
+
 One resolver per tool lives under `internal/runner/`. Cover the happy path, the
 missing target, and every case where the tool must stay silent (placeholders,
 workspace flags, paths created earlier in the block).

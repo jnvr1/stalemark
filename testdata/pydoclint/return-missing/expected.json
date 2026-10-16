@@ -1,0 +1,32 @@
+[
+  {
+    "Rule": "SM-B012",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 1,
+    "Col": 0,
+    "Message": "pydoclint DOC201: Function `double` does not have a return section in docstring",
+    "Subject": "double",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-B012",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 1,
+    "Col": 0,
+    "Message": "pydoclint DOC203: Function `double` return type(s) in docstring not consistent with the return annotation. Return annotation has 1 type(s); docstring return section has 0 type(s).",
+    "Subject": "double",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-B012",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 10,
+    "Col": 0,
+    "Message": "pydoclint DOC203: Function `log` return type(s) in docstring not consistent with the return annotation. Return annotation types: ['None']; docstring return section types: ['int']",
+    "Subject": "log",
+    "Suggestion": ""
+  }
+]
