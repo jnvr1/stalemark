@@ -17,6 +17,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/config"
 	"github.com/jnvr1/stalemark/internal/envvars"
 	"github.com/jnvr1/stalemark/internal/finding"
+	"github.com/jnvr1/stalemark/internal/jsdoc"
 	"github.com/jnvr1/stalemark/internal/markdown"
 	"github.com/jnvr1/stalemark/internal/oasdiff"
 	"github.com/jnvr1/stalemark/internal/pathref"
@@ -230,6 +231,13 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		}
 		if cfg.API.Oasdiff != nil {
 			fs, err := oasdiff.Check(ctx, *cfg.API.Oasdiff)
+			if err != nil {
+				return "", cfg, nil, err
+			}
+			all = append(all, fs...)
+		}
+		if cfg.API.Jsdoc != nil {
+			fs, err := jsdoc.Check(ctx, *cfg.API.Jsdoc)
 			if err != nil {
 				return "", cfg, nil, err
 			}

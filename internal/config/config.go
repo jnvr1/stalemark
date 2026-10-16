@@ -40,6 +40,7 @@ type Config struct {
 	API struct {
 		Pydoclint *PydoclintConfig `yaml:"pydoclint"`
 		Oasdiff   *OasdiffConfig   `yaml:"oasdiff"`
+		Jsdoc     *JsdocConfig     `yaml:"jsdoc"`
 	} `yaml:"api"`
 }
 
@@ -51,6 +52,15 @@ type OasdiffConfig struct {
 	Against    string `yaml:"against"`
 	MinVersion string `yaml:"min-version"`
 	Severity   string `yaml:"severity"`
+}
+
+// JsdocConfig is api.jsdoc with defaults applied: Paths ["."], MinVersion
+// "65.0.0" (eslint-plugin-jsdoc), EslintMinVersion "9.0.0", Severity "warning".
+type JsdocConfig struct {
+	Paths            []string `yaml:"paths"`
+	MinVersion       string   `yaml:"min-version"`
+	EslintMinVersion string   `yaml:"eslint-min-version"`
+	Severity         string   `yaml:"severity"`
 }
 
 // PydoclintConfig is api.pydoclint with defaults applied: Paths ["."],
@@ -112,6 +122,23 @@ func Load(root string) (Config, error) {
 		}
 		if o.MinVersion == "" {
 			o.MinVersion = "1.33.0"
+		}
+	}
+	if j := cfg.API.Jsdoc; j != nil {
+		if j.Severity == "" {
+			j.Severity = "warning"
+		}
+		if j.Severity != "warning" && j.Severity != "note" && j.Severity != "error" {
+			return Config{}, fmt.Errorf("%s: api.jsdoc.severity must be note, warning or error", fileName)
+		}
+		if len(j.Paths) == 0 {
+			j.Paths = []string{"."}
+		}
+		if j.MinVersion == "" {
+			j.MinVersion = "65.0.0"
+		}
+		if j.EslintMinVersion == "" {
+			j.EslintMinVersion = "9.0.0"
 		}
 	}
 	if len(cfg.Include) == 0 {
