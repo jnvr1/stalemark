@@ -91,7 +91,7 @@ To surface findings in code scanning, write SARIF to a file and upload it:
     sarif_file: stalemark.sarif
 ```
 
-Inputs: `version` (default latest), `format` (default `github`), `args` (default `.`), `output`, `working-directory`.
+Inputs: `version` (default latest), `format` (default `github`), `args` (default `.`), `output`, `working-directory`, `token` (defaults to the workflow token; while this repository is private, a workflow in another repository needs a token that can read its releases).
 
 ### Pre-commit
 

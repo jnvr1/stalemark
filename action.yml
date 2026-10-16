@@ -20,6 +20,9 @@ inputs:
   working-directory:
     description: Directory to run stalemark in.
     default: .
+  token:
+    description: Token used to resolve and download the release (needed while this repository is private).
+    default: ${{ github.token }}
 
 # The step fails (exit 1) when findings exist; exit 2 is a tool error.
 runs:
@@ -30,7 +33,7 @@ runs:
       run: bash "$GITHUB_ACTION_PATH/scripts/install.sh" "$RUNNER_TEMP/stalemark"
       env:
         VERSION: ${{ inputs.version }}
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ inputs.token }}
     - shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
