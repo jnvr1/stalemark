@@ -1,0 +1,44 @@
+name: stalemark
+description: Detect documentation drift (stale commands, paths, env vars, tool versions, ADR references) in your repository.
+branding:
+  icon: file-text
+  color: blue
+
+inputs:
+  version:
+    description: stalemark release to install, without the leading v (default is the latest release).
+    default: latest
+  format:
+    description: Output format, one of text, json, sarif, github.
+    default: github
+  args:
+    description: Path and extra arguments appended after `check --format <format>`.
+    default: .
+  output:
+    description: File to write stdout to (for example stalemark.sarif). Empty means the step log.
+    default: ""
+  working-directory:
+    description: Directory to run stalemark in.
+    default: .
+
+# The step fails (exit 1) when findings exist; exit 2 is a tool error.
+runs:
+  using: composite
+  steps:
+    - id: install
+      shell: bash
+      run: bash "$GITHUB_ACTION_PATH/scripts/install.sh" "$RUNNER_TEMP/stalemark"
+      env:
+        VERSION: ${{ inputs.version }}
+        GITHUB_TOKEN: ${{ github.token }}
+    - shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ -n "$OUTPUT" ]; then exec >"$OUTPUT"; fi
+        # shellcheck disable=SC2086 # args is a word list on purpose
+        "$BIN" check --format "$FORMAT" $ARGS
+      env:
+        BIN: ${{ steps.install.outputs.bin }}
+        FORMAT: ${{ inputs.format }}
+        ARGS: ${{ inputs.args }}
+        OUTPUT: ${{ inputs.output }}

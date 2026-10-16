@@ -66,6 +66,33 @@ Binaries for Linux, macOS and Windows (amd64, arm64) and a Docker image at `ghcr
 docker run --rm -v "$PWD:/work" ghcr.io/jnvr1/stalemark check
 ```
 
+### GitHub Action
+
+Installs the release binary, verifies its checksum and runs `stalemark check`. The step fails (exit 1) when there are findings. `@v0` tracks the first release line, so it works once that release is published.
+
+```yaml
+- uses: actions/checkout@v7
+- uses: jnvr1/stalemark@v0
+  with:
+    format: github # inline annotations on the PR
+```
+
+To surface findings in code scanning, write SARIF to a file and upload it:
+
+```yaml
+- uses: jnvr1/stalemark@v0
+  continue-on-error: true # exit 1 on findings; the upload below still runs
+  with:
+    format: sarif
+    output: stalemark.sarif
+- uses: github/codeql-action/upload-sarif@v4
+  if: always()
+  with:
+    sarif_file: stalemark.sarif
+```
+
+Inputs: `version` (default latest), `format` (default `github`), `args` (default `.`), `output`, `working-directory`.
+
 ### Pre-commit
 
 ```yaml
