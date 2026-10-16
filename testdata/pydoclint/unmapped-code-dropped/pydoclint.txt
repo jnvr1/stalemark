@@ -1,0 +1,5 @@
+mod.py:1: DOC106: Function `add`: The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature
+mod.py:1: DOC107: Function `add`: The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints
+mod.py:1: DOC109: Function `add`: The option `--arg-type-hints-in-docstring` is `True` but there are no type hints in the docstring arg list
+mod.py:1: DOC110: Function `add`: The option `--arg-type-hints-in-docstring` is `True` but not all args in the docstring arg list have type hints
+mod.py:1: DOC203: Function `add` return type(s) in docstring not consistent with the return annotation. Return annotation has 0 type(s); docstring return section has 1 type(s).

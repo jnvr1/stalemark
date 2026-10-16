@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-B010",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 1,
+    "Col": 0,
+    "Message": "pydoclint DOC101: Function `add`: Docstring contains fewer arguments than in function signature.",
+    "Subject": "add",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-B010",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 1,
+    "Col": 0,
+    "Message": "pydoclint DOC103: Function `add`: Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the docstring: [b: int].",
+    "Subject": "add",
+    "Suggestion": ""
+  }
+]

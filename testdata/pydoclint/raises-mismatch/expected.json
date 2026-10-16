@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B013",
+    "Severity": "warning",
+    "Path": "mod.py",
+    "Line": 1,
+    "Col": 0,
+    "Message": "pydoclint DOC503: Function `check` exceptions in the \"Raises\" section in the docstring do not match those in the function body. Raised exceptions in the docstring: ['KeyError']. Raised exceptions in the body: ['ValueError'].",
+    "Subject": "check",
+    "Suggestion": ""
+  }
+]

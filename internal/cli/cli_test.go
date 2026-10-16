@@ -211,6 +211,18 @@ func TestRunPorts(t *testing.T) {
 	}
 }
 
+func TestRunPydoclintMissingTool(t *testing.T) {
+	dir := fixture(t, map[string]string{".stalemark.yml": "api:\n  pydoclint: {}\n", "README.md": "# x\n"})
+	t.Setenv("PATH", t.TempDir())
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run([]string{"check", dir}, &stdout, &stderr); code != 2 {
+		t.Errorf("exit code = %d, want 2", code)
+	}
+	if !strings.Contains(stderr.String(), `tool "pydoclint" not found on PATH`) {
+		t.Errorf("stderr = %q", stderr.String())
+	}
+}
+
 func TestRunToolVersions(t *testing.T) {
 	dir := fixture(t, map[string]string{".nvmrc": "22\n", "README.md": "# x\n\n## Setup\n\nNode 18+\n"})
 	var stdout, stderr bytes.Buffer

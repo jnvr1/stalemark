@@ -186,3 +186,28 @@ func TestBaselineMalformed(t *testing.T) {
 		t.Error("want error")
 	}
 }
+
+func TestLoadAPIPydoclint(t *testing.T) {
+	cfg, err := config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  pydoclint: {}\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := config.PydoclintConfig{Paths: []string{"."}, MinVersion: "0.11.1", Severity: "warning"}
+	if cfg.API.Pydoclint == nil || !reflect.DeepEqual(*cfg.API.Pydoclint, want) {
+		t.Errorf("Pydoclint = %+v, want %+v", cfg.API.Pydoclint, want)
+	}
+	cfg, err = config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  pydoclint: {paths: [src], min-version: \"0.12.0\", severity: note}\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want = config.PydoclintConfig{Paths: []string{"src"}, MinVersion: "0.12.0", Severity: "note"}
+	if !reflect.DeepEqual(*cfg.API.Pydoclint, want) {
+		t.Errorf("Pydoclint = %+v, want %+v", *cfg.API.Pydoclint, want)
+	}
+	if cfg, _ = config.Load(t.TempDir()); cfg.API.Pydoclint != nil {
+		t.Error("an absent api key must leave the wrapper off")
+	}
+	if _, err := config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  pydoclint: {severity: fatal}\n"})); err == nil {
+		t.Error("an invalid severity must fail")
+	}
+}
