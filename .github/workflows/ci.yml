@@ -102,6 +102,19 @@ jobs:
         run: |
           make fixtures-pydoclint
           git diff --exit-code testdata/pydoclint
+      # setup-go does not put GOPATH/bin on PATH.
+      - run: |
+          go install github.com/oasdiff/oasdiff@v1.33.0
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: oasdiff wrapper tests with the real tool
+        run: |
+          go test ./internal/oasdiff -run TestCheckWithTool -v | tee oasdiff.log
+          grep -q -e '--- PASS: TestCheckWithTool' oasdiff.log
+          ! grep -q SKIP oasdiff.log
+      - name: oasdiff raw output fixtures are current
+        run: |
+          make fixtures-oasdiff
+          git diff --exit-code testdata/oasdiff
 
   # Catches .goreleaser.yaml rot on every PR; docker and publish are skipped (no registry on the runner).
   snapshot:

@@ -69,6 +69,33 @@ stalemark runs it from the checked directory, so the `[tool.pydoclint]` section 
 forced off: stalemark never writes into the repository. Findings default to
 `warning`; `severity: note` reports them without failing the run.
 
+### oasdiff
+
+The committed OpenAPI spec against the one your project generates from code
+(rules SM-B001 to SM-B003). oasdiff runs as an external tool, not inside
+stalemark: install it (minimum version 1.33.0) and make sure it is on PATH. A
+missing or older `oasdiff` is a tool error (exit 2).
+
+```sh
+go install github.com/oasdiff/oasdiff@latest
+```
+
+```yaml
+api:
+  oasdiff: {spec: openapi.yaml, against: build/openapi.generated.yaml, min-version: "1.33.0", severity: warning}
+```
+
+`spec` is the committed file and `against` the generated one, both local files
+relative to the checked directory; URLs and git revisions are rejected, so a check
+never touches the network. Produce the generated spec in an earlier CI step, before
+`stalemark check`; a missing file is a tool error. SM-B001 is a change oasdiff rates
+ERR (removed endpoint, retyped parameter, changed response schema), SM-B002 one it
+rates WARN, and SM-B003 (always a note) an endpoint the generated spec has and the
+committed one lacks. Line and column are reported for YAML specs; JSON specs, and
+changes found in a `$ref`-ed file, report line 1. An `.oasdiff.yaml` in the checked
+directory is read by oasdiff itself. `go install` builds report no version number
+(`oasdiff version main`), so their minimum version is not enforced.
+
 ## Planned checks
 
 | Milestone | Check | Compares |
