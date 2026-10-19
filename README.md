@@ -96,6 +96,47 @@ changes found in a `$ref`-ed file, report line 1. An `.oasdiff.yaml` in the chec
 directory is read by oasdiff itself. `go install` builds report no version number
 (`oasdiff version main`), so their minimum version is not enforced.
 
+### eslint-plugin-jsdoc
+
+JSDoc against JavaScript signatures (rules SM-B020 to SM-B022: parameter names, missing
+`@param`, invalid or undefined types). Needs Node, ESLint 9 or newer and
+eslint-plugin-jsdoc 65 or newer, with `eslint` on PATH. For a project-local install,
+run stalemark through `npm exec`, which puts `node_modules/.bin` on PATH. A missing or
+older tool, or a plugin not found in `node_modules`, is a tool error (exit 2).
+
+```sh
+npm install --save-dev eslint eslint-plugin-jsdoc
+npm exec -- stalemark check .
+```
+
+stalemark runs `eslint --format json` with your own flat config, which must enable the
+rules; messages of every other rule are ignored. Minimal `eslint.config.mjs`:
+
+```js
+import jsdoc from "eslint-plugin-jsdoc";
+
+export default [
+  {
+    files: ["**/*.js"],
+    plugins: { jsdoc },
+    rules: {
+      "jsdoc/check-param-names": "error",
+      "jsdoc/require-param": "error",
+      "jsdoc/check-types": "error",
+      "jsdoc/no-undefined-types": "error",
+    },
+  },
+];
+```
+
+```yaml
+api:
+  jsdoc: {paths: [src], min-version: "65.0.0", eslint-min-version: "9.0.0", severity: warning} # paths default to ["."]
+```
+
+TypeScript files need the TypeScript parser in your flat config; stalemark does not
+configure it. Findings default to `warning`.
+
 ## Planned checks
 
 | Milestone | Check | Compares |

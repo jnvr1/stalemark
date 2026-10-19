@@ -115,6 +115,22 @@ jobs:
         run: |
           make fixtures-oasdiff
           git diff --exit-code testdata/oasdiff
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      # One install under testdata/jsdoc (gitignored, invisible to Go tooling) serves every fixture: the wrapper resolves the plugin by walking up.
+      - run: |
+          npm install --prefix testdata/jsdoc --no-save --no-package-lock eslint@9.39.5 eslint-plugin-jsdoc@65.3.6
+          echo "$PWD/testdata/jsdoc/node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Wrapper tests with the real eslint
+        run: |
+          go test ./internal/jsdoc -run TestCheckWithTool -v | tee jsdoc.log
+          grep -q -e '--- PASS: TestCheckWithTool' jsdoc.log
+          ! grep -q SKIP jsdoc.log
+      - name: Raw eslint fixtures are current
+        run: |
+          make fixtures-jsdoc
+          git diff --exit-code testdata/jsdoc
 
   # Catches .goreleaser.yaml rot on every PR; docker and publish are skipped (no registry on the runner).
   snapshot:

@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-B021",
+    "Severity": "warning",
+    "Path": "src/index.js",
+    "Line": 1,
+    "Col": 1,
+    "Message": "eslint-plugin-jsdoc jsdoc/require-param: Missing JSDoc @param \"name\" declaration.",
+    "Subject": "name",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-B020",
+    "Severity": "warning",
+    "Path": "src/index.js",
+    "Line": 3,
+    "Col": 1,
+    "Message": "eslint-plugin-jsdoc jsdoc/check-param-names: Expected @param names to be \"name\". Got \"nme\".",
+    "Subject": "name",
+    "Suggestion": "Rename @param \"nme\" to \"name\"."
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "filePath": "<root>/src/index.js",
+    "messages": [
+      {
+        "ruleId": "jsdoc/require-param",
+        "severity": 2,
+        "message": "Missing JSDoc @param \"name\" declaration.",
+        "line": 1,
+        "column": 1,
+        "nodeType": "Block",
+        "endLine": 5,
+        "endColumn": 4,
+        "fix": {
+          "range": [
+            0,
+            98
+          ],
+          "text": "/**\n * Greets someone.\n * @param {string} nme Who to greet.\n * @param name\n * @returns {string} The greeting.\n */"
+        }
+      },
+      {
+        "ruleId": "jsdoc/check-param-names",
+        "severity": 2,
+        "message": "Expected @param names to be \"name\". Got \"nme\".",
+        "line": 3,
+        "column": 1,
+        "nodeType": "Block",
+        "endLine": 3,
+        "endColumn": 1,
+        "suggestions": [
+          {
+            "desc": "Rename @param \"nme\" to \"name\".",
+            "fix": {
+              "range": [
+                0,
+                98
+              ],
+              "text": "/**\n * Greets someone.\n * @param {string} name Who to greet.\n * @returns {string} The greeting.\n */"
+            }
+          }
+        ]
+      }
+    ],
+    "suppressedMessages": [],
+    "errorCount": 2,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 1,
+    "fixableWarningCount": 0,
+    "source": "/**\n * Greets someone.\n * @param {string} nme Who to greet.\n * @returns {string} The greeting.\n */\nexport function greet(name) {\n  return `hello ${name}`;\n}\n",
+    "usedDeprecatedRules": []
+  }
+]

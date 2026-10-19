@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-B022",
+    "Severity": "warning",
+    "Path": "src/index.js",
+    "Line": 3,
+    "Col": 1,
+    "Message": "eslint-plugin-jsdoc jsdoc/check-types: Invalid JSDoc @param \"label\" type \"String\"; prefer: \"string\".",
+    "Subject": "label",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-B022",
+    "Severity": "warning",
+    "Path": "src/index.js",
+    "Line": 4,
+    "Col": 1,
+    "Message": "eslint-plugin-jsdoc jsdoc/no-undefined-types: The type 'Widget' is undefined.",
+    "Subject": "",
+    "Suggestion": ""
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-B021",
+    "Severity": "warning",
+    "Path": "src/index.js",
+    "Line": 1,
+    "Col": 1,
+    "Message": "eslint-plugin-jsdoc jsdoc/require-param: Missing JSDoc @param \"b\" declaration.",
+    "Subject": "b",
+    "Suggestion": ""
+  }
+]

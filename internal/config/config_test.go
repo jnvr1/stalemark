@@ -247,3 +247,28 @@ func TestLoadAPIOasdiff(t *testing.T) {
 		t.Errorf("required error = %v", err)
 	}
 }
+
+func TestLoadAPIJsdoc(t *testing.T) {
+	cfg, err := config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  jsdoc: {}\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := config.JsdocConfig{Paths: []string{"."}, MinVersion: "65.0.0", EslintMinVersion: "9.0.0", Severity: "warning"}
+	if cfg.API.Jsdoc == nil || !reflect.DeepEqual(*cfg.API.Jsdoc, want) {
+		t.Errorf("Jsdoc = %+v, want %+v", cfg.API.Jsdoc, want)
+	}
+	cfg, err = config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  jsdoc: {paths: [src], min-version: \"65.3.0\", eslint-min-version: \"9.10.0\", severity: error}\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want = config.JsdocConfig{Paths: []string{"src"}, MinVersion: "65.3.0", EslintMinVersion: "9.10.0", Severity: "error"}
+	if !reflect.DeepEqual(*cfg.API.Jsdoc, want) {
+		t.Errorf("Jsdoc = %+v, want %+v", *cfg.API.Jsdoc, want)
+	}
+	if cfg, _ = config.Load(t.TempDir()); cfg.API.Jsdoc != nil {
+		t.Error("an absent api key must leave the wrapper off")
+	}
+	if _, err := config.Load(write(t, map[string]string{".stalemark.yml": "api:\n  jsdoc: {severity: fatal}\n"})); err == nil {
+		t.Error("an invalid severity must fail")
+	}
+}

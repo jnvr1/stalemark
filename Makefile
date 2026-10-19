@@ -2,7 +2,7 @@ VERSION ?= dev
 LDFLAGS := -s -w -X github.com/jnvr1/stalemark/internal/cli.version=$(VERSION)
 GOEXE   := $(shell go env GOEXE)
 
-.PHONY: all test lint build fuzz fixtures-pydoclint fixtures-oasdiff
+.PHONY: all test lint build fuzz fixtures-pydoclint fixtures-oasdiff fixtures-jsdoc
 
 all: test lint build
 
@@ -37,3 +37,14 @@ fixtures-oasdiff:
 		(cd $$d && s=$$(sed -n 's/^ *spec: *//p' .stalemark.yml) && a=$$(sed -n 's/^ *against: *//p' .stalemark.yml) && [ -f "$$a" ] && oasdiff changelog "$$s" "$$a" --format json | tr -d '\r' > changelog.json; true); \
 	done
 
+# Re-records the raw ESLint json output next to each jsdoc fixture. Installs the pinned eslint and eslint-plugin-jsdoc
+# of testdata/jsdoc/package.json into testdata/jsdoc/node_modules (ignored by Go tooling; the wrapper finds the plugin
+# by walking up from each case). ESLint prints absolute filePath values, so the case directory is rewritten to the
+# stable placeholder <root>/ with forward slashes, and the JSON is re-indented; everything else is eslint's own output.
+fixtures-jsdoc: export PATH := $(CURDIR)/testdata/jsdoc/node_modules/.bin:$(PATH)
+fixtures-jsdoc:
+	npm install --prefix testdata/jsdoc --no-save --no-package-lock eslint@9.39.5 eslint-plugin-jsdoc@65.3.6
+	for d in testdata/jsdoc/*/; do \
+		[ "$$(basename $$d)" = node_modules ] && continue; \
+		(cd $$d && eslint --format json src | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=require("path"),r=JSON.parse(s);for(const f of r)f.filePath="<root>/"+p.relative(process.cwd(),f.filePath).split(p.sep).join("/");console.log(JSON.stringify(r,null,2))})' > eslint.json; true); \
+	done

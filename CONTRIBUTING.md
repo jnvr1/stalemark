@@ -34,9 +34,11 @@ Strict TDD. Fixtures come first.
    rewrites `expected.json`, your hand-written golden was wrong or the code is.
 
 Wrappers of external tools keep the tool's raw output as a fixture
-(`testdata/pydoclint/*/pydoclint.txt`, `testdata/oasdiff/*/changelog.json`).
-`make fixtures-pydoclint` and `make fixtures-oasdiff` re-record them and need the
-tool installed; the `tools` CI job fails if they differ.
+(`testdata/pydoclint/*/pydoclint.txt`, `testdata/oasdiff/*/changelog.json`,
+`testdata/jsdoc/*/eslint.json`). `make fixtures-pydoclint` and `make fixtures-oasdiff`
+re-record them and need the tool installed; `make fixtures-jsdoc` installs the pinned
+ESLint and plugin under `testdata/jsdoc` itself (needs Node and npm). The `tools` CI
+job fails if they differ.
 
 One resolver per tool lives under `internal/runner/`. Cover the happy path, the
 missing target, and every case where the tool must stay silent (placeholders,
