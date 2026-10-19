@@ -5,7 +5,7 @@ Three rules compare the variables your docs name with the repository.
 | Rule | Severity | Reports |
 |------|----------|---------|
 | SM-E001 | error | a documented variable missing from the nearest example file |
-| SM-E003 | note | a variable read by code that no doc mentions |
+| SM-E003 | note | a variable read by code that no doc mentions and the example file does not list |
 | SM-E004 | warning | a documented variable that no code reads (opt-in) |
 
 ## Sources
@@ -13,15 +13,16 @@ Three rules compare the variables your docs name with the repository.
 - Documented: `export` lines, `NAME=value` prefixes, dotenv blocks, and backticked
   UPPER_SNAKE names under setup-like headings, in every checked Markdown file.
 - Example file: the nearest `.env.example`, `.env.sample` or `.env.template`
-  (SM-E001 only).
+  for SM-E001; for SM-E003 the one at the repository root counts as
+  documentation, so a variable listed there is never reported as undocumented.
 - Code reads, literal names only, in `.js .mjs .cjs .ts .tsx .jsx .py .go .rs`:
   `process.env.X`, `process.env['X']`, `os.environ["X"]`, `os.environ.get("X")`,
   `os.getenv("X")`, `os.Getenv("X")`, `os.LookupEnv("X")`, `std::env::var("X")`
   and `env::var_os("X")`. Dynamic keys such as `process.env[name]` are ignored.
 - Skipped directories: `.git`, `node_modules`, `vendor`, `target`, `dist`,
   `build`, `.venv`, `venv` and `testdata`. `.gitignore` is not parsed.
-- Platform and toolchain names (`HOME`, `CI`, `GITHUB_*`, `CARGO_*`...) are
-  never reported.
+- Platform and toolchain names (`HOME`, `CI`, `CI_*`, `GITHUB_*`, `CARGO_*`...)
+  are never reported.
 
 ## Test-only reads
 

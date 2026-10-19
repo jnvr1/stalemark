@@ -41,7 +41,7 @@ var platform = []string{
 // ponytail: fixed list; make it configurable when a repo needs more.
 var toolPrefixes = []string{
 	"GO", "CGO_", "CARGO_", "RUST", "NODE_", "NPM_", "PNPM_", "YARN_", "PYTHON", "PIP_", "UV_", "POETRY_",
-	"DOCKER_", "COMPOSE_", "GIT_", "GITHUB_", "JAVA_", "GRADLE_", "MAVEN_", "DOTNET_", "LC_", "XDG_",
+	"DOCKER_", "COMPOSE_", "GIT_", "GITHUB_", "CI_", "JAVA_", "GRADLE_", "MAVEN_", "DOTNET_", "LC_", "XDG_",
 }
 
 // tooling reports whether name belongs to the platform or a toolchain.
@@ -213,6 +213,23 @@ func nearestExample(ctx runner.Context, dir string) (string, []string) {
 		}
 		dir = parent
 	}
+}
+
+// ExampleKeys returns the keys of the example file in root (the first of
+// .env.example, .env.sample, .env.template that exists), or an empty map.
+// The code pass treats them as documented: an example file is onboarding
+// documentation in its own right.
+func ExampleKeys(root string) map[string]bool {
+	out := map[string]bool{}
+	for _, name := range exampleNames {
+		if keys, ok := readKeys(filepath.Join(root, name)); ok {
+			for _, k := range keys {
+				out[k] = true
+			}
+			break
+		}
+	}
+	return out
 }
 
 func readKeys(path string) ([]string, bool) {

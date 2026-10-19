@@ -221,7 +221,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		if err != nil {
 			return "", cfg, nil, err
 		}
-		all = append(all, envvars.CheckCode(documented, reads, cfg.Env.DocumentedUnused)...)
+		all = append(all, envvars.CheckCode(documented, envvars.ExampleKeys(root), reads, cfg.Env.DocumentedUnused)...)
 		if cfg.API.Pydoclint != nil {
 			fs, err := pydoclint.Check(ctx, *cfg.API.Pydoclint)
 			if err != nil {
