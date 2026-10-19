@@ -46,7 +46,7 @@ func TestCodeGolden(t *testing.T) {
 				t.Fatal(err)
 			}
 			findings := envvars.Check(ctx, doc)
-			findings = append(findings, envvars.CheckCode(envvars.Documented(ctx, doc), reads, cfg.Env.DocumentedUnused)...)
+			findings = append(findings, envvars.CheckCode(envvars.Documented(ctx, doc), envvars.ExampleKeys(root), reads, cfg.Env.DocumentedUnused)...)
 			if findings == nil {
 				findings = []finding.Finding{}
 			}
@@ -142,8 +142,34 @@ func TestCheckCodeDedupesAndSkipsToolingAndTestOnly(t *testing.T) {
 		{Name: "CARGO_HOME", Path: "a.js", Line: 5},
 		{Name: "SEEN", Path: "a.js", Line: 6},
 	}
-	got := envvars.CheckCode(map[string]envvars.Loc{"SEEN": {Path: "README.md", Line: 2}}, reads, false)
+	got := envvars.CheckCode(map[string]envvars.Loc{"SEEN": {Path: "README.md", Line: 2}}, nil, reads, false)
 	if len(got) != 1 || got[0].Subject != "SECRET" || got[0].Path != "a.js" || got[0].Line != 3 || got[0].Severity != finding.Note {
 		t.Fatalf("findings = %+v, want exactly one note for SECRET at a.js:3", got)
+	}
+}
+
+func TestCheckCodeExampleKeysCountAsDocumented(t *testing.T) {
+	reads := []envvars.Read{
+		{Name: "DB_SERVER", Path: "app/db.py", Line: 3},
+		{Name: "NOPE", Path: "app/db.py", Line: 4},
+	}
+	got := envvars.CheckCode(map[string]envvars.Loc{}, map[string]bool{"DB_SERVER": true}, reads, false)
+	if len(got) != 1 || got[0].Subject != "NOPE" || got[0].Rule != envvars.RuleEnvReadUndocumented {
+		t.Errorf("findings = %+v, want only NOPE as SM-E003", got)
+	}
+}
+
+func TestExampleKeys(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, ".env.example"), []byte("# c\nexport A=1\nB=\"x\"\n\nnot a key\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got := envvars.ExampleKeys(dir)
+	want := map[string]bool{"A": true, "B": true}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ExampleKeys = %v, want %v", got, want)
+	}
+	if got := envvars.ExampleKeys(t.TempDir()); len(got) != 0 {
+		t.Errorf("no example file must give no keys, got %v", got)
 	}
 }

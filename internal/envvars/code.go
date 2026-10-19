@@ -155,15 +155,17 @@ func testOnly(rel string) bool {
 }
 
 // CheckCode compares the documented names with the code reads. SM-E003 (note):
-// a name read by non-test code that no doc mentions, once per name at its first
-// read; tooling names are exempt. SM-E004 (warning, only when documentedUnused):
-// a documented name no file reads, test files included.
-func CheckCode(documented map[string]Loc, reads []Read, documentedUnused bool) []finding.Finding {
+// a name read by non-test code that no doc mentions and the example file
+// (see ExampleKeys) does not list, once per name at its first read; tooling
+// names are exempt. SM-E004 (warning, only when documentedUnused): a documented
+// name no file reads, test files included; example keys do not count as
+// documented there.
+func CheckCode(documented map[string]Loc, example map[string]bool, reads []Read, documentedUnused bool) []finding.Finding {
 	var out []finding.Finding
 	read, reported := map[string]bool{}, map[string]bool{}
 	for _, r := range reads {
 		read[r.Name] = true
-		if _, ok := documented[r.Name]; ok || r.TestOnly || reported[r.Name] || tooling(r.Name) {
+		if _, ok := documented[r.Name]; ok || example[r.Name] || r.TestOnly || reported[r.Name] || tooling(r.Name) {
 			continue
 		}
 		reported[r.Name] = true
