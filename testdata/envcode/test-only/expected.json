@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "Rule": "SM-E003",
+    "Severity": "note",
+    "Path": "src/real.js",
+    "Line": 1,
+    "Col": 0,
+    "Message": "env var \"REAL_ONE\" is read by code but not documented",
+    "Subject": "REAL_ONE",
+    "Suggestion": ""
+  }
+]

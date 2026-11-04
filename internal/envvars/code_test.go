@@ -98,6 +98,12 @@ func TestScanCode(t *testing.T) {
 		"vendor/v.go":             "os.Getenv(\"VEND\")\n",
 		"inner/node_modules/q.js": "process.env.INNER\n",
 		"x/ok.cjs":                "process.env.CJS\n",
+		"e2e/x.ts":                "process.env.E1;\n",
+		"cypress/x.js":            "process.env.E2;\n",
+		"playwright/x.ts":         "process.env.E3;\n",
+		"integration/x.go":        "os.Getenv(\"E4\")\n",
+		"src/a.e2e.ts":            "process.env.E5;\n",
+		"src/e2e_helper.ts":       "process.env.NOTE2E;\n",
 	}
 	dir := t.TempDir()
 	for name, body := range files {
@@ -120,6 +126,7 @@ func TestScanCode(t *testing.T) {
 	want := map[string]bool{ // name -> TestOnly
 		"OUT": false, "SP": false, "OS": false, "ONE": false, "TWO": false, "CJS": false, "NOTTEST": false,
 		"T1": true, "T2": true, "T3": true, "T4": true, "T5": true,
+		"E1": true, "E2": true, "E3": true, "E4": true, "E5": true, "NOTE2E": false,
 	}
 	names := map[string]bool{}
 	for n, r := range got {
