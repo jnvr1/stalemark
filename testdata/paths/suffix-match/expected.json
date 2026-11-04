@@ -1,0 +1,22 @@
+[
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 5,
+    "Col": 6,
+    "Message": "path \"domain/gone.py\" not found",
+    "Subject": "domain/gone.py",
+    "Suggestion": ""
+  },
+  {
+    "Rule": "SM-P001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 7,
+    "Col": 6,
+    "Message": "path \"other/domain/rules.py\" not found",
+    "Subject": "other/domain/rules.py",
+    "Suggestion": ""
+  }
+]

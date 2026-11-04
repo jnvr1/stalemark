@@ -41,6 +41,7 @@ func TestGolden(t *testing.T) {
 				t.Fatal(err)
 			}
 			ctx := runner.Context{Root: root}
+			ix := pathref.NewIndex(root)
 			scanned := map[string]bool{}
 			var docFindings []finding.Finding
 			for _, p := range docs {
@@ -49,13 +50,13 @@ func TestGolden(t *testing.T) {
 					t.Fatal(err)
 				}
 				scanned[runner.Rel(ctx, p)] = true
-				docFindings = append(docFindings, pathref.Check(ctx, d)...)
+				docFindings = append(docFindings, pathref.CheckWith(ctx, ix, d)...)
 			}
 			adrs, err := adr.Load(root, cfg.ADR.Dirs)
 			if err != nil {
 				t.Fatal(err)
 			}
-			got := adrrefs.Check(ctx, adrs, scanned, cfg.ADR.Historical, docFindings)
+			got := adrrefs.Check(ctx, ix, adrs, scanned, cfg.ADR.Historical, docFindings)
 			if got == nil {
 				got = []finding.Finding{}
 			}
