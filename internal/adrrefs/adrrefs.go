@@ -37,7 +37,7 @@ var linkRe = regexp.MustCompile(`^\d{1,5}-[^/]*\.md$`)
 //
 // ponytail: only the root go.mod counts (no nested modules, workspaces or
 // replace directives) and only exact module-path prefixes, no fuzzy matching.
-func Check(ctx runner.Context, adrs []adr.ADR, scanned map[string]bool, historical string, docFindings []finding.Finding) []finding.Finding {
+func Check(ctx runner.Context, ix *pathref.Index, adrs []adr.ADR, scanned map[string]bool, historical string, docFindings []finding.Finding) []finding.Finding {
 	old := map[string]bool{}
 	for _, a := range adrs {
 		if a.Status == "deprecated" || a.Status == "superseded" {
@@ -48,7 +48,7 @@ func Check(ctx runner.Context, adrs []adr.ADR, scanned map[string]bool, historic
 	mod := moduleName(ctx.Root)
 	for _, a := range adrs {
 		if !scanned[runner.Rel(ctx, a.Path)] {
-			added = append(added, pathref.Check(ctx, a.Doc)...)
+			added = append(added, pathref.CheckWith(ctx, ix, a.Doc)...)
 		}
 		added = append(added, linkFindings(ctx, a)...)
 		if mod != "" {

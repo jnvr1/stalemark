@@ -198,6 +198,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 
 	reg := runner.New(npm.New(), makefile.New(), taskfile.New(), justfile.New(), pyproject.New(), gocargo.New())
 	ctx := runner.Context{Root: root}
+	ix := pathref.NewIndex(root)
 	documented := map[string]envvars.Loc{}
 	for _, p := range docs {
 		d, err := markdown.Load(p)
@@ -205,7 +206,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 			return "", cfg, nil, err
 		}
 		all = append(all, reg.CheckDoc(ctx, d)...)
-		all = append(all, pathref.Check(ctx, d)...)
+		all = append(all, pathref.CheckWith(ctx, ix, d)...)
 		all = append(all, envvars.Check(ctx, d)...)
 		all = append(all, ports.Check(ctx, d)...)
 		all = append(all, toolver.Check(ctx, d)...)
@@ -254,7 +255,7 @@ func pipeline(path string) (root string, cfg config.Config, all []finding.Findin
 		for _, p := range docs {
 			scanned[runner.Rel(ctx, p)] = true
 		}
-		all = adrrefs.Check(ctx, adrs, scanned, cfg.ADR.Historical, all)
+		all = adrrefs.Check(ctx, ix, adrs, scanned, cfg.ADR.Historical, all)
 		all = append(all, adrlibs.Check(ctx, adrs, cfg.ADR.Freetext)...)
 	}
 	all = slices.DeleteFunc(all, func(f finding.Finding) bool { return slices.Contains(cfg.Disable, f.Rule) })
