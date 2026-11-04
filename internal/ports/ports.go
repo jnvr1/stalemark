@@ -6,6 +6,7 @@ package ports
 
 import (
 	"fmt"
+	"io/fs"
 	"maps"
 	"os"
 	"path/filepath"
@@ -20,6 +21,7 @@ import (
 	"github.com/jnvr1/stalemark/internal/finding"
 	"github.com/jnvr1/stalemark/internal/markdown"
 	"github.com/jnvr1/stalemark/internal/runner"
+	"github.com/jnvr1/stalemark/internal/shellx"
 )
 
 // RulePortNotPublished is the rule ID of a documented localhost port that no
@@ -44,14 +46,14 @@ type mention struct {
 // published is the union of ports the repo's Docker files publish.
 type published struct {
 	ports    map[int]bool
-	files    map[string]bool // base names of the files that contributed a port
+	files    map[string]bool // root-relative paths of the files that contributed a port
 	wildcard bool            // a port depends on an unset variable
 }
 
 // Check returns a SM-N001 finding for every documented localhost port of d
 // that no Docker source publishes, once per port, in document order.
 //
-// ponytail: sources are read from ctx.Root only (no per-service lookup next to
+// ponytail: sources are read from the whole repo (no per-service lookup next to
 // the doc) and prose mentions (paragraph text) are not scanned, only code
 // spans, link targets and fenced blocks. Upgrade = nearest-Dockerfile lookup
 // and a text scan of paragraphs.
@@ -79,8 +81,11 @@ func Check(ctx runner.Context, d *markdown.Doc) []finding.Finding {
 		if b.Ignored {
 			continue
 		}
+		cl := containerLines(b)
 		for _, l := range b.Lines {
-			add(l.Text, l.FileLine, 0)
+			if !cl[l.FileLine] {
+				add(l.Text, l.FileLine, 0)
+			}
 		}
 	}
 	sort.SliceStable(ms, func(i, j int) bool {
@@ -109,6 +114,33 @@ func Check(ctx runner.Context, d *markdown.Doc) []finding.Finding {
 	return out
 }
 
+// containerLines returns the file lines of b taken by a docker, docker-compose,
+// podman or kubectl command: localhost there is the container's loopback. A
+// command spans from its first line up to the next command's line.
+//
+// ponytail: a `docker run ... && curl localhost:80` on one line is skipped too;
+// upgrade = per-word positions from shellx.
+func containerLines(b markdown.CodeBlock) map[int]bool {
+	cmds := shellx.Extract(b)
+	out := map[int]bool{}
+	for i, c := range cmds {
+		if !slices.Contains([]string{"docker", "docker-compose", "podman", "kubectl"}, c.Name) {
+			continue
+		}
+		end := b.Lines[len(b.Lines)-1].FileLine + 1
+		for _, n := range cmds[i+1:] {
+			if n.FileLine > c.FileLine {
+				end = n.FileLine
+				break
+			}
+		}
+		for l := c.FileLine; l < end; l++ {
+			out[l] = true
+		}
+	}
+	return out
+}
+
 // publishedList renders "compose.yml publishes 8080, 5432" with up to 5 ports.
 func publishedList(p published) string {
 	ports := slices.Sorted(maps.Keys(p.ports))
@@ -121,52 +153,61 @@ func publishedList(p published) string {
 		list += ", ..."
 	}
 	files := slices.Sorted(maps.Keys(p.files))
-	if len(files) != 1 {
-		return "the repo publishes " + list
-	}
-	if strings.Contains(files[0], "Dockerfile") {
+	if len(files) == 1 && strings.Contains(files[0], "Dockerfile") {
 		return files[0] + " exposes " + list
 	}
-	return files[0] + " publishes " + list
+	return strings.Join(files, ", ") + " publishes " + list
 }
 
-// readSources collects the published ports of the Dockerfiles and compose
-// files directly under root.
+// skipDirs are never walked for sources: pathref's generated directories plus
+// testdata, so fixture repos do not leak into the repo being checked.
+// ponytail: names copied from pathref (unexported); upgrade = share one list.
+var skipDirs = []string{"node_modules", "dist", "build", "target", "out", "coverage", "vendor", ".git", "bin", "venv", ".venv", "env", "testdata"}
+
+func isCompose(name string) bool {
+	return slices.Contains(composeNames, name) || strings.HasSuffix(name, ".compose.yml") || strings.HasSuffix(name, ".compose.yaml")
+}
+
+// readSources collects the published ports of every Dockerfile and compose
+// file under root, skipping skipDirs. files holds root-relative slash paths.
 func readSources(root string) published {
 	p := published{ports: map[int]bool{}, files: map[string]bool{}}
-	entries, err := os.ReadDir(root)
-	if err != nil {
-		return p
-	}
-	for _, e := range entries {
+	_ = filepath.WalkDir(root, func(path string, e fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
 		name := e.Name()
 		if e.IsDir() {
-			continue
+			if path != root && slices.Contains(skipDirs, name) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		compose := isCompose(name)
+		if !compose && name != "Dockerfile" && !strings.HasPrefix(name, "Dockerfile.") && !strings.HasSuffix(name, ".Dockerfile") {
+			return nil
+		}
+		src, err := os.ReadFile(path)
+		if err != nil {
+			return nil
 		}
 		var got []int
-		switch {
-		case slices.Contains(composeNames, name):
-			src, err := os.ReadFile(filepath.Join(root, name))
-			if err != nil {
-				continue
-			}
+		if compose {
 			var wild bool
 			got, wild = composePorts(src)
 			p.wildcard = p.wildcard || wild
-		case name == "Dockerfile" || strings.HasPrefix(name, "Dockerfile.") || strings.HasSuffix(name, ".Dockerfile"):
-			src, err := os.ReadFile(filepath.Join(root, name))
-			if err != nil {
-				continue
-			}
+		} else {
 			got = exposePorts(string(src))
 		}
 		for _, n := range got {
 			p.ports[n] = true
 		}
 		if len(got) > 0 {
-			p.files[name] = true
+			rel, _ := filepath.Rel(root, path)
+			p.files[filepath.ToSlash(rel)] = true
 		}
-	}
+		return nil
+	})
 	return p
 }
 
