@@ -51,6 +51,12 @@ type ref struct {
 // arguments only. Redirect targets (> file) are not exposed by shellx, so a
 // file created by a redirect is not known as created.
 func Check(ctx runner.Context, d *markdown.Doc) []finding.Finding {
+	return CheckWith(ctx, nil, d)
+}
+
+// CheckWith is Check with a last resort: a candidate that matches the tail of
+// a path in ix exists. A nil ix disables the tail match.
+func CheckWith(ctx runner.Context, ix *Index, d *markdown.Doc) []finding.Finding {
 	var refs []ref
 	for _, s := range d.Spans {
 		if tok, ok := normalize(strings.TrimSpace(s.Text), true); ok {
@@ -93,7 +99,7 @@ func Check(ctx runner.Context, d *markdown.Doc) []finding.Finding {
 	seen := map[key]bool{}
 	for _, r := range refs {
 		k := key{r.tok, r.line}
-		if seen[k] || isCreated(made, r.tok) || !missing(ctx.Root, docDir, r.tok) {
+		if seen[k] || isCreated(made, r.tok) || !missing(ctx.Root, docDir, r.tok) || ix != nil && ix.HasTail(r.tok) {
 			continue
 		}
 		seen[k] = true

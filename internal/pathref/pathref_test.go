@@ -37,7 +37,7 @@ func TestCheckGolden(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			findings := pathref.Check(runner.Context{Root: root}, doc)
+			findings := pathref.CheckWith(runner.Context{Root: root}, pathref.NewIndex(root), doc)
 			if findings == nil {
 				findings = []finding.Finding{}
 			}
