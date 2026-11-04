@@ -137,14 +137,16 @@ api:
 TypeScript files need the TypeScript parser in your flat config; stalemark does not
 configure it. Findings default to `warning`.
 
-## Planned checks
+## Checks
 
-| Milestone | Check | Compares |
-|-----------|-------|----------|
-| v0.1 | Commands & paths | README code blocks vs `package.json` scripts, `Makefile`, `Taskfile`, `justfile`, `pyproject`, and referenced files |
-| v0.2 | Onboarding | Documented env vars vs `.env.example` and code; documented tool versions vs `.nvmrc`, `.tool-versions`, `go.mod`, `engines` |
-| v0.3 | ADR references | Files, modules and dependencies named in ADRs that no longer exist |
-| later | API docs | Wraps oasdiff, pydoclint and eslint-plugin-jsdoc instead of rebuilding them ([ADR 0003](docs/adr/0003-external-tool-orchestration.md)) |
+| Check | Rules | Compares |
+|-------|-------|----------|
+| Commands & paths | SM-A001 to SM-A009, SM-P001 | README code blocks vs `package.json` scripts, `Makefile`, `Taskfile`, `justfile`, `pyproject`, `go.mod`, `Cargo.toml`, and referenced files |
+| Onboarding | SM-E001, SM-E003, SM-E004, SM-N001, SM-V001 | Documented env vars vs `.env.example` and code; localhost ports vs Dockerfiles and compose files; documented tool versions vs `.nvmrc`, `.tool-versions`, `go.mod`, `engines` |
+| ADR references | SM-D001 to SM-D005 | Files, modules and dependencies named in ADRs that no longer exist |
+| API docs (opt-in) | SM-B001 to SM-B022 | Wraps oasdiff, pydoclint and eslint-plugin-jsdoc instead of rebuilding them ([ADR 0003](docs/adr/0003-external-tool-orchestration.md)) |
+
+Every rule id carries its description in the SARIF output; the env var rules are detailed in [docs/checks/env.md](docs/checks/env.md).
 
 ## Output
 
