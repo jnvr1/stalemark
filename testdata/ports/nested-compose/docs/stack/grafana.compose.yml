@@ -1,0 +1,5 @@
+services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "9090:9090"

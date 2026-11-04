@@ -1,0 +1,12 @@
+[
+  {
+    "Rule": "SM-N001",
+    "Severity": "error",
+    "Path": "README.md",
+    "Line": 3,
+    "Col": 52,
+    "Message": "port 9999 is documented but not published (docs/stack/grafana.compose.yml publishes 9090)",
+    "Subject": "9999",
+    "Suggestion": "9090"
+  }
+]
