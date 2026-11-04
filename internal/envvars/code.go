@@ -138,7 +138,7 @@ func (l lang) names(line string) []string {
 func testOnly(rel string) bool {
 	parts := strings.Split(rel, "/")
 	for _, dir := range parts[:len(parts)-1] {
-		if slices.Contains([]string{"test", "tests", "spec", "__tests__"}, dir) {
+		if slices.Contains([]string{"test", "tests", "spec", "__tests__", "e2e", "cypress", "playwright", "integration"}, dir) {
 			return true
 		}
 	}
@@ -146,7 +146,7 @@ func testOnly(rel string) bool {
 	if strings.HasPrefix(name, "test_") || strings.HasSuffix(name, "_test.go") {
 		return true
 	}
-	for _, mid := range []string{".test.", ".spec."} {
+	for _, mid := range []string{".test.", ".spec.", ".e2e."} {
 		if strings.Contains(name, mid) {
 			return true
 		}
