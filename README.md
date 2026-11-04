@@ -8,7 +8,7 @@ commands that no longer exist, paths that were moved, env vars that were
 renamed, tool versions that drifted. Deterministic first, zero false positives
 as a design goal, non-zero exit code when something is stale.
 
-**Status: pre-alpha.** `stalemark check` runs the v0.1 command checks (npm/pnpm/yarn/bun scripts, `make` targets, `task`, `just`, poetry/uv/pdm/hatch scripts, `go` packages, `cargo` targets), file/directory references (backticked paths and link targets), env vars against `.env.example`, localhost ports against Docker and compose files, tool versions against version files, and ADR links, status, module paths and dependency claims on `README.md`, `CONTRIBUTING.md` and `docs/**/*.md`; API docs are not implemented.
+**Status: alpha.** `stalemark check` runs every planned check on `README.md`, `CONTRIBUTING.md` and `docs/**/*.md`: commands (npm/pnpm/yarn/bun scripts, `make` targets, `task`, `just`, poetry/uv/pdm/hatch scripts, `go` packages, `cargo` targets), file/directory references (backticked paths and link targets), env vars against `.env.example` and the code that reads them, localhost ports against Docker and compose files, tool versions against version files, and ADR links, status, module paths and dependency claims. API docs (OpenAPI drift, Python and JS docstrings) are opt-in and run through external tools, see [API docs](#api-docs). Tested against real repositories, but expect rough edges: a false positive is a bug, please report it.
 See [docs/research](docs/research/) for the landscape and feasibility studies
 that shaped the scope.
 
@@ -184,7 +184,7 @@ To surface findings in code scanning, write SARIF to a file and upload it:
     sarif_file: stalemark.sarif
 ```
 
-Inputs: `version` (default latest), `format` (default `github`), `args` (default `.`), `output`, `working-directory`, `token` (defaults to the workflow token; while this repository is private, a workflow in another repository needs a token that can read its releases).
+Inputs: `version` (default latest), `format` (default `github`), `args` (default `.`), `output`, `working-directory`, `token` (defaults to the workflow token, used to resolve and download the release).
 
 ### Pre-commit
 

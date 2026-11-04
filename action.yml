@@ -21,7 +21,7 @@ inputs:
     description: Directory to run stalemark in.
     default: .
   token:
-    description: Token used to resolve and download the release (needed while this repository is private).
+    description: Token used to resolve and download the release through the GitHub API.
     default: ${{ github.token }}
 
 # The step fails (exit 1) when findings exist; exit 2 is a tool error.
