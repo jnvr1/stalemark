@@ -26,8 +26,9 @@ Three rules compare the variables your docs name with the repository.
 
 ## Test-only reads
 
-A variable read only under `test`, `tests`, `spec` or `__tests__`, or in files
-named `*_test.go`, `test_*`, `*.test.*` or `*.spec.*`, is never reported as
+A variable read only under `test`, `tests`, `spec`, `__tests__`, `e2e`,
+`cypress`, `playwright` or `integration`, or in files named `*_test.go`,
+`test_*`, `*.test.*`, `*.spec.*` or `*.e2e.*`, is never reported as
 undocumented. Those reads still count as reads for SM-E004.
 
 ## Precision limits
