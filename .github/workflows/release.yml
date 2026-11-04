@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"] # semver only; the moving v0 tag must not release
 
 permissions:
   contents: write
